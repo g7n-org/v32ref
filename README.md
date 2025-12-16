@@ -51,88 +51,88 @@ Use commas to separate values (create "array" of values)
 
 | control      | branch       | compare    | data         | convert    | logic        | i-arithmetic | f-arithmetic | float math |
 | ------------ | ------------ | ---------- | ------------ | ---------- | ------------ | ------------ | ---------------- | ---------- |
-| [#HLT HLT]   | [#JMP JMP]   | [#IEQ IEQ] | [#MOV MOV]   | [#CIF CIF] | [#NOT NOT]   | [#IADD IADD] | [#FADD FADD] | [#FLR FLR] |
-| [#WAIT WAIT] | [#CALL CALL] | [#INE INE] | [#LEA LEA]   | [#CFI CFI] | [#AND AND]   | [#ISUB ISUB] | [#FSUB FSUB] | [#CEIL CEIL] |
-|              | [#RET RET]   | [#IGT IGT] | [#PUSH PUSH] | [#CIB CIB] | [#OR OR]     | [#IMUL IMUL] | [#FMUL FMUL] | [#ROUND ROUND] |
-|              | [#JT JT]     | [#IGE IGE] | [#POP POP]   | [#CFB CFB] | [#XOR XOR]   | [#IDIV IDIV] | [#FDIV FDIV] | [#SIN SIN] |
-|              | [#JF JF]     | [#ILT ILT] | [#IN IN]     |            | [#BNOT BNOT] | [#IMOD IMOD] | [#FMOD FMOD] | [#ACOS ACOS] |
-|              |              | [#ILE ILE] | [#OUT OUT]   |            | [#SHL SHL]   | [#ISGN ISGN] | [#FSGN FSGN] | [#ATAN2 ATAN2] |
-|              |              | [#FEQ FEQ] | [#MOVS MOVS] |            |              | [#IMIN IMIN] | [#FMIN FMIN] | [#LOG LOG] |
-|              |              | [#FNE FNE] | [#SETS SETS] |            |              | [#IMAX IMAX] | [#FMAX FMAX] | [#POW POW] |
-|              |              | [#FGT FGT] | [#CMPS CMPS] |            |              | [#IABS IABS] | [#FABS FABS] | |
-|              |              | [#FGE FGE] |              |            |              | | | |
-|              |              | [#FLT FLT] |              |            |              | | | |
-|              |              | [#FLE FLE] |              |            |              | | | |
+| [HLT](#HLT)   | [JMP](#JMP)   | [IEQ](#IEQ) | [MOV](#MOV)   | [CIF](#CIF) | [NOT](#NOT)   | [IADD](#IADD) | [FADD](#FADD) | [FLR](#FLR) |
+| [WAIT](#WAIT) | [CALL](#CALL) | [INE](#INE) | [LEA](#LEA)   | [CFI](#CFI) | [AND](#AND)   | [ISUB](#ISUB) | [FSUB](#FSUB) | [CEIL](#CEIL) |
+|              | [RET](#RET)   | [IGT](#IGT) | [PUSH](#PUSH) | [CIB](#CIB) | [OR](#OR)     | [IMUL](#IMUL) | [FMUL](#FMUL) | [ROUND](#ROUND) |
+|              | [JT](#JT)     | [IGE](#IGE) | [POP](#POP)   | [CFB](#CFB) | [XOR](#XOR)   | [IDIV](#IDIV) | [FDIV](#FDIV) | [SIN](#SIN) |
+|              | [JF](#JF)     | [ILT](#ILT) | [IN](#IN)     |            | [BNOT](#BNOT) | [IMOD](#IMOD) | [FMOD](#FMOD) | [ACOS](#ACOS) |
+|              |              | [ILE](#ILE) | [OUT](#OUT)   |            | [SHL](#SHL)   | [ISGN](#ISGN) | [FSGN](#FSGN) | [ATAN2](#ATAN2) |
+|              |              | [FEQ](#FEQ) | [MOVS](#MOVS) |            |              | [IMIN](#IMIN) | [FMIN](#FMIN) | [LOG](#LOG) |
+|              |              | [FNE](#FNE) | [SETS](#SETS) |            |              | [IMAX](#IMAX) | [FMAX](#FMAX) | [POW](#POW) |
+|              |              | [FGT](#FGT) | [CMPS](#CMPS) |            |              | [IABS](#IABS) | [FABS](#FABS) | |
+|              |              | [FGE](#FGE) |              |            |              | | | |
+|              |              | [FLT](#FLT) |              |            |              | | | |
+|              |              | [FLE](#FLE) |              |            |              | | | |
 
 ## Vircon32 Instruction Set Detailed View
 There  are 64  CPU opcodes,  so instructions  encode them  in 6  bits. No invalid opcodes  can exist. HLT  is opcode 0 for  safety: if an  empty or invalid instruction is found, the CPU will stop execution.
 
 | opcode | mneumonic      | category   | parameters | description                               |
 | ------ | -------------- | ---------- | ---------- | -----------                               |
-| 0x00   | [#HLT HLT]     | control    | 0          | halt processing                           |
-| 0x01   | [#WAIT WAIT]   | control    | 0          | pause processing, wait for next frame     |
-| 0x02   | [#JMP JMP]     | branch     | 1          | unconditional jump to address             | 
-| 0x03   | [#CALL CALL]   | branch     | 1          | call subroutine                           |
-| 0x04   | [#RET RET]     | branch     | 0          | return from subroutine |
-| 0x05   | [#JT JT]       | branch     | 2          | jump if true (1) |
-| 0x06   | [#JF JF]       | branch     | 2          | jump if false (0) |
-| 0x07   | [#IEQ IEQ]     | compare    | 2          | integer equal | 
-| 0x08   | [#INE INE]     | compare    | 2          | integer not equal | 
-| 0x09   | [#IGT IGT]     | compare    | 2          | integer greater than | 
-| 0x0A   | [#IGE IGE]     | compare    | 2          | integer greater than or equal | 
-| 0x0B   | [#ILT ILT]     | compare    | 2          | integer less than | 
-| 0x0C   | [#ILE ILE]     | compare    | 2          | integer less than or equal | 
-| 0x0D   | [#FEQ FEQ]     | compare    | 2          | float equal | 
-| 0x0E   | [#FNE FNE]     | compare    | 2          | float not equal | 
-| 0x0F   | [#FGT FGT]     | compare    | 2          | float greater than | 
-| 0x10   | [#FGE FGE]     | compare    | 2          | float greater than or equal | 
-| 0x11   | [#FLT FLT]     | compare    | 2          | float less than | 
-| 0x12   | [#FLE FLE]     | compare    | 2          | float less than or equal | 
-| 0x13   | [#MOV MOV]     | data       | 2          | copy data |
-| 0x14   | [#LEA LEA]     | data       | 2          | load effective address |
-| 0x15   | [#PUSH PUSH]   | data       | 2          | push data to stack |
-| 0x16   | [#POP POP]     | data       | 2          | pop data from stack |
-| 0x17   | [#IN IN]       | data       | 2          | read data in from port |
-| 0x18   | [#OUT OUT]     | data       | 2          | write data out to port |
-| 0x19   | [#MOVS MOVS]   | data       | 0          | move string |
-| 0x1A   | [#SETS SETS]   | data       | 0          | set string |
-| 0x1B   | [#CMPS CMPS]   | data       | 1          | compare string |
-| 0x1C   | [#CIF CIF]     | convert    | 1          | convert integer to float |
-| 0x1D   | [#CFI CFI]     | convert    | 1          | convert float to integer |
-| 0x1E   | [#CIB CIB]     | convert    | 1          | convert integer to boolean |
-| 0x1F   | [#CFB CFB]     | convert    | 1          | convert float to boolean |
-| 0x20   | [#NOT NOT]     | logic      | 1          | perform bitwise NOT |
-| 0x21   | [#AND AND]     | logic      | 2          | perform bitwise AND |
-| 0x22   | [#OR OR]       | logic      | 2          | perform bitwise iOR |
-| 0x23   | [#XOR XOR]     | logic      | 2          | perform bitwise XOR |
-| 0x24   | [#BNOT BNOT]   | logic      | 1          | perform boolean NOT |
-| 0x25   | [#SHL SHL]     | logic      | 2          | perform left shift |
-| 0x26   | [#IADD IADD]   | arithmetic | 2          | perform integer addition |
-| 0x27   | [#ISUB ISUB]   | arithmetic | 2          | perform integer subtraction |
-| 0x28   | [#IMUL IMUL]   | arithmetic | 2          | perform integer multiplication |
-| 0x29   | [#IDIV IDIV]   | arithmetic | 2          | perform integer division |
-| 0x2A   | [#IMOD IMOD]   | arithmetic | 2          | perform integer modulus |
-| 0x2B   | [#ISGN ISGN]   | arithmetic | 1          | perform integer sign toggle |
-| 0x2C   | [#IMIN IMIN]   | arithmetic | 2          | perform integer minimum |
-| 0x2D   | [#IMAX IMAX]   | arithmetic | 2          | perform integer maximum |
-| 0x2E   | [#IABS IABS]   | arithmetic | 1          | perform integer absolute value |
-| 0x2F   | [#FADD FADD]   | arithmetic | 2          | perform float addition |
-| 0x30   | [#FSUB FSUB]   | arithmetic | 2          | perform float subtraction |
-| 0x31   | [#FMUL FMUL]   | arithmetic | 2          | perform float multiplication |
-| 0x32   | [#FDIV FDIV]   | arithmetic | 2          | perform float division |
-| 0x33   | [#FMOD FMOD]   | arithmetic | 2          | perform float modulus |
-| 0x34   | [#FSGN FSGN]   | arithmetic | 1          | perform float sign toggle |
-| 0x35   | [#FMIN FMIN]   | arithmetic | 2          | perform float minimum |
-| 0x36   | [#FMAX FMAX]   | arithmetic | 2          | perform float maximum |
-| 0x37   | [#FABS FABS]   | arithmetic | 1          | perform float absolute value |
-| 0x38   | [#FLR FLR]     | math       | 1          | perform float floor operation |
-| 0x39   | [#CEIL CEIL]   | math       | 1          | perform float ceiling operation |
-| 0x3A   | [#ROUND ROUND] | math       | 1          | perform float rounding operation |
-| 0x3B   | [#SIN SIN]     | math       | 1          | perform float sine operation |
-| 0x3C   | [#ACOS ACOS]   | math       | 1          | perform float arc cosine operation |
-| 0x3D   | [#ATAN2 ATAN2] | math       | 2          | perform float arc tangent operation |
-| 0x3E   | [#LOG LOG]     | math       | 1          | perform float natural logarithm operation |
-| 0x3F   | [#POW POW]     | math       | 2          | perform float power operation |
+| 0x00   | [HLT](#HLT)     | control    | 0          | halt processing                           |
+| 0x01   | [WAIT](#WAIT)   | control    | 0          | pause processing, wait for next frame     |
+| 0x02   | [JMP](#JMP)     | branch     | 1          | unconditional jump to address             | 
+| 0x03   | [CALL](#CALL)   | branch     | 1          | call subroutine                           |
+| 0x04   | [RET](#RET)     | branch     | 0          | return from subroutine |
+| 0x05   | [JT](#JT)       | branch     | 2          | jump if true (1) |
+| 0x06   | [JF](#JF)       | branch     | 2          | jump if false (0) |
+| 0x07   | [IEQ](#IEQ)     | compare    | 2          | integer equal | 
+| 0x08   | [INE](#INE)     | compare    | 2          | integer not equal | 
+| 0x09   | [IGT](#IGT)     | compare    | 2          | integer greater than | 
+| 0x0A   | [IGE](#IGE)     | compare    | 2          | integer greater than or equal | 
+| 0x0B   | [ILT](#ILT)     | compare    | 2          | integer less than | 
+| 0x0C   | [ILE](#ILE)     | compare    | 2          | integer less than or equal | 
+| 0x0D   | [FEQ](#FEQ)     | compare    | 2          | float equal | 
+| 0x0E   | [FNE](#FNE)     | compare    | 2          | float not equal | 
+| 0x0F   | [FGT](#FGT)     | compare    | 2          | float greater than | 
+| 0x10   | [FGE](#FGE)     | compare    | 2          | float greater than or equal | 
+| 0x11   | [FLT](#FLT)     | compare    | 2          | float less than | 
+| 0x12   | [FLE](#FLE)     | compare    | 2          | float less than or equal | 
+| 0x13   | [MOV](#MOV)     | data       | 2          | copy data |
+| 0x14   | [LEA](#LEA)     | data       | 2          | load effective address |
+| 0x15   | [PUSH](#PUSH)   | data       | 2          | push data to stack |
+| 0x16   | [POP](#POP)     | data       | 2          | pop data from stack |
+| 0x17   | [IN](#IN)       | data       | 2          | read data in from port |
+| 0x18   | [OUT](#OUT)     | data       | 2          | write data out to port |
+| 0x19   | [MOVS](#MOVS)   | data       | 0          | move string |
+| 0x1A   | [SETS](#SETS)   | data       | 0          | set string |
+| 0x1B   | [CMPS](#CMPS)   | data       | 1          | compare string |
+| 0x1C   | [CIF](#CIF)     | convert    | 1          | convert integer to float |
+| 0x1D   | [CFI](#CFI)     | convert    | 1          | convert float to integer |
+| 0x1E   | [CIB](#CIB)     | convert    | 1          | convert integer to boolean |
+| 0x1F   | [CFB](#CFB)     | convert    | 1          | convert float to boolean |
+| 0x20   | [NOT](#NOT)     | logic      | 1          | perform bitwise NOT |
+| 0x21   | [AND](#AND)     | logic      | 2          | perform bitwise AND |
+| 0x22   | [OR](#OR)       | logic      | 2          | perform bitwise iOR |
+| 0x23   | [XOR](#XOR)     | logic      | 2          | perform bitwise XOR |
+| 0x24   | [BNOT](#BNOT)   | logic      | 1          | perform boolean NOT |
+| 0x25   | [SHL](#SHL)     | logic      | 2          | perform left shift |
+| 0x26   | [IADD](#IADD)   | arithmetic | 2          | perform integer addition |
+| 0x27   | [ISUB](#ISUB)   | arithmetic | 2          | perform integer subtraction |
+| 0x28   | [IMUL](#IMUL)   | arithmetic | 2          | perform integer multiplication |
+| 0x29   | [IDIV](#IDIV)   | arithmetic | 2          | perform integer division |
+| 0x2A   | [IMOD](#IMOD)   | arithmetic | 2          | perform integer modulus |
+| 0x2B   | [ISGN](#ISGN)   | arithmetic | 1          | perform integer sign toggle |
+| 0x2C   | [IMIN](#IMIN)   | arithmetic | 2          | perform integer minimum |
+| 0x2D   | [IMAX](#IMAX)   | arithmetic | 2          | perform integer maximum |
+| 0x2E   | [IABS](#IABS)   | arithmetic | 1          | perform integer absolute value |
+| 0x2F   | [FADD](#FADD)   | arithmetic | 2          | perform float addition |
+| 0x30   | [FSUB](#FSUB)   | arithmetic | 2          | perform float subtraction |
+| 0x31   | [FMUL](#FMUL)   | arithmetic | 2          | perform float multiplication |
+| 0x32   | [FDIV](#FDIV)   | arithmetic | 2          | perform float division |
+| 0x33   | [FMOD](#FMOD)   | arithmetic | 2          | perform float modulus |
+| 0x34   | [FSGN](#FSGN)   | arithmetic | 1          | perform float sign toggle |
+| 0x35   | [FMIN](#FMIN)   | arithmetic | 2          | perform float minimum |
+| 0x36   | [FMAX](#FMAX)   | arithmetic | 2          | perform float maximum |
+| 0x37   | [FABS](#FABS)   | arithmetic | 1          | perform float absolute value |
+| 0x38   | [FLR](#FLR)     | math       | 1          | perform float floor operation |
+| 0x39   | [CEIL](#CEIL)   | math       | 1          | perform float ceiling operation |
+| 0x3A   | [ROUND](#ROUND) | math       | 1          | perform float rounding operation |
+| 0x3B   | [SIN](#SIN)     | math       | 1          | perform float sine operation |
+| 0x3C   | [ACOS](#ACOS)   | math       | 1          | perform float arc cosine operation |
+| 0x3D   | [ATAN2](#ATAN2) | math       | 2          | perform float arc tangent operation |
+| 0x3E   | [LOG](#LOG)     | math       | 1          | perform float natural logarithm operation |
+| 0x3F   | [POW](#POW)     | math       | 2          | perform float power operation |
 
 =====Vircon32 Memory Map=====
 ^  Name  ^  Address/Range  ^  Description  |
