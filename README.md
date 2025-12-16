@@ -14,6 +14,8 @@ This document is based on Vircon32 DevTools **v25.1.19** or later; older version
   * [Vircon32 IOPorts Layout](#vircon32-ioports-layout)
   * [IOPorts](#ioports)
     * [TIME](#time)
+    * [RNG](#rng)
+    * [GPU](#gpu)
 
 ## system quick reference
 
