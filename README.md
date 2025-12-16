@@ -181,58 +181,63 @@ There  are 64  CPU opcodes,  instructions  encode them  in 6  bits. No invalid o
 ## TIME
 
 | Type | Port  | Name             | Description                  |
-| ---- | ----- | ---------------- | ---------------------------- | 
+| ---- | ----- | ---------------- | ---------------------------- |
 | IN   | 0x000 | TIM_CurrentDate  | retrieve current date        |
 | IN   | 0x001 | TIM_CurrentTime  | retrieve current time        |
 | IN   | 0x002 | TIM_FrameCounter | retrieve current frame count |
 | IN   | 0x003 | TIM_CycleCounter | retrieve current cycle count |
 
 ### example: get current frame count
-<code>
+
+```
     in R0,  TIM_FrameCounter    ; load current frame count into R0
-</code>
+```
 
-====RNG====
-^  Type  ^  Port  ^  Name  ^  Description  |
-|  IN  |  0x100  |  RNG_CurrentValue  |  obtain pseudorandom value  |
-|  OUT  |  0x100  |  RNG_CurrentValue  |  Seed random number generator  |
+## RNG
 
-====GPU====
-^  Type  ^  Port  ^  Name  ^  Description  |
-|  OUT  |  0x200  |  GPU_Command  |  perform GPU operation  |
-|  IN  |  0x201  |  GPU_RemainingPixels  |  ???  |
-|  IN  |  0x202  |  GPU_ClearColor  |  obtain current clear color  |
-|  OUT  |  0x202  |  GPU_ClearColor  |  color to clear the screen with  |
-|  IN  |  0x203  |  GPU_MultiplyColor  |  obtain current color multiplier  |
-|  OUT  |  0x203  |  GPU_MultiplyColor  |  color multiplier to draw sprites with  |
-|  IN  |  0x204  |  GPU_ActiveBlending  |  obtain current blending mode  |
-|  OUT  |  0x204  |  GPU_ActiveBlending  |  blending method to draw sprites with  |
-|  IN  |  0x204  |  GPU_SelectedTexture  |  obtain current selected texture  |
-|  OUT  |  0x204  |  GPU_SelectedTexture  |  texture ID to select (-1 for BIOS)  |
-|  IN  |  0x205  |  GPU_SelectedRegion  |  obtain current selected region  |
-|  OUT  |  0x205  |  GPU_SelectedRegion  |  region ID to select  |
-|  IN  |  0x206  |  GPU_DrawingPointX  |  obtain X position to draw selected region  |
-|  OUT  |  0x206  |  GPU_DrawingPointX  |  set X position to draw selected region  |
-|  IN  |  0x207  |  GPU_DrawingPointY  |  obtain Y position to draw selected region  |
-|  OUT  |  0x207  |  GPU_DrawingPointY  |  set Y position to draw selected region  |
-|  IN  |  0x208  |  GPU_DrawingScaleX  |  obtain X scaling as a float  |
-|  OUT  |  0x208  |  GPU_DrawingScaleX  |  sets X scaling with a float as input  |
-|  IN  |  0x209  |  GPU_DrawingScaleY  |  obtain Y scaling as a float  |
-|  OUT  |  0x209  |  GPU_DrawingScaleY  |  sets Y scaling with a float as input  |
-|  IN  |  0x20A  |  GPU_DrawingAngle  |  obtain the sprite rotation as a float  |
-|  OUT  |  0x20A  |  GPU_DrawingAngle  |  sets the sprite rotation with a float as input  |
-|  IN  |  0x20B  |  GPU_RegionMinX  |  obtain Min X coordinate for region  |
-|  OUT  |  0x20B  |  GPU_RegionMinX  |  set Min X coordinate for region  |
-|  IN  |  0x20C  |  GPU_RegionMinY  |  obtain Min Y coordinate for region  |
-|  OUT  |  0x20C  |  GPU_RegionMinY  |  set Min Y coordinate for region  |
-|  IN  |  0x20D  |  GPU_RegionMaxX  |  obtain Max X coordinate for region  |
-|  OUT  |  0x20D  |  GPU_RegionMaxX  |  set Max X coordinate for region  |
-|  IN  |  0x20E  |  GPU_RegionMaxY  |  obtain Max Y coordinate for region  |
-|  OUT  |  0x20E  |  GPU_RegionMaxY  |  set Max Y coordinate for region  |
-|  IN  |  0x20F  |  GPU_RegionHotspotX  |  obtain region Hotspot X coordinate  |
-|  OUT  |  0x20F  |  GPU_RegionHotspotX  |  set region Hotspot X coordinate  |
-|  IN  |  0x210  |  GPU_RegionHotspotY  |  obtain region Hotspot Y coordinate  |
-|  OUT  |  0x210  |  GPU_RegionHotspotY  |  set region Hotspot Y coordinate  |
+| Type  | Port  | Name             | Description                  |
+| ----- | ----- | ---------------- | ---------------------------- |
+| IN    | 0x100 | RNG_CurrentValue | obtain pseudorandom value    |
+| OUT   | 0x100 | RNG_CurrentValue | seed random number generator |
+
+## GPU
+
+| Type  | Port  | Name                | Description                                    |
+| ----- | ----- | ------------------- | ---------------------------------------------- |
+| OUT   | 0x200 | GPU_Command         | perform GPU operation                          |
+| IN    | 0x201 | GPU_RemainingPixels | ???                                            |
+| IN    | 0x202 | GPU_ClearColor      | obtain current clear color                     |
+| OUT   | 0x202 | GPU_ClearColor      | color to clear the screen with                 |
+| IN    | 0x203 | GPU_MultiplyColor   | obtain current color multiplier                |
+| OUT   | 0x203 | GPU_MultiplyColor   | color multiplier to draw sprites with          |
+| IN    | 0x204 | GPU_ActiveBlending  | obtain current blending mode                   |
+| OUT   | 0x204 | GPU_ActiveBlending  | blending method to draw sprites with           |
+| IN    | 0x204 | GPU_SelectedTexture | obtain current selected texture                |
+| OUT   | 0x204 | GPU_SelectedTexture | texture ID to select (-1 for BIOS)             |
+| IN    | 0x205 | GPU_SelectedRegion  | obtain current selected region                 |
+| OUT   | 0x205 | GPU_SelectedRegion  | region ID to select                            |
+| IN    | 0x206 | GPU_DrawingPointX   | obtain X position to draw selected region      |
+| OUT   | 0x206 | GPU_DrawingPointX   | set X position to draw selected region         |
+| IN    | 0x207 | GPU_DrawingPointY   | obtain Y position to draw selected region      |
+| OUT   | 0x207 | GPU_DrawingPointY   | set Y position to draw selected region         |
+| IN    | 0x208 | GPU_DrawingScaleX   | obtain X scaling as a float                    |
+| OUT   | 0x208 | GPU_DrawingScaleX   | sets X scaling with a float as input           |
+| IN    | 0x209 | GPU_DrawingScaleY   | obtain Y scaling as a float                    |
+| OUT   | 0x209 | GPU_DrawingScaleY   | sets Y scaling with a float as input           |
+| IN    | 0x20A | GPU_DrawingAngle    | obtain the sprite rotation as a float          |
+| OUT   | 0x20A | GPU_DrawingAngle    | sets the sprite rotation with a float as input |
+| IN    | 0x20B | GPU_RegionMinX      | obtain Min X coordinate for region             |
+| OUT   | 0x20B | GPU_RegionMinX      | set Min X coordinate for region                |
+| IN    | 0x20C | GPU_RegionMinY      | obtain Min Y coordinate for region             |
+| OUT   | 0x20C | GPU_RegionMinY      | set Min Y coordinate for region                |
+| IN    | 0x20D | GPU_RegionMaxX      | obtain Max X coordinate for region             |
+| OUT   | 0x20D | GPU_RegionMaxX      | set Max X coordinate for region                |
+| IN    | 0x20E | GPU_RegionMaxY      | obtain Max Y coordinate for region             |
+| OUT   | 0x20E | GPU_RegionMaxY      | set Max Y coordinate for region                |
+| IN    | 0x20F | GPU_RegionHotspotX  | obtain region Hotspot X coordinate             |
+| OUT   | 0x20F | GPU_RegionHotspotX  | set region Hotspot X coordinate                |
+| IN    | 0x210 | GPU_RegionHotspotY  | obtain region Hotspot Y coordinate             |
+| OUT   | 0x210 | GPU_RegionHotspotY  | set region Hotspot Y coordinate                |
 
 ===GPU Commands===
 Commands that can be issued to the GPU:
