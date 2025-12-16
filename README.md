@@ -6,8 +6,8 @@ This document is based on Vircon32 DevTools **v25.1.19** or later; older version
 
 ## system quick reference
 
-| Token                       | Value                             |
-| ---                         | ---                               |
+| Attribute                   | Value                             |
+| --------------------------- | --------------------------------- |
 | VirconVersion               | 1                                 |
 | VirconRevision              | 0                                 |
 | FramesPerSecond             | 60                                |
@@ -36,31 +36,32 @@ This document is based on Vircon32 DevTools **v25.1.19** or later; older version
 | ControlBusSlaves            | 8                                 |
 | GamepadPorts                | 4                                 |
 
-=====Assembler Data Directives (ROM)=====
-^  keyword  ^  description  |
-|  integer  |  specify one or more integers  |
-|  float  |  specify one or more floats  |
-|  string  |  specify string sequence(s?)  |
-|  pointer  |  specify pointer(s?)  |
-|  datafile  |  specify datafile(s?)  |
+## Assembler Data Directives (ROM)
+| keyword  | description                  |
+| -------- | ---------------------------- |
+| integer  | specify one or more integers |
+| float    | specify one or more floats   |
+| string   | specify string sequence(s?)  |
+| pointer  | specify pointer(s?)          |
+| datafile | specify datafile(s?)         |
 
 Use commas to separate values (create "array" of values)
 
-=====Vircon32 Instruction Set=====
+## Vircon32 Instruction Set
 
-^  control  ^  branch  ^  compare  ^  data  ^  convert  ^  logic  ^  int arithmetic  ^  float arithmetic  ^  float math  |
-|  [[#HLT|HLT]]  |  [[#JMP|JMP]]  |  [[#IEQ|IEQ]]  |  [[#MOV|MOV]]  |  [[#CIF|CIF]]  |  [[#NOT|NOT]]  |  [[#IADD|IADD]]  |  [[#FADD|FADD]]  |  [[#FLR|FLR]]  |
-|  [[#WAIT|WAIT]]  |  [[#CALL|CALL]]  |  [[#INE|INE]]  |  [[#LEA|LEA]]  |  [[#CFI|CFI]]  |  [[#AND|AND]]  |  [[#ISUB|ISUB]]  |  [[#FSUB|FSUB]]  |  [[#CEIL|CEIL]]  |
-|  |  [[#RET|RET]]  |  [[#IGT|IGT]]  |  [[#PUSH|PUSH]]  |  [[#CIB|CIB]]  |  [[#OR|OR]]  |  [[#IMUL|IMUL]]  |  [[#FMUL|FMUL]]  |  [[#ROUND|ROUND]]  |
-|  |  [[#JT|JT]]  |  [[#IGE|IGE]]  |  [[#POP|POP]]  |  [[#CFB|CFB]]  |  [[#XOR|XOR]]  |  [[#IDIV|IDIV]]  |  [[#FDIV|FDIV]]  |  [[#SIN|SIN]]  |
-|  |  [[#JF|JF]]  |  [[#ILT|ILT]]  |  [[#IN|IN]]  |  |  [[#BNOT|BNOT]]  |  [[#IMOD|IMOD]]  |  [[#FMOD|FMOD]]  |  [[#ACOS|ACOS]]  |
-|  |  |  [[#ILE|ILE]]  |  [[#OUT|OUT]]  |  |  [[#SHL|SHL]]  |  [[#ISGN|ISGN]]  |  [[#FSGN|FSGN]]  |  [[#ATAN2|ATAN2]]  |
-|  |  |  [[#FEQ|FEQ]]  |  [[#MOVS|MOVS]]  |  |  |  [[#IMIN|IMIN]]  |  [[#FMIN|FMIN]]  |  [[#LOG|LOG]]  |
-|  |  |  [[#FNE|FNE]]  |  [[#SETS|SETS]]  |  |  |  [[#IMAX|IMAX]]  |  [[#FMAX|FMAX]]  |  [[#POW|POW]]  |
-|  |  |  [[#FGT|FGT]]  |  [[#CMPS|CMPS]]  |  |  |  [[#IABS|IABS]]  |  [[#FABS|FABS]]  |  |
-|  |  |  [[#FGE|FGE]]  |  |  |  |  |  |  |
-|  |  |  [[#FLT|FLT]]  |  |  |  |  |  |  |
-|  |  |  [[#FLE|FLE]]  |  |  |  |  |  |  |
+| control      | branch       | compare      | data         | convert      | logic        | int arithmetic | float arithmetic | float math |
+| [[#HLT|HLT]] | [[#JMP|JMP]] | [[#IEQ|IEQ]] | [[#MOV|MOV]] | [[#CIF|CIF]] | [[#NOT|NOT]] | [[#IADD|IADD]] | [[#FADD|FADD]] | [[#FLR|FLR]] |
+| [[#WAIT|WAIT]] | [[#CALL|CALL]] | [[#INE|INE]] | [[#LEA|LEA]] | [[#CFI|CFI]] | [[#AND|AND]] | [[#ISUB|ISUB]] | [[#FSUB|FSUB]] | [[#CEIL|CEIL]] |
+| | [[#RET|RET]] | [[#IGT|IGT]] | [[#PUSH|PUSH]] | [[#CIB|CIB]] | [[#OR|OR]] | [[#IMUL|IMUL]] | [[#FMUL|FMUL]] | [[#ROUND|ROUND]] |
+| | [[#JT|JT]] | [[#IGE|IGE]] | [[#POP|POP]] | [[#CFB|CFB]] | [[#XOR|XOR]] | [[#IDIV|IDIV]] | [[#FDIV|FDIV]] | [[#SIN|SIN]] |
+| | [[#JF|JF]] | [[#ILT|ILT]] | [[#IN|IN]] | | [[#BNOT|BNOT]] | [[#IMOD|IMOD]] | [[#FMOD|FMOD]] | [[#ACOS|ACOS]] |
+| | | [[#ILE|ILE]] | [[#OUT|OUT]] | | [[#SHL|SHL]] | [[#ISGN|ISGN]] | [[#FSGN|FSGN]] | [[#ATAN2|ATAN2]] |
+| | | [[#FEQ|FEQ]] | [[#MOVS|MOVS]] | | | [[#IMIN|IMIN]] | [[#FMIN|FMIN]] | [[#LOG|LOG]] |
+| | | [[#FNE|FNE]] | [[#SETS|SETS]] | | | [[#IMAX|IMAX]] | [[#FMAX|FMAX]] | [[#POW|POW]] |
+| | | [[#FGT|FGT]] | [[#CMPS|CMPS]] | | | [[#IABS|IABS]] | [[#FABS|FABS]] | |
+| | | [[#FGE|FGE]] | | | | | | |
+| | | [[#FLT|FLT]] | | | | | | |
+| | | [[#FLE|FLE]] | | | | | | |
 
 ====Detailed View====
 There  are 64  CPU opcodes,  so instructions  encode them  in 6  bits. No invalid opcodes  can exist. HLT  is opcode 0 for  safety: if an  empty or invalid instruction is found, the CPU will stop execution.
