@@ -47,26 +47,27 @@ This document is based on Vircon32 DevTools **v25.1.19** or later; older version
 
 Use commas to separate values (create "array" of values)
 
-## Vircon32 Instruction Set
+## Vircon32 Instruction Set Category Overview
 
-| control      | branch       | compare      | data         | convert      | logic        | int arithmetic | float arithmetic | float math |
-| [[#HLT|HLT]] | [[#JMP|JMP]] | [[#IEQ|IEQ]] | [[#MOV|MOV]] | [[#CIF|CIF]] | [[#NOT|NOT]] | [[#IADD|IADD]] | [[#FADD|FADD]] | [[#FLR|FLR]] |
-| [[#WAIT|WAIT]] | [[#CALL|CALL]] | [[#INE|INE]] | [[#LEA|LEA]] | [[#CFI|CFI]] | [[#AND|AND]] | [[#ISUB|ISUB]] | [[#FSUB|FSUB]] | [[#CEIL|CEIL]] |
-| | [[#RET|RET]] | [[#IGT|IGT]] | [[#PUSH|PUSH]] | [[#CIB|CIB]] | [[#OR|OR]] | [[#IMUL|IMUL]] | [[#FMUL|FMUL]] | [[#ROUND|ROUND]] |
-| | [[#JT|JT]] | [[#IGE|IGE]] | [[#POP|POP]] | [[#CFB|CFB]] | [[#XOR|XOR]] | [[#IDIV|IDIV]] | [[#FDIV|FDIV]] | [[#SIN|SIN]] |
-| | [[#JF|JF]] | [[#ILT|ILT]] | [[#IN|IN]] | | [[#BNOT|BNOT]] | [[#IMOD|IMOD]] | [[#FMOD|FMOD]] | [[#ACOS|ACOS]] |
-| | | [[#ILE|ILE]] | [[#OUT|OUT]] | | [[#SHL|SHL]] | [[#ISGN|ISGN]] | [[#FSGN|FSGN]] | [[#ATAN2|ATAN2]] |
-| | | [[#FEQ|FEQ]] | [[#MOVS|MOVS]] | | | [[#IMIN|IMIN]] | [[#FMIN|FMIN]] | [[#LOG|LOG]] |
-| | | [[#FNE|FNE]] | [[#SETS|SETS]] | | | [[#IMAX|IMAX]] | [[#FMAX|FMAX]] | [[#POW|POW]] |
-| | | [[#FGT|FGT]] | [[#CMPS|CMPS]] | | | [[#IABS|IABS]] | [[#FABS|FABS]] | |
-| | | [[#FGE|FGE]] | | | | | | |
-| | | [[#FLT|FLT]] | | | | | | |
-| | | [[#FLE|FLE]] | | | | | | |
+| control      | branch       | compare    | data         | convert    | logic        | i-arithmetic | f-arithmetic | float math |
+| ------------ | ------------ | ---------- | ------------ | ---------- | ------------ | ------------ | ---------------- | ---------- |
+| [#HLT|HLT]   | [#JMP|JMP]   | [#IEQ|IEQ] | [#MOV|MOV]   | [#CIF|CIF] | [#NOT|NOT]   | [#IADD|IADD] | [#FADD|FADD] | [#FLR|FLR] |
+| [#WAIT|WAIT] | [#CALL|CALL] | [#INE|INE] | [#LEA|LEA]   | [#CFI|CFI] | [#AND|AND]   | [#ISUB|ISUB] | [#FSUB|FSUB] | [#CEIL|CEIL] |
+|              | [#RET|RET]   | [#IGT|IGT] | [#PUSH|PUSH] | [#CIB|CIB] | [#OR|OR]     | [#IMUL|IMUL] | [#FMUL|FMUL] | [#ROUND|ROUND] |
+|              | [#JT|JT]     | [#IGE|IGE] | [#POP|POP]   | [#CFB|CFB] | [#XOR|XOR]   | [#IDIV|IDIV] | [#FDIV|FDIV] | [#SIN|SIN] |
+|              | [#JF|JF]     | [#ILT|ILT] | [#IN|IN]     |            | [#BNOT|BNOT] | [#IMOD|IMOD] | [#FMOD|FMOD] | [#ACOS|ACOS] |
+|              |              | [#ILE|ILE] | [#OUT|OUT]   |            | [#SHL|SHL]   | [#ISGN|ISGN] | [#FSGN|FSGN] | [#ATAN2|ATAN2] |
+|              |              | [#FEQ|FEQ] | [#MOVS|MOVS] |            |              | [#IMIN|IMIN] | [#FMIN|FMIN] | [#LOG|LOG] |
+|              |              | [#FNE|FNE] | [#SETS|SETS] |            |              | [#IMAX|IMAX] | [#FMAX|FMAX] | [#POW|POW] |
+|              |              | [#FGT|FGT] | [#CMPS|CMPS] |            |              | [#IABS|IABS] | [#FABS|FABS] | |
+|              |              | [#FGE|FGE] |              |            |              | | | |
+|              |              | [#FLT|FLT] |              |            |              | | | |
+|              |              | [#FLE|FLE] |              |            |              | | | |
 
-====Detailed View====
+## Vircon32 Instruction Set Detailed View
 There  are 64  CPU opcodes,  so instructions  encode them  in 6  bits. No invalid opcodes  can exist. HLT  is opcode 0 for  safety: if an  empty or invalid instruction is found, the CPU will stop execution.
 
-^  opcode  ^  mneumonic  ^  category  ^  parameters  ^  description  |
+|  opcode  |  mneumonic  |  category  |  parameters  |  description  |
 |  0x00  |  [[#HLT|HLT]]  |  control  |  0  |  halt processing  |
 |  0x01  |  [[#WAIT|WAIT]]  |  control  |  0  |  pause processing, wait for next frame  |
 |  0x02  |  [[#JMP|JMP]]  |  branch  |  1  |  unconditional jump to address  | 
