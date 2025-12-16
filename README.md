@@ -4,6 +4,13 @@ An information-dense, quick-reference guide to Vircon32 system details and assem
 
 This document is based on Vircon32 DevTools **v25.1.19** or later; older versions will contain inconsistencies.
 
+## table of contents
+
+  * [System Quick Reference](#system-quick-reference)
+  * [Assembler Data Directives](#assember-data-directives)
+  * [Vircon32 Instruction Set Category Overview](#vircon32-instruction-set-category-overview)
+  * [Vircon32 Instruction Set Detailed View](#vircon32-instruction-set-detailed-view)
+
 ## system quick reference
 
 | Attribute                   | Value                             |
@@ -36,7 +43,7 @@ This document is based on Vircon32 DevTools **v25.1.19** or later; older version
 | ControlBusSlaves            | 8                                 |
 | GamepadPorts                | 4                                 |
 
-## Assembler Data Directives (ROM)
+## Assembler Data Directives
 | keyword  | description                  |
 | -------- | ---------------------------- |
 | integer  | specify one or more integers |
@@ -49,8 +56,8 @@ Use commas to separate values (create "array" of values)
 
 ## Vircon32 Instruction Set Category Overview
 
-| control      | branch       | compare    | data         | convert    | logic        | i-arithmetic | f-arithmetic | float math |
-| ------------ | ------------ | ---------- | ------------ | ---------- | ------------ | ------------ | ---------------- | ---------- |
+| control       | branch       | compare    | data         | convert    | logic        | i-arithmetic | f-arithmetic | float math |
+| ------------- | ------------ | ---------- | ------------ | ---------- | ------------ | ------------ | ---------------- | ---------- |
 | [HLT](#HLT)   | [JMP](#JMP)   | [IEQ](#IEQ) | [MOV](#MOV)   | [CIF](#CIF) | [NOT](#NOT)   | [IADD](#IADD) | [FADD](#FADD) | [FLR](#FLR) |
 | [WAIT](#WAIT) | [CALL](#CALL) | [INE](#INE) | [LEA](#LEA)   | [CFI](#CFI) | [AND](#AND)   | [ISUB](#ISUB) | [FSUB](#FSUB) | [CEIL](#CEIL) |
 |              | [RET](#RET)   | [IGT](#IGT) | [PUSH](#PUSH) | [CIB](#CIB) | [OR](#OR)     | [IMUL](#IMUL) | [FMUL](#FMUL) | [ROUND](#ROUND) |
@@ -65,29 +72,29 @@ Use commas to separate values (create "array" of values)
 |              |              | [FLE](#FLE) |              |            |              | | | |
 
 ## Vircon32 Instruction Set Detailed View
-There  are 64  CPU opcodes,  so instructions  encode them  in 6  bits. No invalid opcodes  can exist. HLT  is opcode 0 for  safety: if an  empty or invalid instruction is found, the CPU will stop execution.
+There  are 64  CPU opcodes,  instructions  encode them  in 6  bits. No invalid opcodes  can exist. HLT  is opcode 0 for  safety: if an  empty or invalid instruction is found, the CPU will stop execution.
 
-| opcode | mneumonic      | category   | parameters | description                               |
-| ------ | -------------- | ---------- | ---------- | -----------                               |
+| opcode | mneumonic       | category   | parameters | description                               |
+| ------ | --------------- | ---------- | ---------- | -----------                               |
 | 0x00   | [HLT](#HLT)     | control    | 0          | halt processing                           |
 | 0x01   | [WAIT](#WAIT)   | control    | 0          | pause processing, wait for next frame     |
-| 0x02   | [JMP](#JMP)     | branch     | 1          | unconditional jump to address             | 
+| 0x02   | [JMP](#JMP)     | branch     | 1          | unconditional jump to address             |
 | 0x03   | [CALL](#CALL)   | branch     | 1          | call subroutine                           |
-| 0x04   | [RET](#RET)     | branch     | 0          | return from subroutine |
-| 0x05   | [JT](#JT)       | branch     | 2          | jump if true (1) |
-| 0x06   | [JF](#JF)       | branch     | 2          | jump if false (0) |
-| 0x07   | [IEQ](#IEQ)     | compare    | 2          | integer equal | 
-| 0x08   | [INE](#INE)     | compare    | 2          | integer not equal | 
-| 0x09   | [IGT](#IGT)     | compare    | 2          | integer greater than | 
-| 0x0A   | [IGE](#IGE)     | compare    | 2          | integer greater than or equal | 
-| 0x0B   | [ILT](#ILT)     | compare    | 2          | integer less than | 
-| 0x0C   | [ILE](#ILE)     | compare    | 2          | integer less than or equal | 
-| 0x0D   | [FEQ](#FEQ)     | compare    | 2          | float equal | 
-| 0x0E   | [FNE](#FNE)     | compare    | 2          | float not equal | 
-| 0x0F   | [FGT](#FGT)     | compare    | 2          | float greater than | 
-| 0x10   | [FGE](#FGE)     | compare    | 2          | float greater than or equal | 
-| 0x11   | [FLT](#FLT)     | compare    | 2          | float less than | 
-| 0x12   | [FLE](#FLE)     | compare    | 2          | float less than or equal | 
+| 0x04   | [RET](#RET)     | branch     | 0          | return from subroutine                    |
+| 0x05   | [JT](#JT)       | branch     | 2          | jump if true (1)                          |
+| 0x06   | [JF](#JF)       | branch     | 2          | jump if false (0)                         |
+| 0x07   | [IEQ](#IEQ)     | compare    | 2          | integer equal                            |
+| 0x08   | [INE](#INE)     | compare    | 2          | integer not equal                        |
+| 0x09   | [IGT](#IGT)     | compare    | 2          | integer greater than                        |
+| 0x0A   | [IGE](#IGE)     | compare    | 2          | integer greater than or equal                    |
+| 0x0B   | [ILT](#ILT)     | compare    | 2          | integer less than                            |
+| 0x0C   | [ILE](#ILE)     | compare    | 2          | integer less than or equal                    |
+| 0x0D   | [FEQ](#FEQ)     | compare    | 2          | float equal                                |
+| 0x0E   | [FNE](#FNE)     | compare    | 2          | float not equal                            |
+| 0x0F   | [FGT](#FGT)     | compare    | 2          | float greater than                        |
+| 0x10   | [FGE](#FGE)     | compare    | 2          | float greater than or equal |
+| 0x11   | [FLT](#FLT)     | compare    | 2          | float less than |
+| 0x12   | [FLE](#FLE)     | compare    | 2          | float less than or equal |
 | 0x13   | [MOV](#MOV)     | data       | 2          | copy data |
 | 0x14   | [LEA](#LEA)     | data       | 2          | load effective address |
 | 0x15   | [PUSH](#PUSH)   | data       | 2          | push data to stack |
@@ -208,11 +215,11 @@ There  are 64  CPU opcodes,  so instructions  encode them  in 6  bits. No invali
 |  OUT  |  0x20F  |  GPU_RegionHotspotX  |  set region Hotspot X coordinate  |
 |  IN  |  0x210  |  GPU_RegionHotspotY  |  obtain region Hotspot Y coordinate  |
 |  OUT  |  0x210  |  GPU_RegionHotspotY  |  set region Hotspot Y coordinate  |
-        
+
 ===GPU Commands===
 Commands that can be issued to the GPU:
 
-^  value  ^  name  ^  description  |  
+^  value  ^  name  ^  description  |
 |  0x10  |  GPUCommand_ClearScreen  |  clears the screen using current clear color  |
 |  0x11  |  GPUCommand_DrawRegion  |  draws the selected region: Rotation off, Zoom off  |
 |  0x12  |  GPUCommand_DrawRegionZoomed  |  draws the selected region: Rotation off, Zoom on  |
@@ -222,7 +229,7 @@ Commands that can be issued to the GPU:
 ===GPU Active Blending Port Commands===
 Active blending:
 
-^  value  ^  name  ^  description  |  
+^  value  ^  name  ^  description  |
 |  0x20  | GPUBlendingMode_Alpha  |  default rendering, uses alpha channel as transparency  |
 |  0x21  | GPUBlendingMode_Add  |  colors are added (light effect), also called linear dodge  |
 |  0x22  | GPUBlendingMode_Subtract  |  colors are subtracted (shadow effect), also called difference  |
@@ -247,7 +254,7 @@ Active blending:
 ===SPU Commands===
 Commands for the SPU:
 
-^  value  ^  name  ^  description  |  
+^  value  ^  name  ^  description  |
 |  0x30  |  SPUCommand_PlaySelectedChannel  |  if paused, it is resumed; if already playing, it is retriggered  |
 |  0x31  |  SPUCommand_PauseSelectedChannel  |  no effect if the channel was not playing  |
 |  0x32  |  SPUCommand_StopSelectedChannel  |  position is rewinded to sound start  |
@@ -258,11 +265,11 @@ Commands for the SPU:
 ===SPU Channel States===
 States of the sound channels:
 
-^  value  ^  name  ^  description  |  
+^  value  ^  name  ^  description  |
 |  0x40  |  SPUChannelState_Stopped  |  channel is not playing, and will begin new reproduction on play  |
 |  0x41  |  SPUChannelState_Paused  |  channel is paused, and will resume reproduction on play  |
 |  0x42  |  SPUChannelState_Playing  |  channel is currently playing, until its assigned sound ends  |
- 
+
 ====INPUT====
 ^  Type  ^  Port  ^  Name  ^  Description  |
 |  IN  |  0x400  |  INP_SelectedGamepad  |  Which gamepad is selected (0-3)  |
@@ -296,7 +303,7 @@ States of the sound channels:
 {{:notes:comporg:spring2025:v32xx_instruction_format.jpeg|}}
 
   * bits 31-26: opcode
-  * bit 25: immediate value 
+  * bit 25: immediate value
   * bits 24-21: register 1
   * bits 20-17: register 2
   * bits 16-14: address mode
@@ -504,7 +511,7 @@ ILE takes two operands interpreted as integers, and checks if the first one is l
 ====FGE====
 ====FLT====
 ====FLE====
-        
+
 ====MOV====
 MOVE: your general purpose data-copying instruction.
 
@@ -1210,7 +1217,7 @@ register.
 ====To Be Done====
 <code>
     // -----------------------------------------------------------------------------
-    
+
     enum class CPURegisters: int
     {
         // all 16 general-purpose registers
@@ -1230,7 +1237,7 @@ register.
         Register13,
         Register14,
         Register15,
-        
+
         // alternate names for specific registers
         CountRegister       = 11,
         SourceRegister      = 12,
@@ -1238,9 +1245,9 @@ register.
         BasePointer         = 14,
         StackPointer        = 15
     };
-    
+
     // -----------------------------------------------------------------------------
-    
+
     enum class AddressingModes : unsigned int
     {
         RegisterFromImmediate = 0,      // syntax: MOV R1, 25
@@ -1252,9 +1259,9 @@ register.
         RegisterAddressFromRegister,    // syntax: MOV [R1], R2
         AddressOffsetFromRegister       // syntax: MOV [R1+25], R2
     };
-    
+
     // -----------------------------------------------------------------------------
-    
+
     enum class CPUErrorCodes: uint32_t
     {
         InvalidMemoryRead = 0,
