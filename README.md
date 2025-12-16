@@ -16,6 +16,15 @@ This document is based on Vircon32 DevTools **v25.1.19** or later; older version
     * [TIME](#time)
     * [RNG](#rng)
     * [GPU](#gpu)
+      * [GPU Commands](#gpu-commands)
+      * [GPU Active Blending Port Commands](#gpu-active-blending-port-commands)
+    * [SPU](#spu)
+      * [SPU Commands](#spu-commands)
+      * [SPU Channel States](#spu-channel-states)
+    * [INPUT](#input)
+    * [CARTRIDGE](#cartridge)
+    * [MEMCARD](#memcard)
+  * [Instruction Format](#instruction-format)
 
 ## system quick reference
 
@@ -241,89 +250,103 @@ There  are 64  CPU opcodes,  instructions  encode them  in 6  bits. No invalid o
 | IN    | 0x210 | GPU_RegionHotspotY  | obtain region Hotspot Y coordinate             |
 | OUT   | 0x210 | GPU_RegionHotspotY  | set region Hotspot Y coordinate                |
 
-===GPU Commands===
+### GPU Commands
+
 Commands that can be issued to the GPU:
 
-^  value  ^  name  ^  description  |
-|  0x10  |  GPUCommand_ClearScreen  |  clears the screen using current clear color  |
-|  0x11  |  GPUCommand_DrawRegion  |  draws the selected region: Rotation off, Zoom off  |
-|  0x12  |  GPUCommand_DrawRegionZoomed  |  draws the selected region: Rotation off, Zoom on  |
-|  0x13  |  GPUCommand_DrawRegionRotated  |  draws the selected region: Rotation on , Zoom off  |
-|  0x14  |  GPUCommand_DrawRegionRotozoomed  |  draws the selected region: Rotation on , Zoom on  |
+| Value | Name                            | Description                                       |
+| ----- | ------------------------------- | ------------------------------------------------- |
+| 0x10  | GPUCommand_ClearScreen          | clears the screen using current clear color       |
+| 0x11  | GPUCommand_DrawRegion           | draws the selected region: rotation off, zoom off |
+| 0x12  | GPUCommand_DrawRegionZoomed     | draws the selected region: rotation off, zoom on  |
+| 0x13  | GPUCommand_DrawRegionRotated    | draws the selected region: rotation on , zoom off |
+| 0x14  | GPUCommand_DrawRegionRotozoomed | draws the selected region: rotation on , zoom on  |
 
-===GPU Active Blending Port Commands===
+### GPU Active Blending Port Commands
+
 Active blending:
 
-^  value  ^  name  ^  description  |
-|  0x20  | GPUBlendingMode_Alpha  |  default rendering, uses alpha channel as transparency  |
-|  0x21  | GPUBlendingMode_Add  |  colors are added (light effect), also called linear dodge  |
-|  0x22  | GPUBlendingMode_Subtract  |  colors are subtracted (shadow effect), also called difference  |
+| Value | Name                     | Description                                             |
+| ----- | ------------------------ | ------------------------------------------------------- |
+| 0x20  | GPUBlendingMode_Alpha    | default rendering, uses alpha channel as transparency   |
+| 0x21  | GPUBlendingMode_Add      | colors are added (light effect): aka "linear dodge"     |
+| 0x22  | GPUBlendingMode_Subtract | colors are subtracted (shadow effect): aka "difference" |
 
-====SPU====
-^  Type  ^  Port  ^  Name  ^  Description  |
-|  ???  |  0x300  |  SPU_Command  |  ???  |
-|  ???  |  0x301  |  SPU_GlobalVolume  |  ???  |
-|  OUT  |  0x302  |  SPU_SelectedSound  |  ???  |
-|  OUT  |  0x303  |  SPU_SelectedChannel  |  ???  |
-|  ???  |  0x304  |  SPU_SoundLength  |  ???  |
-|  ???  |  0x305  |  SPU_SoundPlayWithLoop  |  ???  |
-|  ???  |  0x306  |  SPU_SoundLoopStart  |  ???  |
-|  ???  |  0x307  |  SPU_SoundLoopEnd  |  ???  |
-|  ???  |  0x308  |  SPU_ChannelState  |  ???  |
-|  ???  |  0x309  |  SPU_ChannelAssignedSound  |  ???  |
-|  ???  |  0x30A  |  SPU_ChannelVolume  |  ???  |
-|  ???  |  0x30B  |  SPU_ChannelSpeed  |  ???  |
-|  ???  |  0x30C  |  SPU_ChannelLoopEnabled  |  ???  |
-|  ???  |  0x30D  |  SPU_ChannelPosition  |  ???  |
+## SPU
 
-===SPU Commands===
+| Type | Port  | Name                     | Description                                    |
+| ---- | ----- | ------------------------ | ---------------------------------------------- |
+| OUT  | 0x300 | SPU_Command              | perform SPU operation                          |
+| ???  | 0x301 | SPU_GlobalVolume         | ???  |
+| OUT  | 0x302 | SPU_SelectedSound        | ???  |
+| OUT  | 0x303 | SPU_SelectedChannel      | ???  |
+| ???  | 0x304 | SPU_SoundLength          | ???  |
+| ???  | 0x305 | SPU_SoundPlayWithLoop    | ???  |
+| ???  | 0x306 | SPU_SoundLoopStart       | ???  |
+| ???  | 0x307 | SPU_SoundLoopEnd         | ???  |
+| ???  | 0x308 | SPU_ChannelState         | ???  |
+| ???  | 0x309 | SPU_ChannelAssignedSound | ???  |
+| ???  | 0x30A | SPU_ChannelVolume        | ???  |
+| ???  | 0x30B | SPU_ChannelSpeed         | ???  |
+| ???  | 0x30C | SPU_ChannelLoopEnabled   | ???  |
+| ???  | 0x30D | SPU_ChannelPosition      | ???  |
+
+### SPU Commands
 Commands for the SPU:
 
-^  value  ^  name  ^  description  |
-|  0x30  |  SPUCommand_PlaySelectedChannel  |  if paused, it is resumed; if already playing, it is retriggered  |
-|  0x31  |  SPUCommand_PauseSelectedChannel  |  no effect if the channel was not playing  |
-|  0x32  |  SPUCommand_StopSelectedChannel  |  position is rewinded to sound start  |
-|  0x33  |  SPUCommand_PauseAllChannels  |  same as applying PauseChannel to all channels  |
-|  0x34  |  SPUCommand_ResumeAllChannels  |  same as applying PlayChannel to all paused channels  |
-|  0x35  |  SPUCommand_StopAllChannels  |  same as applying StopChannel to all channels  |
+| Value | Name                            | Description                                         |
+| ----- | ------------------------------- | --------------------------------------------------- |
+| 0x30  | SPUCommand_PlaySelectedChannel  | if paused, resume; if playing, retriggered          |
+| 0x31  | SPUCommand_PauseSelectedChannel | pause; no effect if the channel was not playing     |
+| 0x32  | SPUCommand_StopSelectedChannel  | position is rewinded to sound start                 |
+| 0x33  | SPUCommand_PauseAllChannels     | same as applying PauseChannel to all channels       |
+| 0x34  | SPUCommand_ResumeAllChannels    | same as applying PlayChannel to all paused channels |
+| 0x35  | SPUCommand_StopAllChannels      | same as applying StopChannel to all channels        |
 
-===SPU Channel States===
+### SPU Channel States
 States of the sound channels:
 
-^  value  ^  name  ^  description  |
-|  0x40  |  SPUChannelState_Stopped  |  channel is not playing, and will begin new reproduction on play  |
-|  0x41  |  SPUChannelState_Paused  |  channel is paused, and will resume reproduction on play  |
-|  0x42  |  SPUChannelState_Playing  |  channel is currently playing, until its assigned sound ends  |
+| Value | Name                    | Description                                                     |
+| ----- | ----------------------- | --------------------------------------------------------------- |
+| 0x40  | SPUChannelState_Stopped | channel is not playing, and will begin new reproduction on play |
+| 0x41  | SPUChannelState_Paused  | channel is paused, and will resume reproduction on play         |
+| 0x42  | SPUChannelState_Playing | channel is currently playing, until its assigned sound ends     |
 
-====INPUT====
-^  Type  ^  Port  ^  Name  ^  Description  |
-|  IN  |  0x400  |  INP_SelectedGamepad  |  Which gamepad is selected (0-3)  |
-|  OUT  |  0x400  |  INP_SelectedGamepad  |  Select indicated gamepad (0-3)  |
-|  IN  |  0x401  |  INP_GamepadConnected  |  Status of gamepad being connected  |
-|  IN  |  0x402  |  INP_GamepadLeft  |  Left Key input  |
-|  IN  |  0x403  |  INP_GamepadRight  |  Right Key input  |
-|  IN  |  0x404  |  INP_GamepadUp  |  Up key input  |
-|  IN  |  0x405  |  INP_GamepadDown  |  Down key input  |
-|  IN  |  0x406  |  INP_GamepadButtonStart  |  Enter key input  |
-|  IN  |  0x407  |  INP_GamepadButtonA  |  X key input  |
-|  IN  |  0x408  |  INP_GamepadButtonB  |  Z key input  |
-|  IN  |  0x409  |  INP_GamepadButtonX  |  S key input  |
-|  IN  |  0x40A  |  INP_GamepadButtonY  |  A key input  |
-|  IN  |  0x40B  |  INP_GamepadButtonL  |  Q key input  |
-|  IN  |  0x40C  |  INP_GamepadButtonR  |  W key input  |
+## INPUT
 
-====CARTRIDGE====
-^  Type  ^  Port  ^  Name  ^  Description  |
-|  IN  |  0x500  |  CAR_Connected  |  status of cartridge being connected  |
-|  IN  |  0x501  |  CAR_ProgramROMSize  |  size of program ROM  |
-|  IN  |  0x502  |  CAR_NumberOfTextures  |  number of cartridge textures  |
-|  IN  |  0x503  |  CAR_NumberOfSounds  |  number of cartridge sounds  |
+| Type | Port  | Name                   | Description                            |
+| ---- | ----- | ---------------------- | -------------------------------------- |
+| IN   | 0x400 | INP_SelectedGamepad    | read which gamepad is selected (0-3)   |
+| OUT  | 0x400 | INP_SelectedGamepad    | select indicated gamepad (0-3)         |
+| IN   | 0x401 | INP_GamepadConnected   | status of gamepad being connected      |
+| IN   | 0x402 | INP_GamepadLeft        | Left button input                      |
+| IN   | 0x403 | INP_GamepadRight       | Right button input                     |
+| IN   | 0x404 | INP_GamepadUp          | Up button input                        |
+| IN   | 0x405 | INP_GamepadDown        | Down button input                      |
+| IN   | 0x406 | INP_GamepadButtonStart | Start button input (Enter on keyboard) |
+| IN   | 0x407 | INP_GamepadButtonA     | A button input (X on keyboard)         |
+| IN   | 0x408 | INP_GamepadButtonB     | B button input (Z on keyboard)         |
+| IN   | 0x409 | INP_GamepadButtonX     | X key input (S on keyboard)            |
+| IN   | 0x40A | INP_GamepadButtonY     | Y key input (A on keyboard)            |
+| IN   | 0x40B | INP_GamepadButtonL     | L key input (Q on keyboard)            |
+| IN   | 0x40C | INP_GamepadButtonR     | R key input (W on keyboard)            |
 
-====MEMCARD====
-^  Type  ^  Port  ^  Name  ^  Description  |
-|  IN?  |  0x600  |  MEM_Connected  |  status of memory card being connected  |
+## CARTRIDGE
 
-=====Instruction Format=====
+| Type | Port  | Name                 | Description                         |
+| ---- | ----- | -------------------- | ----------------------------------- |
+| IN   | 0x500 | CAR_Connected        | status of cartridge being connected |
+| IN   | 0x501 | CAR_ProgramROMSize   | size of program ROM                 |
+| IN   | 0x502 | CAR_NumberOfTextures | number of cartridge textures        |
+| IN   | 0x503 | CAR_NumberOfSounds   | number of cartridge sounds          |
+
+## MEMCARD
+
+| Type | Port  | Name          | Description                           |
+| ---- | ----- | ------------- | ------------------------------------- |
+| IN?  | 0x600 | MEM_Connected | status of memory card being connected |
+
+## Instruction Format
 
 {{:notes:comporg:spring2025:v32xx_instruction_format.jpeg|}}
 
