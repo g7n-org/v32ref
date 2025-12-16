@@ -310,26 +310,27 @@ States of the sound channels:
   * bits 13-0: port number
 
 If the **immediate value** bit is set, an additional word is read to be used as a parameter to the instruction.
-====HLT====
 
-====WAIT====
+## HLT
 
-====JMP====
+## WAIT
+
+## JMP
 Unconditional jump. Forcibly redirect program flow to indicated address. The address is somewhere else in the program logic, likely identified by some set label.
 
-===Structure and variants===
+### Structure and variants
 
   * Variant 1: <code>JMP { ImmediateValue }</code>
   * Variant 2: <code>JMP { Register1 }</code>
 
-===Processing actions===
+### Processing actions
   * Variant 1: <code>InstructionPointer = ImmediateValue</code>
   * Variant 2: <code>InstructionPointer = Register1</code>
 
-===Description===
-JMP performs an unconditional jump to the address specified by its operand. After processing this instruction the CPU will continue execution at the new address.
+### Description
+**JMP** performs an unconditional jump to the address specified by its operand. After processing this instruction the CPU will continue execution at the new address.
 
-===Examples===
+### Examples
 Jumping to a label (memory address/offset):
 
 <code>
