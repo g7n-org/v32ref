@@ -168,13 +168,13 @@ There  are 64  CPU opcodes,  instructions  encode them  in 6  bits. No invalid o
 
 | Address | Vircon32 ID                 | Description                |
 | ------- | --------------------------- | -------------------------- |
-| 0x000   | [#TIME](TIM_FirstPort)      | time related functionality |
-| 0x100   | [#RNG](RNG_FirstPort)       | random number generator    |
-| 0x200   | [#GPU](GPU_FirstPort)       | graphics                   |
-| 0x300   | [#SPU](SPU_FirstPort)       | sound processing           |
-| 0x400   | [#INPUT](INP_FirstPort)     | input (game controllers)   |
-| 0x500   | [#CARTRIDGE](CAR_FirstPort) | cartridge interface        |
-| 0x600   | [#MEMCARD](MEM_FirstPort)   | memory card                |
+| 0x000   | [TIM_FirstPort](#TIME)      | time related functionality |
+| 0x100   | [RNG_FirstPort](#RNG)       | random number generator    |
+| 0x200   | [GPU_FirstPort](#GPU)       | graphics                   |
+| 0x300   | [SPU_FirstPort](#SPU)       | sound processing           |
+| 0x400   | [INP_FirstPort](#INPUT)     | input (game controllers)   |
+| 0x500   | [CAR_FirstPort](#CARTRIDGE) | cartridge interface        |
+| 0x600   | [MEM_FirstPort](#MEMCARD)   | memory card                |
 
 # IOPorts
 
