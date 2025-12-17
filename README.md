@@ -587,11 +587,11 @@ In this case, we are testing if the first operand is less than or equal to the s
 
 ### Structure and variants
 ^  Variant  ^  Form  ^  Action  |
-|  1  |<code asm>ILE DSTREG, ImmediateValue```  |<code c>if (DSTREG <= ImmediateValue)
+|  1  |```ILE DSTREG, ImmediateValue```  |```if (DSTREG <= ImmediateValue)
     DSTREG=1;
 else
     DSTREG=0;```  |
-|  2  |<code asm>ILE DSTREG, SRCREG```  |<code c>if (DSTREG <= SRCREG)
+|  2  |```ILE DSTREG, SRCREG```  |```if (DSTREG <= SRCREG)
     DSTREG=1;
 else
     DSTREG=0;```  |
@@ -620,18 +620,19 @@ MOVE, like other data-centric instructions, makes use of various addressing mode
       * **indexed**: used with immediate/register, but we can do additional math to get an offset from the address. Think pointer dereference on an array.
       * **register**: a CPU register
 
-Indirect processing is accomplished with the **<nowiki>[ ]</nowiki>** (square brackets) surrounding the value we wish to dereference (we're not interested in the direct thing, but indirectly in what that thing contains).
+Indirect processing is accomplished with the **```[ ]```** (square brackets) surrounding the value we wish to dereference (we're not interested in the direct thing, but indirectly in what that thing contains).
 
 ### Structure and variants
-^  Variant  ^  Form  ^  Action  |
-|  1  |<code asm>MOV DSTREG, ImmediateValue```  |<code c>DSTREG = ImmediateValue;```  |
-|  2  |<code asm>MOV DSTREG, SRCREG```  |<code c>DSTREG = SRCREG;```  |
-|  3  |<code asm>MOV DSTREG, [ImmediateValue]```  |<code c>DSTREG = Memory[ImmediateValue];```  |
-|  4  |<code asm>MOV DSTREG, [SRCREG]```  |<code c>DSTREG = Memory[SRCREG];```  |
-|  5  |<code asm>MOV DSTREG, [SRCREG+ImmediateValue]```  |<code c>DSTREG = Memory[SRCREG+ImmediateValue];```  |
-|  6  |<code asm>MOV [ImmediateValue], SRCREG```  |<code c>Memory[ImmediateValue] = SRCREG;```  |
-|  7  |<code asm>MOV [DSTREG], SRCREG```  |<code c>Memory[DSTREG] = SRCREG;```  |
-|  8  |<code asm>MOV [DSTREG+ImmediateValue], SRCREG```  |<code c>Memory[DSTREG+ImmediateValue] = SRCREG;```  |
+| Variant | Form | Action |
+| ------- | ---- | ------ |
+| 1       |```MOV DSTREG, ImmediateValue```  |```DSTREG = ImmediateValue;```  |
+| 2       |```MOV DSTREG, SRCREG```  |```DSTREG = SRCREG;```  |
+| 3       |```MOV DSTREG, [ImmediateValue]```  |```DSTREG = Memory[ImmediateValue];```  |
+| 4       |```MOV DSTREG, [SRCREG]```  |```DSTREG = Memory[SRCREG];```  |
+| 5       |```MOV DSTREG, [SRCREG+ImmediateValue]```  |```DSTREG = Memory[SRCREG+ImmediateValue];```  |
+| 6       |```MOV [ImmediateValue], SRCREG```  |```Memory[ImmediateValue] = SRCREG;```  |
+| 7       |```MOV [DSTREG], SRCREG```  |```Memory[DSTREG] = SRCREG;```  |
+| 8       |```MOV [DSTREG+ImmediateValue], SRCREG```  |```Memory[DSTREG+ImmediateValue] = SRCREG;```  |
 
 ### Description
 MOV copies the value indicated in its second operand into the register or memory address indicated by its first operand. MOV is the most complex instruction to process because it needs to distinguish between 8 different addressing modes.
@@ -784,7 +785,7 @@ Convert Integer to Float
 
 ### Structure and variants
 ^  Variant  ^  Form  ^  Action  |
-|  1  |<code asm>CIF DSTREG```  |<code c>DSTREG = (float)DSTREG;```  |
+|  1  |```CIF DSTREG```  |```DSTREG = (float)DSTREG;```  |
 
 ### Description
 CIF interprets the specified register as an integer value. Then converts that value to a
@@ -796,7 +797,7 @@ Convert Float to Integer
 
 ### Structure and variants
 ^  Variant  ^  Form  ^  Action  |
-|  1  |<code asm>CFI DSTREG```  |<code c>DSTREG = (int)DSTREG;```  |
+|  1  |```CFI DSTREG```  |```DSTREG = (int)DSTREG;```  |
 
 ### Description
 CFI interprets the specified register as a float value. Then converts that value to an
@@ -810,7 +811,7 @@ Convert Integer to Boolean
 
 ### Structure and variants
 ^  Variant  ^  Form  ^  Action  |
-|  1  |<code asm>CIB DSTREG```  |<code c>if (DSTREG != 0)
+|  1  |```CIB DSTREG```  |```if (DSTREG != 0)
     DSTREG = 1;
 else
     DSTREG = 0;```  |
@@ -826,7 +827,7 @@ Convert Float to Boolean
 
 ### Structure and variants
 ^  Variant  ^  Form  ^  Action  |
-|  1  |<code asm>CFB DSTREG```  |<code c>if (DSTREG != 0.0)
+|  1  |```CFB DSTREG```  |```if (DSTREG != 0.0)
     DSTREG = 1;
 else
     DSTREG = 0;```  |
@@ -860,8 +861,8 @@ Bitwise AND
 
 ### Structure and variants
 ^  Variant  ^  Form  ^  Action  |
-|  1  |<code asm>AND DSTREG, ImmediateValue```  |<code c>DSTREG = DSTREG & ImmediateValue;```  |
-|  2  |<code asm>AND DSTREG, SRCREG```  |<code c>DSTREG = DSTREG & SRCREG;```  |
+|  1  |```AND DSTREG, ImmediateValue```  |```DSTREG = DSTREG & ImmediateValue;```  |
+|  2  |```AND DSTREG, SRCREG```  |```DSTREG = DSTREG & SRCREG;```  |
 
 ### Description
 AND performs a **Bitwise AND** between each pair of respective bits in the 2 specified
@@ -880,8 +881,8 @@ Bitwise iOR
 
 ### Structure and variants
 ^  Variant  ^  Form  ^  Action  |
-|  1  |<code asm>OR DSTREG, ImmediateValue```  |<code c>DSTREG = DSTREG | ImmediateValue;```  |
-|  2  |<code asm>OR DSTREG, SRCREG```  |<code c>DSTREG = DSTREG | SRCREG;```  |
+|  1  |```OR DSTREG, ImmediateValue```  |```DSTREG = DSTREG | ImmediateValue;```  |
+|  2  |```OR DSTREG, SRCREG```  |```DSTREG = DSTREG | SRCREG;```  |
 
 ### Description
 OR performs a **Bitwise INCLUSIVE OR** between each pair of respective bits in the 2 specified operands. The result is stored in the first of them, which is always a register.
@@ -891,16 +892,17 @@ Bitwise XOR
 
 ### XOR truth table
 
-^  A  ^  B  ^  X  |
-|  false  |  false  |  false  |
-|  false  |  true  |  true  |
-|  true  |  false  |  true  |
-|  true  |  true  |  false  |
+| A     | B     | X     |
+| ----- | ----- | ----- |
+| false | false | false |
+| false | true  | true  |
+| true  | false | true  |
+| true  | true  | false |
 
 ### Structure and variants
 ^  Variant  ^  Form  ^  Action  |
-|  1  |<code asm>XOR DSTREG, ImmediateValue```  |<code c>DSTREG = DSTREG ^ ImmediateValue;```  |
-|  2  |<code asm>XOR DSTREG, SRCREG```  |<code c>DSTREG = DSTREG ^ SRCREG;```  |
+|  1  |```XOR DSTREG, ImmediateValue```  |```DSTREG = DSTREG ^ ImmediateValue;```  |
+|  2  |```XOR DSTREG, SRCREG```  |```DSTREG = DSTREG ^ SRCREG;```  |
 
 ### Description
 XOR performs a **Bitwise EXCLUSIVE OR** between each pair of respective bits in the 2
@@ -923,9 +925,10 @@ boolean value. This is equivalent to first using CIB and then inverting bit numb
 Bit shift left
 
 ### Structure and variants
-^  Variant  ^  Form  ^  Action  |
-|  1  |<code asm>SHL DSTREG, ImmediateValue```  |<code c>DSTREG = DSTREG << ImmediateValue;```  |
-|  2  |<code asm>SHL DSTREG, SRCREG```  |<code c>DSTREG = DSTREG << SRCREG;```  |
+| Variant | Form                             | Action                                   |
+| ------- | -------------------------------- | ---------------------------------------- |
+| 1       | ```SHL DSTREG, ImmediateValue``` | ```DSTREG = DSTREG << ImmediateValue;``` |
+| 2       | ```SHL DSTREG, SRCREG```         | ```DSTREG = DSTREG << SRCREG;```         |
 
 ### Description
 SHL performs an bit shift to the left in the specified register. The second operand is
