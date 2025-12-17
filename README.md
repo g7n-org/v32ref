@@ -413,12 +413,12 @@ Unconditional jump. Forcibly redirect program flow to indicated address. The add
 
 ### Structure and variants
 
-  * Variant 1: ```JMP { ImmediateValue }```
-  * Variant 2: ```JMP { DSTREG }```
+  * Variant 1: ```JMP ImmediateValue```
+  * Variant 2: ```JMP REG```
 
 ### Processing actions
   * Variant 1: ```InstructionPointer = ImmediateValue```
-  * Variant 2: ```InstructionPointer = DSTREG```
+  * Variant 2: ```InstructionPointer = REG```
 
 ### Description
 **JMP** performs an unconditional jump to the address specified by its operand. After processing this instruction the CPU will continue execution at the new address.
@@ -452,8 +452,8 @@ For the purposes of comparisons and conditional jumps on Vircon32:
   * false is 0
 
 ### Structure and variants
-  * Variant 1: ```JT { DSTREG }, { ImmediateValue }```
-  * Variant 2: ```JT { DSTREG }, { SRCREG }```
+  * Variant 1: ```JT DSTREG, ImmediateValue```
+  * Variant 2: ```JT DSTREG, SRCREG```
 
 ### Effect
 
@@ -473,8 +473,8 @@ For the purposes of comparisons and conditional jumps on Vircon32:
   * false is 0
 
 ### Structure and variants
-  * Variant 1: ```JF { DSTREG }, { ImmediateValue }```
-  * Variant 2: ```JF { DSTREG }, { SRCREG }```
+  * Variant 1: ```JF DSTREG, ImmediateValue```
+  * Variant 2: ```JF DSTREG, SRCREG```
 
 ### Effect
 
@@ -505,8 +505,8 @@ Integer Compare Equality: comparisons allow us typically to evaluate two values,
 Should the first operand contain the same information as the second operand, the result will be true. Otherwise, false.
 
 ### Structure and variants
-  * Variant 1: ```IEQ { DSTREG }, { ImmediateValue }```
-  * Variant 2: ```IEQ { DSTREG }, { SRCREG }```
+  * Variant 1: ```IEQ DSTREG, ImmediateValue```
+  * Variant 2: ```IEQ DSTREG, SRCREG```
 
 ### Processing actions
   * Variant 1: ```if DSTREG == ImmediateValue then DSTREG = 1 else DSTREG = 0```
@@ -521,8 +521,8 @@ Integer Not Equal: comparisons allow us typically to evaluate two values, in acc
 Here, we test to see if the first operand is not equal to the second operand. If they are equal, the result is false, otherwise, not being equal yields a result of true.
 
 ### Structure and variants
-  * Variant 1: ```INE { DSTREG }, { ImmediateValue }```
-  * Variant 2: ```INE { DSTREG }, { SRCREG }```
+  * Variant 1: ```INE DSTREG, ImmediateValue```
+  * Variant 2: ```INE DSTREG, SRCREG```
 
 ### Processing actions
   * Variant 1: ```if DSTREG != ImmediateValue then DSTREG = 1 else DSTREG = 0```
@@ -537,8 +537,8 @@ Integer Greater Than: comparisons allow us typically to evaluate two values, in 
 In this case, we are testing if the first operand is greater than the second operand.
 
 ### Structure and variants
-  * Variant 1: ```IGT { DSTREG }, { ImmediateValue }```
-  * Variant 2: ```IGT { DSTREG }, { SRCREG }```
+  * Variant 1: ```IGT DSTREG, ImmediateValue```
+  * Variant 2: ```IGT DSTREG, SRCREG```
 
 ### Processing actions
   * Variant 1: ```if DSTREG > ImmediateValue then DSTREG = 1 else DSTREG = 0```
@@ -554,8 +554,8 @@ Integer Greater Than Or Equal: comparisons allow us typically to evaluate two va
 In this case, we are testing if the first operand is greater than or equal to the second operand.
 
 ### Structure and variants
-  * Variant 1: ```IGE { DSTREG }, { ImmediateValue }```
-  * Variant 2: ```IGE { DSTREG }, { SRCREG }```
+  * Variant 1: ```IGE DSTREG, ImmediateValue```
+  * Variant 2: ```IGE DSTREG, SRCREG```
 
 ### Processing actions
   * Variant 1: ```if DSTREG >= ImmediateValue then DSTREG = 1 else DSTREG = 0```
@@ -570,8 +570,8 @@ Integer Less Than: comparisons allow us typically to evaluate two values, in acc
 In this case, we are testing if the first operand is less than the second operand.
 
 ### Structure and variants
-  * Variant 1: ```ILT { DSTREG }, { ImmediateValue }```
-  * Variant 2: ```ILT { DSTREG }, { SRCREG }```
+  * Variant 1: ```ILT DSTREG, ImmediateValue```
+  * Variant 2: ```ILT DSTREG, SRCREG```
 
 ### Processing actions
   * Variant 1: ```if DSTREG < ImmediateValue then DSTREG = 1 else DSTREG = 0```
@@ -607,57 +607,45 @@ ILE takes two operands interpreted as integers, and checks if the first one is l
 ## FLE
 
 ## MOV
-MOVE: your general purpose data-copying instruction.
+MOVE: general purpose data-copying instruction.
 
-### Addressing
-MOVE, like other data-centric instructions, makes use of various addressing modes:
-
-  * **register**: source/destination is an inbuilt CPU register
-  * **immediate**: some literal constant (be it data or a memory address)
-  * **indirect**: value isn't the data, but a memory address to where the data is. Think pointer dereference. It comes in 3 varieties:
-  * **indexed**: an offset to some existing piece of data.
-      * **immediate**: a literal constant (data or memory address)
-      * **indexed**: used with immediate/register, but we can do additional math to get an offset from the address. Think pointer dereference on an array.
-      * **register**: a CPU register
-
-Indirect processing is accomplished with the **```[ ]```** (square brackets) surrounding the value we wish to dereference (we're not interested in the direct thing, but indirectly in what that thing contains).
+Indirect  processing  is  accomplished  with the  **```[  ]```**  (square brackets)  surrounding  the  value  we wish  to  dereference  (we're  not interested in  the direct  thing: the memory  address, but  indirectly in what that memory address contains).
 
 ### Structure and variants
-| Variant | Form                                      | Action                                        |
-| ------- | ----------------------------------------- | --------------------------------------------- |
-| 1       | ```MOV DSTREG, ImmediateValue```          | ```DSTREG = ImmediateValue;```                |
-| 2       | ```MOV DSTREG, SRCREG```                  | ```DSTREG = SRCREG;```                        |
-| 3       | ```MOV DSTREG, [ImmediateValue]```        | ```DSTREG = Memory[ImmediateValue];```        |
-| 4       | ```MOV DSTREG, [SRCREG]```                | ```DSTREG = Memory[SRCREG];```                |
-| 5       | ```MOV DSTREG, [SRCREG+ImmediateValue]``` | ```DSTREG = Memory[SRCREG+ImmediateValue];``` |
-| 6       | ```MOV [ImmediateValue], SRCREG```        | ```Memory[ImmediateValue] = SRCREG;```        |
-| 7       | ```MOV [DSTREG], SRCREG```                | ```Memory[DSTREG] = SRCREG;```                |
-| 8       | ```MOV [DSTREG+ImmediateValue], SRCREG``` | ```Memory[DSTREG+ImmediateValue] = SRCREG;``` |
+
+| Type              | Binary | Form                           | Action                          |
+| ----------------- | ------ | ------------------------------ | ------------------------------- |
+| RegFromImm        | 000    | ```MOV DSTREG, Imm```          | ```DSTREG = Imm;```             |
+| RegFromReg        | 001    | ```MOV DSTREG, SRCREG```       | ```DSTREG = SRCREG;```          |
+| RegFromImmAddr    | 010    | ```MOV DSTREG, [Imm]```        | ```DSTREG = MEM[Imm];```        |
+| RegFromRegAddr    | 011    | ```MOV DSTREG, [SRCREG]```     | ```DSTREG = MEM[SRCREG];```     |
+| RegFromAddrOffset | 100    | ```MOV DSTREG, [SRCREG+Imm]``` | ```DSTREG = MEM[SRCREG+Imm];``` |
+| ImmAddrFromReg    | 101    | ```MOV [Imm], SRCREG```        | ```MEM[Imm] = SRCREG;```        |
+| RegAddrFromReg    | 110    | ```MOV [DSTREG], SRCREG```     | ```MEM[DSTREG] = SRCREG;```     |
+| AddrOffsetFromReg | 111    | ```MOV [DSTREG+Imm], SRCREG``` | ```MEM[DSTREG+Imm] = SRCREG;``` |
+
+| KEY          | Description                          |
+| ------------ | ------------------------------------ |
+| Imm          | Immediate Value: ```0xAF```          |
+| Reg          | Register: ```R7```                   |
+| ImmAddr      | ImmediateAddress: ```[0x00004FFF]``` |
+| RegAddr      | RegisterAddress: ```[R3]```          |
+| AddrOffset   | AddressOffset: ```[R1+73]```         |
+| ```MEM[]```  | Memory access                        |
+| ```DSTREG``` | Destination Register (first operand) |
+| ```SRCREG``` | Source Register (second operand)     |
 
 ### Description
 MOV copies the value indicated in its second (source) operand into the register or memory address indicated by its first (destination) operand. MOV is the most complex instruction to process because it needs to distinguish between 8 different addressing modes.
 
 The instruction specifies which of the 8 modes to use in its “Addressing mode” field, being the possible values interpreted as follows:
 
-### MOV Addressing modes
-
-| Binary | Destination                         | Source                              |
-| ------ | ----------------------------------- | ----------------------------------- |
-| 000    | ```DSTREG```                        | ```ImmediateValue```                |
-| 001    | ```DSTREG```                        | ```SRCREG```                        |
-| 010    | ```DSTREG```                        | ```Memory[Immediate Value]```       |
-| 011    | ```DSTREG```                        | ```Memory[SRCREG]```                |
-| 100    | ```DSTREG```                        | ```Memory[SRCREG+ImmediateValue]``` |
-| 101    | ```Memory[ImmediateValue]```        | ```SRCREG```                        |
-| 110    | ```Memory[DSTREG]```                | ```SRCREG```                        |
-| 111    | ```Memory[DSTREG+ImmediateValue]``` | ```SRCREG```                        |
-
 ## LEA
 Load Effective Address of a memory position.
 
 ### Structure and variants
-  * Variant 1: ```LEA {DSTREG}, [ {SRCREG} ]```
-  * Variant 2: ```LEA {DSTREG}, [ {SRCREG} + {ImmediateValue} ]```
+  * Variant 1: ```LEA DSTREG, [SRCREG]```
+  * Variant 2: ```LEA DSTREG, [SRCREG+ImmediateValue]```
 
 ### Processing actions
   * Register: ```DSTREG = SRCREG```
@@ -670,7 +658,7 @@ LEA takes a memory address as second operand. It stores that address (not its co
 Save to top of stack
 
 ### Structure and variants
-  * ```PUSH {REG}```
+  * ```PUSH REG```
 
 ### Processing actions
   * ```Stack.Push(REG)```
@@ -682,7 +670,7 @@ PUSH uses the CPU hardware stack to add the value contained in the given registe
 Load from top of stack
 
 ### Structure and variants
-  * ```POP { REG }```
+  * ```POP REG```
 
 ### Processing actions
   * ```REG = Stack.Pop()```
@@ -694,10 +682,10 @@ POP uses the CPU hardware stack to remove a value from the top of the stack and 
 Receive input from an I/O port
 
 ### Structure and variants
-  * ```IN {DSTREG}, {PortNumber}```
+  * ```IN DSTREG, PortNumber```
 
 ### Processing actions
-  * ```DSTREG = Port[ PortNumber ]```
+  * ```DSTREG = Port[PortNumber]```
 
 ### Description
 In uses the control bus to read from an I/O port in another chip and stores the returned value in the specified register. This read request may lead to side effects depending on the specified port.
@@ -706,12 +694,12 @@ In uses the control bus to read from an I/O port in another chip and stores the 
 Write to an I/O port
 
 ### Structure and variants
-  * ```OUT {PortNumber}, [{ImmediateValue}]```
-  * ```OUT {PortNumber}, {DSTREG}```
+  * ```OUT PortNumber, [ImmediateValue]```
+  * ```OUT PortNumber, SRCREG```
 
 ### Processing actions
   * ```Port[PortNumber] = ImmediateValue```
-  * ```Port[PortNumber] = DSTREG```
+  * ```Port[PortNumber] = SRCREG```
 
 ### Description
 OUT uses the control bus to write the specified value to an I/O port in another chip. This write request may lead to side effects depending on the specified port
@@ -720,14 +708,23 @@ OUT uses the control bus to write the specified value to an I/O port in another 
 Copy string (HW memcpy)
 
 ### Structure and variants
-  * ```MOVS```
+  * ```MOVS``` (no operands)
 
 ### Processing actions
-  * ```Memory[ DR ] = Memory[ SR ]```
-  * ```DR += 1```
-  * ```SR += 1```
-  * ```CR -= 1```
-  * ```if CR > 0 then InstructionPointer -= 1```
+
+```
+while (CR > 0)
+{
+    MEM[DR]  = MEM[SR];
+    DR       = DR + 1;
+    SR       = SR + 1;
+    CR       = CR - 1;
+    if (CR  >  0)
+    {
+        InstructionPointer = InstructionPointer - 1;
+    }
+}
+```
 
 ### Description
 MOVS copies a value from the memory address pointed by SR to the one pointed by DR
@@ -742,13 +739,13 @@ memory without going through a register.
 Set string (HW memset)
 
 ### Structure and variants
-  * ```SETS```
+  * ```SETS``` (no operands)
 
 ### Processing actions
-  * ```Memory[ DR ] = SR```
-  * ```DR += 1```
-  * ```CR -= 1```
-  * ```if CR > 0 then InstructionPointer -= 1```
+  * ```Memory[DR] = SR```
+  * ```DR = DR + 1```
+  * ```CR = CR - 1```
+  * ```if CR > 0 then InstructionPointer = InstructionPointer - 1```
 
 ### Description
 SETS copies the value in SR to the address pointed by DR (as in a MOV [DR], SR). It
@@ -761,7 +758,7 @@ the described loop at least once.
 Compare string (HW memcmp)
 
 ### Structure and variants
-  * ```CMPS { DSTREG }```
+  * ```CMPS DSTREG```
 
 ### Processing actions
   * ```DSTREG = Memory[ DR ] – Memory[ SR ]```
@@ -1321,14 +1318,6 @@ register.
 ```
     enum class AddressingModes : unsigned int
     {
-        RegisterFromImmediate = 0,      // syntax: MOV R1, 25
-        RegisterFromRegister,           // syntax: MOV R1, R2
-        RegisterFromImmediateAddress,   // syntax: MOV R1, [25]
-        RegisterFromRegisterAddress,    // syntax: MOV R1, [R2]
-        RegisterFromAddressOffset,      // syntax: MOV R1, [R2+25]
-        ImmediateAddressFromRegister,   // syntax: MOV [25], R2
-        RegisterAddressFromRegister,    // syntax: MOV [R1], R2
-        AddressOffsetFromRegister       // syntax: MOV [R1+25], R2
     };
 
     // -----------------------------------------------------------------------------
