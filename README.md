@@ -173,24 +173,24 @@ Vircon32 has 16 general purpose registers, which can be used for either **intege
 
 Some registers are used by various instructions, so if used, should be avoided to prevent data hazards.
 
-| Register | Alias | Description                  |
-| -------- | ----- | ---------------------------- |
-| R0       |       |                              |
-| R1       |       |                              |
-| R2       |       |                              |
-| R3       |       |                              |
-| R4       |       |                              |
-| R5       |       |                              |
-| R6       |       |                              |
-| R7       |       |                              |
-| R8       |       |                              |
-| R9       |       |                              |
-| R10      |       |                              |
-| R11      | CR    | string: count register       |
-| R12      | SR    | string: source register      |
-| R13      | DR    | string: destination register |
-| R14      | BP    | stack: base pointer (base)   |
-| R15      | SP    | stack: stack pointer (top)   |
+| Register | Binary | Alias | Description                  |
+| -------- | ------ | ----- | ---------------------------- |
+| R0       | 0000   |       |                              |
+| R1       | 0001   |       |                              |
+| R2       | 0010   |       |                              |
+| R3       | 0011   |       |                              |
+| R4       | 0100   |       |                              |
+| R5       | 0101   |       |                              |
+| R6       | 0110   |       |                              |
+| R7       | 0111   |       |                              |
+| R8       | 1000   |       |                              |
+| R9       | 1001   |       |                              |
+| R10      | 1010   |       |                              |
+| R11      | 1011   | CR    | string: count register       |
+| R12      | 1100   | SR    | string: source register      |
+| R13      | 1101   | DR    | string: destination register |
+| R14      | 1110   | BP    | stack: base pointer (base)   |
+| R15      | 1111   | SP    | stack: stack pointer (top)   |
 
 ### stack operations
 
