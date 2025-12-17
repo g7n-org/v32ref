@@ -10,6 +10,9 @@ This document is based on Vircon32 DevTools **v25.1.19** or later; older version
   * [Assembler Data Directives](#assember-data-directives)
   * [Vircon32 Instruction Set Category Overview](#vircon32-instruction-set-category-overview)
   * [Vircon32 Instruction Set Detailed View](#vircon32-instruction-set-detailed-view)
+  * [Vircon32 Registers](#vircon32-registers)
+    * [Stack Operations](#stack-operations)
+    * [String Operations](#string-operations)
   * [Vircon32 Memory Map](#vircon32-memory-map)
   * [Vircon32 IOPorts Layout](#vircon32-ioports-layout)
   * [IOPorts](#ioports)
@@ -24,7 +27,8 @@ This document is based on Vircon32 DevTools **v25.1.19** or later; older version
     * [INPUT](#input)
     * [CARTRIDGE](#cartridge)
     * [MEMCARD](#memcard)
-  * [Instruction Format](#instruction-format)
+  * [Vircon32 instructions](#vircon32-instructions)
+    * [Instruction Format](#instruction-format)
 
 ## system quick reference
 
@@ -162,6 +166,45 @@ There  are 64  CPU opcodes,  instructions  encode them  in 6  bits. No invalid o
 | 0x3D   | 111101 | [ATAN2](#ATAN2) | math       | 2        | perform float arc tangent operation       |
 | 0x3E   | 111110 | [LOG](#LOG)     | math       | 1        | perform float natural logarithm operation |
 | 0x3F   | 111111 | [POW](#POW)     | math       | 2        | perform float power operation             |
+
+## Vircon32 Registers
+
+Vircon32 has 16 general purpose registers, which can be used for either **integer** or **floating point** operation (just: only one at any given moment).
+
+Some registers are used by various instructions, so if used, should be avoided to prevent data hazards.
+
+| Register | Alias | Description                  |
+| -------- | ----- | ---------------------------- |
+| R0       |       |                              |
+| R1       |       |                              |
+| R2       |       |                              |
+| R3       |       |                              |
+| R4       |       |                              |
+| R5       |       |                              |
+| R6       |       |                              |
+| R7       |       |                              |
+| R8       |       |                              |
+| R9       |       |                              |
+| R10      |       |                              |
+| R11      | CR    | string: count register       |
+| R12      | SR    | string: source register      |
+| R13      | DR    | string: destination register |
+| R14      | BP    | stack: base pointer (base)   |
+| R15      | SP    | stack: stack pointer (top)   |
+
+### stack operations
+
+The stack is a convenient and often-used strategy on the CPU. It relies on the tracking of an otherwise unused (or carefully conflict-averse) region of memory, typically located at the end of an addressable range of RAM. There are two components: the base of the stack, and the top of the stack.
+
+When you [PUSH](#PUSH) an item onto the stack, the stack pointer register (**SP**) is decremented by one word, and the intended value stored at the memory location stored therein.
+
+When you [POP](#POP) an item off the stack, the value in memory at the current location stored in the stack pointer register (**SP**) is obtained, then the stack pointer register (**SP**) is incremented by one word.
+
+### string operations
+
+For a small subset of instructions, typically intended for string-like operations (in the C sense: a string is an array of individual values), the CR/SR/DR registers can be used to facilitate iterative operations on data.
+
+The three instructions that utilize this functionality on Vircon32 are [MOVS](#MOVS), [SETS](#SETS), and [CMPS](#CMPS).
 
 ## Vircon32 Memory Map
 
@@ -346,9 +389,11 @@ States of the sound channels:
 | ---- | ----- | ------------- | ------------------------------------- |
 | IN?  | 0x600 | MEM_Connected | status of memory card being connected |
 
+# Vircon32 instructions
+
 ## Instruction Format
 
-{{:notes:comporg:spring2025:v32xx_instruction_format.jpeg|}}
+![V32 instruction format](V32_instruction_format.jpg)
 
   * bits 31-26: opcode
   * bit 25: immediate value
@@ -357,7 +402,7 @@ States of the sound channels:
   * bits 16-14: address mode
   * bits 13-0: port number
 
-If the **immediate value** bit is set, an additional word is read to be used as a parameter to the instruction.
+If the **immediate value** bit is set, an additional word is read to be used as an operand to the instruction.
 
 ## HLT
 
