@@ -778,6 +778,7 @@ to repeat itself until the counter in CR reaches 0, while reading consecutive ad
 The comparison result will be stored in the specified register, and will be zero when
 equal, positive when some value at [DR] was greater, and negative when some value in
 [SR] was greater.
+
 Note that even when called with a value of CR of zero or less, CMPS will always perform
 the described loop at least once.
 
@@ -785,20 +786,24 @@ the described loop at least once.
 Convert Integer to Float
 
 ### Structure and variants
-^  Variant  ^  Form  ^  Action  |
-|  1  |```CIF DSTREG```  |```DSTREG = (float)DSTREG;```  |
+| Variant | Form          | Action                                       |
+| ------- | ------------- | -------------------------------------------- |
+| 1       | ```CIF REG``` | ```REG = (float)REG;```                      |
 
 ### Description
 CIF interprets the specified register as an integer value. Then converts that value to a
 float representation and stores the result back in the same register.
+
 Note that, due to the limited precision of the float representation, high enough values of
 a 32-bit integer will result in a precision loss when represented as a float.
+
 ## CFI
 Convert Float to Integer
 
 ### Structure and variants
-^  Variant  ^  Form  ^  Action  |
-|  1  |```CFI DSTREG```  |```DSTREG = (int)DSTREG;```  |
+| Variant | Form          | Action                                       |
+| ------- | ------------- | -------------------------------------------- |
+| 1       | ```CFI REG``` | ```REG = (int)REG;```                        |
 
 ### Description
 CFI interprets the specified register as a float value. Then converts that value to an
@@ -811,12 +816,9 @@ of a float will result in a precision loss when represented as a 32-bit integer.
 Convert Integer to Boolean
 
 ### Structure and variants
-^  Variant  ^  Form  ^  Action  |
-|  1  |```CIB DSTREG```  |```if (DSTREG != 0)
-    DSTREG = 1;
-else
-    DSTREG = 0;```  |
-
+| Variant | Form          | Action                                       |
+| ------- | ------------- | -------------------------------------------- |
+| 1       | ```CIB REG``` | ```if (REG != 0) REG = 1; else REG = 0;```   |
 
 ### Description
 CIB interprets the specified register as an integer value. Then converts that value to its
@@ -829,7 +831,7 @@ Convert Float to Boolean
 ### Structure and variants
 | Variant | Form          | Action                                       |
 | ------- | ------------- | -------------------------------------------- |
-|  1      | ```CFB REG``` | ```if (REG != 0.0) REG = 1; else REG = 0;``` |
+| 1       | ```CFB REG``` | ```if (REG != 0.0) REG = 1; else REG = 0;``` |
 
 ### Description
 CFB interprets the specified register as a float value. Then converts that value to either 0
@@ -884,8 +886,8 @@ Bitwise iOR
 ### Structure and variants
 | Variant | Form                            | Action                                  |
 | ------- | ------------------------------- | --------------------------------------- |
-| 1       | ```OR DSTREG, ImmediateValue``` | ```DSTREG = DSTREG | ImmediateValue;``` |
-| 2       | ```OR DSTREG, SRCREG```         | ```DSTREG = DSTREG | SRCREG;```         |
+| 1       | ```OR DSTREG, ImmediateValue``` | ```DSTREG = DSTREG \| ImmediateValue;``` |
+| 2       | ```OR DSTREG, SRCREG```         | ```DSTREG = DSTREG \| SRCREG;```         |
 
 ### Description
 OR performs a **Bitwise INCLUSIVE OR** between each pair of respective bits in the 2 specified operands. The result is stored in the first of them, which is always a register.
@@ -919,7 +921,7 @@ Boolean NOT
   * ```BNOT REG```
 
 ### Processing actions
-  * ```if REG == 0 then REG = 1 else REG = 0```
+  * ```if (REG == 0) then REG = 1; else REG = 0;```
 
 ### Description
 BNOT interprets the specified register as a boolean and then converts it to the opposite
