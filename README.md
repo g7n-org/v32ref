@@ -413,12 +413,12 @@ Unconditional jump. Forcibly redirect program flow to indicated address. The add
 
 ### Structure and variants
 
-  * Variant 1: <code>JMP { ImmediateValue }</code>
-  * Variant 2: <code>JMP { Register1 }</code>
+  * Variant 1: ```JMP { ImmediateValue }```
+  * Variant 2: ```JMP { Register1 }```
 
 ### Processing actions
-  * Variant 1: <code>InstructionPointer = ImmediateValue</code>
-  * Variant 2: <code>InstructionPointer = Register1</code>
+  * Variant 1: ```InstructionPointer = ImmediateValue```
+  * Variant 2: ```InstructionPointer = Register1```
 
 ### Description
 **JMP** performs an unconditional jump to the address specified by its operand. After processing this instruction the CPU will continue execution at the new address.
@@ -426,65 +426,65 @@ Unconditional jump. Forcibly redirect program flow to indicated address. The add
 ### Examples
 Jumping to a label (memory address/offset):
 
-<code>
+```
     jmp _label
     ...
 _label:
-</code>
+```
 
 Jumping to address stored in register:
 
-<code>
+```
     jmp R0
-</code>
+```
 
-====CALL====
+## CALL
 
-====RET====
+## RET
 
-====JT====
+## JT
 Jump if True: a conditional jump typically used following a comparison instruction, should the queried register contain a true (1) value, jump to indicated address.
 
-===NOTE===
+### NOTE
 For the purposes of comparisons and conditional jumps on Vircon32:
 
   * true is 1 (technically non-zero)
   * false is 0
 
-===Structure and variants===
-  * Variant 1: <code>JT { Register1 }, { ImmediateValue }</code>
-  * Variant 2: <code>JT { Register1 }, { Register2 }</code>
+### Structure and variants
+  * Variant 1: ```JT { Register1 }, { ImmediateValue }```
+  * Variant 2: ```JT { Register1 }, { Register2 }```
 
-===Effect===
+### Effect
 
-  * Variant 1: <code>if Register1 != 0 then InstructionPointer = ImmediateValue</code>
-  * Variant 2: <code>if Register1 != 0 then InstructionPointer = Register2</code>
+  * Variant 1: ```if Register1 != 0 then InstructionPointer = ImmediateValue```
+  * Variant 2: ```if Register1 != 0 then InstructionPointer = Register2```
 
-===Description===
+### Description
 JT performs a jump only if its first operand is true, i.e. non zero when taken as an integer. In that case its behavior is the same as an unconditional jump. Otherwise it has no effect.
 
-====JF====
+## JF
 Jump if False: a conditional jump typically used following a comparison instruction, should the queried register contain a false (0) value, jump to indicated address.
 
-===NOTE===
+### NOTE
 For the purposes of comparisons and conditional jumps on Vircon32:
 
   * true is 1 (technically non-zero)
   * false is 0
 
-===Structure and variants===
-  * Variant 1: <code>JF { Register1 }, { ImmediateValue }</code>
-  * Variant 2: <code>JF { Register1 }, { Register2 }</code>
+### Structure and variants
+  * Variant 1: ```JF { Register1 }, { ImmediateValue }```
+  * Variant 2: ```JF { Register1 }, { Register2 }```
 
-===Effect===
+### Effect
 
-  * Variant 1: <code>if Register1 == 0 then InstructionPointer = ImmediateValue</code>
-  * Variant 2: <code>if Register1 == 0 then InstructionPointer = Register2</code>
+  * Variant 1: ```if Register1 == 0 then InstructionPointer = ImmediateValue```
+  * Variant 2: ```if Register1 == 0 then InstructionPointer = Register2```
 
-===Description===
+### Description
 JF performs a jump only if its first operand is false, i.e. zero when taken as an integer. In that case its behavior is the same as an unconditional jump. Otherwise it has no effect.
 
-====Integer Comparisons====
+## Integer Comparisons
 For the purposes of comparisons and conditional jumps on Vircon32:
 
   * true is 1 (technically non-zero)
@@ -499,117 +499,117 @@ There are six relational operations:
   * is greater than
   * is greater than or equal to
 
-====IEQ====
+## IEQ
 Integer Compare Equality: comparisons allow us typically to evaluate two values, in accordance with some relational operation, resulting in a true (1) or false (0) result.
 
 Should the first operand contain the same information as the second operand, the result will be true. Otherwise, false.
 
-===Structure and variants===
-  * Variant 1: <code>IEQ { Register1 }, { ImmediateValue }</code>
-  * Variant 2: <code>IEQ { Register1 }, { Register2 }</code>
+### Structure and variants
+  * Variant 1: ```IEQ { Register1 }, { ImmediateValue }```
+  * Variant 2: ```IEQ { Register1 }, { Register2 }```
 
-===Processing actions===
-  * Variant 1: <code>if Register1 == ImmediateValue then Register1 = 1 else Register1 = 0</code>
-  * Variant 2: <code>if Register1 == Register2 then Register1 = 1 else Register1 = 0</code>
+### Processing actions
+  * Variant 1: ```if Register1 == ImmediateValue then Register1 = 1 else Register1 = 0```
+  * Variant 2: ```if Register1 == Register2 then Register1 = 1 else Register1 = 0```
 
-===Description===
+### Description
 IEQ takes two operands interpreted as integers, and checks if they are equal. It will store the boolean result in the first operand, which is always a register.
 
-====INE====
+## INE
 Integer Not Equal: comparisons allow us typically to evaluate two values, in accordance with some relational operation, resulting in a true (1) or false (0) result.
 
 Here, we test to see if the first operand is not equal to the second operand. If they are equal, the result is false, otherwise, not being equal yields a result of true.
 
-===Structure and variants===
-  * Variant 1: <code>INE { Register1 }, { ImmediateValue }</code>
-  * Variant 2: <code>INE { Register1 }, { Register2 }</code>
+### Structure and variants
+  * Variant 1: ```INE { Register1 }, { ImmediateValue }```
+  * Variant 2: ```INE { Register1 }, { Register2 }```
 
-===Processing actions===
-  * Variant 1: <code>if Register1 != ImmediateValue then Register1 = 1 else Register1 = 0</code>
-  * Variant 2: <code>if Register1 != Register2 then Register1 = 1 else Register1 = 0</code>
+### Processing actions
+  * Variant 1: ```if Register1 != ImmediateValue then Register1 = 1 else Register1 = 0```
+  * Variant 2: ```if Register1 != Register2 then Register1 = 1 else Register1 = 0```
 
-===Description===
+### Description
 INE takes two operands interpreted as integers, and checks if they are different. It will store the boolean result in the first operand, which is always a register.
 
-====IGT====
+## IGT
 Integer Greater Than: comparisons allow us typically to evaluate two values, in accordance with some relational operation, resulting in a true (1) or false (0) result.
 
 In this case, we are testing if the first operand is greater than the second operand.
 
-===Structure and variants===
-  * Variant 1: <code>IGT { Register1 }, { ImmediateValue }</code>
-  * Variant 2: <code>IGT { Register1 }, { Register2 }</code>
+### Structure and variants
+  * Variant 1: ```IGT { Register1 }, { ImmediateValue }```
+  * Variant 2: ```IGT { Register1 }, { Register2 }```
 
-===Processing actions===
-  * Variant 1: <code>if Register1 > ImmediateValue then Register1 = 1 else Register1 = 0</code>
-  * Variant 2: <code>if Register1 > Register2 then Register1 = 1 else Register1 = 0</code>
+### Processing actions
+  * Variant 1: ```if Register1 > ImmediateValue then Register1 = 1 else Register1 = 0```
+  * Variant 2: ```if Register1 > Register2 then Register1 = 1 else Register1 = 0```
 
-===Description===
+### Description
 IGT takes two operands interpreted as integers, and checks if the first one is greater than the second. It will store the boolean result in the first operand, which is always a register.
 
 
-====IGE====
+## IGE
 Integer Greater Than Or Equal: comparisons allow us typically to evaluate two values, in accordance with some relational operation, resulting in a true (1) or false (0) result.
 
 In this case, we are testing if the first operand is greater than or equal to the second operand.
 
-===Structure and variants===
-  * Variant 1: <code>IGE { Register1 }, { ImmediateValue }</code>
-  * Variant 2: <code>IGE { Register1 }, { Register2 }</code>
+### Structure and variants
+  * Variant 1: ```IGE { Register1 }, { ImmediateValue }```
+  * Variant 2: ```IGE { Register1 }, { Register2 }```
 
-===Processing actions===
-  * Variant 1: <code>if Register1 >= ImmediateValue then Register1 = 1 else Register1 = 0</code>
-  * Variant 2: <code>if Register1 >= Register2 then Register1 = 1 else Register1 = 0</code>
+### Processing actions
+  * Variant 1: ```if Register1 >= ImmediateValue then Register1 = 1 else Register1 = 0```
+  * Variant 2: ```if Register1 >= Register2 then Register1 = 1 else Register1 = 0```
 
-===Description===
+### Description
 IGE takes two operands interpreted as integers, and checks if the first one is greater or equal to the second. It will store the boolean result in the first operand, which is always a register.
 
-====ILT====
+## ILT
 Integer Less Than: comparisons allow us typically to evaluate two values, in accordance with some relational operation, resulting in a true (1) or false (0) result.
 
 In this case, we are testing if the first operand is less than the second operand.
 
-===Structure and variants===
-  * Variant 1: <code>ILT { Register1 }, { ImmediateValue }</code>
-  * Variant 2: <code>ILT { Register1 }, { Register2 }</code>
+### Structure and variants
+  * Variant 1: ```ILT { Register1 }, { ImmediateValue }```
+  * Variant 2: ```ILT { Register1 }, { Register2 }```
 
-===Processing actions===
-  * Variant 1: <code>if Register1 < ImmediateValue then Register1 = 1 else Register1 = 0</code>
-  * Variant 2: <code>if Register1 < Register2 then Register1 = 1 else Register1 = 0</code>
+### Processing actions
+  * Variant 1: ```if Register1 < ImmediateValue then Register1 = 1 else Register1 = 0```
+  * Variant 2: ```if Register1 < Register2 then Register1 = 1 else Register1 = 0```
 
-===Description===
+### Description
 ILT takes two operands interpreted as integers, and checks if the first one is less than the second. It will store the boolean result in the first operand, which is always a register.
 
-====ILE====
+## ILE
 Integer Less Than Or Equal: comparisons allow us typically to evaluate two values, in accordance with some relational operation, resulting in a true (1) or false (0) result.
 
 In this case, we are testing if the first operand is less than or equal to the second operand.
 
-===Structure and variants===
+### Structure and variants
 ^  Variant  ^  Form  ^  Action  |
-|  1  |<code asm>ILE DSTREG, ImmediateValue</code>  |<code c>if (DSTREG <= ImmediateValue)
+|  1  |<code asm>ILE DSTREG, ImmediateValue```  |<code c>if (DSTREG <= ImmediateValue)
     DSTREG=1;
 else
-    DSTREG=0;</code>  |
-|  2  |<code asm>ILE DSTREG, SRCREG</code>  |<code c>if (DSTREG <= SRCREG)
+    DSTREG=0;```  |
+|  2  |<code asm>ILE DSTREG, SRCREG```  |<code c>if (DSTREG <= SRCREG)
     DSTREG=1;
 else
-    DSTREG=0;</code>  |
+    DSTREG=0;```  |
 
-===Description===
+### Description
 ILE takes two operands interpreted as integers, and checks if the first one is less or equal to the second. It will store the boolean result in the first operand, which is always a register.
 
-====FEQ====
-====FNE====
-====FGT====
-====FGE====
-====FLT====
-====FLE====
+## FEQ
+## FNE
+## FGT
+## FGE
+## FLT
+## FLE
 
-====MOV====
+## MOV
 MOVE: your general purpose data-copying instruction.
 
-===Addressing===
+### Addressing
 MOVE, like other data-centric instructions, makes use of various addressing modes:
 
   * **register**: source/destination is an inbuilt CPU register
@@ -622,18 +622,18 @@ MOVE, like other data-centric instructions, makes use of various addressing mode
 
 Indirect processing is accomplished with the **<nowiki>[ ]</nowiki>** (square brackets) surrounding the value we wish to dereference (we're not interested in the direct thing, but indirectly in what that thing contains).
 
-===Structure and variants===
+### Structure and variants
 ^  Variant  ^  Form  ^  Action  |
-|  1  |<code asm>MOV DSTREG, ImmediateValue</code>  |<code c>DSTREG = ImmediateValue;</code>  |
-|  2  |<code asm>MOV DSTREG, SRCREG</code>  |<code c>DSTREG = SRCREG;</code>  |
-|  3  |<code asm>MOV DSTREG, [ImmediateValue]</code>  |<code c>DSTREG = Memory[ImmediateValue];</code>  |
-|  4  |<code asm>MOV DSTREG, [SRCREG]</code>  |<code c>DSTREG = Memory[SRCREG];</code>  |
-|  5  |<code asm>MOV DSTREG, [SRCREG+ImmediateValue]</code>  |<code c>DSTREG = Memory[SRCREG+ImmediateValue];</code>  |
-|  6  |<code asm>MOV [ImmediateValue], SRCREG</code>  |<code c>Memory[ImmediateValue] = SRCREG;</code>  |
-|  7  |<code asm>MOV [DSTREG], SRCREG</code>  |<code c>Memory[DSTREG] = SRCREG;</code>  |
-|  8  |<code asm>MOV [DSTREG+ImmediateValue], SRCREG</code>  |<code c>Memory[DSTREG+ImmediateValue] = SRCREG;</code>  |
+|  1  |<code asm>MOV DSTREG, ImmediateValue```  |<code c>DSTREG = ImmediateValue;```  |
+|  2  |<code asm>MOV DSTREG, SRCREG```  |<code c>DSTREG = SRCREG;```  |
+|  3  |<code asm>MOV DSTREG, [ImmediateValue]```  |<code c>DSTREG = Memory[ImmediateValue];```  |
+|  4  |<code asm>MOV DSTREG, [SRCREG]```  |<code c>DSTREG = Memory[SRCREG];```  |
+|  5  |<code asm>MOV DSTREG, [SRCREG+ImmediateValue]```  |<code c>DSTREG = Memory[SRCREG+ImmediateValue];```  |
+|  6  |<code asm>MOV [ImmediateValue], SRCREG```  |<code c>Memory[ImmediateValue] = SRCREG;```  |
+|  7  |<code asm>MOV [DSTREG], SRCREG```  |<code c>Memory[DSTREG] = SRCREG;```  |
+|  8  |<code asm>MOV [DSTREG+ImmediateValue], SRCREG```  |<code c>Memory[DSTREG+ImmediateValue] = SRCREG;```  |
 
-===Description===
+### Description
 MOV copies the value indicated in its second operand into the register or memory address indicated by its first operand. MOV is the most complex instruction to process because it needs to distinguish between 8 different addressing modes.
 
 The instruction specifies which of the 8 modes to use in its “Addressing mode” field, being the possible values interpreted as follows:
@@ -650,84 +650,84 @@ The instruction specifies which of the 8 modes to use in its “Addressing mode�
 |  110  |  <nowiki>Memory[DSTREG]</nowiki>  |  SRCREG  |
 |  111  |  <nowiki>Memory[DSTREG + Immediate Value]</nowiki>  |  SRCREG  |
 
-====LEA====
+## LEA
 Load Effective Address of a memory position.
 
-===Structure and variants===
-  * Variant 1: <code>LEA { Register1 }, [ { Register2 } ]</code>
-  * Variant 2: <code>LEA { Register1 }, [ { Register2 } + { ImmediateValue } ]</code>
+### Structure and variants
+  * Variant 1: ```LEA { Register1 }, [ { Register2 } ]```
+  * Variant 2: ```LEA { Register1 }, [ { Register2 } + { ImmediateValue } ]```
 
-===Processing actions===
-  * Register: <code>Register1 = Register2</code>
-  * Indexed: <code>Register1 = Register2 + ImmediateValue</code>
+### Processing actions
+  * Register: ```Register1 = Register2```
+  * Indexed: ```Register1 = Register2 + ImmediateValue```
 
-===Description===
+### Description
 LEA takes a memory address as second operand. It stores that address (not its contents) into the register given as first operand. The most useful case is when the address is given in the form pointer + offset, since the addition is automatically performed.
 
-====PUSH====
+## PUSH
 Save to top of stack
 
-===Structure and variants===
-  * <code>PUSH { Register1 }</code>
+### Structure and variants
+  * ```PUSH { Register1 }```
 
-===Processing actions===
-  * <code>Stack.Push(Register1)</code>
+### Processing actions
+  * ```Stack.Push(Register1)```
 
-===Description===
+### Description
 PUSH uses the CPU hardware stack to add the value contained in the given register at the top of the stack. When you PUSH a value onto the stack, the STACK POINTER (SP) is adjusted downward by one address offset (stack grows down).
 
-====POP====
+## POP
 Load from top of stack
 
-===Structure and variants===
-  * <code>POP { Register1 }</code>
+### Structure and variants
+  * ```POP { Register1 }```
 
-===Processing actions===
-  * <code>Register1 = Stack.Pop()</code>
+### Processing actions
+  * ```Register1 = Stack.Pop()```
 
-===Description===
+### Description
 POP uses the CPU hardware stack to remove a value from the top of the stack and write it in the given register. When you POP a value off the stack, the STACK POINTER (SP) is adjusted upward by one address offset (stack grows down, shrinks up).
 
-====IN====
+## IN
 Receive input from an I/O port
 
-===Structure and variants===
-  * <code>IN {Register1}, {PortNumber}</code>
+### Structure and variants
+  * ```IN {Register1}, {PortNumber}```
 
-===Processing actions===
-  * <code>Register1 = Port[ PortNumber ]</code>
+### Processing actions
+  * ```Register1 = Port[ PortNumber ]```
 
-===Description===
+### Description
 In uses the control bus to read from an I/O port in another chip and stores the returned value in the specified register. This read request may lead to side effects depending on the specified port.
 
-====OUT====
+## OUT
 Write to an I/O port
 
-===Structure and variants===
-  * <code>OUT {PortNumber}, [{ImmediateValue}]</code>
-  * <code>OUT {PortNumber}, {Register1}</code>
+### Structure and variants
+  * ```OUT {PortNumber}, [{ImmediateValue}]```
+  * ```OUT {PortNumber}, {Register1}```
 
-===Processing actions===
-  * <code>Port[PortNumber] = ImmediateValue</code>
-  * <code>Port[PortNumber] = Register1</code>
+### Processing actions
+  * ```Port[PortNumber] = ImmediateValue```
+  * ```Port[PortNumber] = Register1```
 
-===Description===
+### Description
 OUT uses the control bus to write the specified value to an I/O port in another chip. This write request may lead to side effects depending on the specified port
 
-====MOVS====
+## MOVS
 Copy string (HW memcpy)
 
-===Structure and variants===
-  * <code>MOVS</code>
+### Structure and variants
+  * ```MOVS```
 
-===Processing actions===
-  * <code>Memory[ DR ] = Memory[ SR ]</code>
-  * <code>DR += 1</code>
-  * <code>SR += 1</code>
-  * <code>CR -= 1</code>
-  * <code>if CR > 0 then InstructionPointer -= 1</code>
+### Processing actions
+  * ```Memory[ DR ] = Memory[ SR ]```
+  * ```DR += 1```
+  * ```SR += 1```
+  * ```CR -= 1```
+  * ```if CR > 0 then InstructionPointer -= 1```
 
-===Description===
+### Description
 MOVS copies a value from the memory address pointed by SR to the one pointed by DR
 (as in a supposed MOV [DR], [SR]). It then implements a local loop to repeat itself until
 the counter in CR reaches 0, while working on consecutive addresses.
@@ -736,40 +736,40 @@ the described loop at least once.
 This instruction is the only way in Vircon32 CPU to directly copy values from 2 places in
 memory without going through a register.
 
-====SETS====
+## SETS
 Set string (HW memset)
 
-===Structure and variants===
-  * <code>SETS</code>
+### Structure and variants
+  * ```SETS```
 
-===Processing actions===
-  * <code>Memory[ DR ] = SR</code>
-  * <code>DR += 1</code>
-  * <code>CR -= 1</code>
-  * <code>if CR > 0 then InstructionPointer -= 1</code>
+### Processing actions
+  * ```Memory[ DR ] = SR```
+  * ```DR += 1```
+  * ```CR -= 1```
+  * ```if CR > 0 then InstructionPointer -= 1```
 
-===Description===
+### Description
 SETS copies the value in SR to the address pointed by DR (as in a MOV [DR], SR). It
 then implements a local loop to repeat itself until the counter in CR reaches 0, while
 writing to consecutive addresses.
 Note that even when called with a value of CR of zero or less, SETS will always perform
 the described loop at least once.
 
-====CMPS====
+## CMPS
 Compare string (HW memcmp)
 
-===Structure and variants===
-  * <code>CMPS { Register1 }</code>
+### Structure and variants
+  * ```CMPS { Register1 }```
 
-===Processing actions===
-  * <code>Register1 = Memory[ DR ] – Memory[ SR ]</code>
-  * <code>if Register1 != 0 then end processing</code>
-  * <code>DR += 1</code>
-  * <code>SR += 1</code>
-  * <code>CR -= 1</code>
-  * <code>if CR > 0 then InstructionPointer -= 1</code>
+### Processing actions
+  * ```Register1 = Memory[ DR ] – Memory[ SR ]```
+  * ```if Register1 != 0 then end processing```
+  * ```DR += 1```
+  * ```SR += 1```
+  * ```CR -= 1```
+  * ```if CR > 0 then InstructionPointer -= 1```
 
-===Description===
+### Description
 CMPS takes as a reference the compares the value in the address pointed by DR and
 compares it with the one pointed by SR, by subtracting. It then implements a local loop
 to repeat itself until the counter in CR reaches 0, while reading consecutive addresses.
@@ -779,78 +779,78 @@ equal, positive when some value at [DR] was greater, and negative when some valu
 Note that even when called with a value of CR of zero or less, CMPS will always perform
 the described loop at least once.
 
-====CIF====
+## CIF
 Convert Integer to Float
 
-===Structure and variants===
+### Structure and variants
 ^  Variant  ^  Form  ^  Action  |
-|  1  |<code asm>CIF DSTREG</code>  |<code c>DSTREG = (float)DSTREG;</code>  |
+|  1  |<code asm>CIF DSTREG```  |<code c>DSTREG = (float)DSTREG;```  |
 
-===Description===
+### Description
 CIF interprets the specified register as an integer value. Then converts that value to a
 float representation and stores the result back in the same register.
 Note that, due to the limited precision of the float representation, high enough values of
 a 32-bit integer will result in a precision loss when represented as a float.
-====CFI====
+## CFI
 Convert Float to Integer
 
-===Structure and variants===
+### Structure and variants
 ^  Variant  ^  Form  ^  Action  |
-|  1  |<code asm>CFI DSTREG</code>  |<code c>DSTREG = (int)DSTREG;</code>  |
+|  1  |<code asm>CFI DSTREG```  |<code c>DSTREG = (int)DSTREG;```  |
 
-===Description===
+### Description
 CFI interprets the specified register as a float value. Then converts that value to an
 integer representation and stores the result back in the same register. Conversion is not
 done through rounding, but instead by truncating (the fractional part is discarded).
 Note that, due to the much greater range of the float representation, high enough values
 of a float will result in a precision loss when represented as a 32-bit integer.
 
-====CIB====
+## CIB
 Convert Integer to Boolean
 
-===Structure and variants===
+### Structure and variants
 ^  Variant  ^  Form  ^  Action  |
-|  1  |<code asm>CIB DSTREG</code>  |<code c>if (DSTREG != 0)
+|  1  |<code asm>CIB DSTREG```  |<code c>if (DSTREG != 0)
     DSTREG = 1;
 else
-    DSTREG = 0;</code>  |
+    DSTREG = 0;```  |
 
 
-===Description===
+### Description
 CIB interprets the specified register as an integer value. Then converts that value to its
 standard boolean representation and stores the result back in the same register. This
 means that all non-zero values will be converted to 1.
 
-====CFB====
+## CFB
 Convert Float to Boolean
 
-===Structure and variants===
+### Structure and variants
 ^  Variant  ^  Form  ^  Action  |
-|  1  |<code asm>CFB DSTREG</code>  |<code c>if (DSTREG != 0.0)
+|  1  |<code asm>CFB DSTREG```  |<code c>if (DSTREG != 0.0)
     DSTREG = 1;
 else
-    DSTREG = 0;</code>  |
+    DSTREG = 0;```  |
 
-===Description===
+### Description
 CFB interprets the specified register as a float value. Then converts that value to either 0
 (for float value 0.0), or 1 (for any other value) and stores it back in that register.
 
-====NOT====
+## NOT
 Bitwise NOT
 
-===Structure and variants===
-  * <code>NOT { Register1 }</code>
+### Structure and variants
+  * ```NOT { Register1 }```
 
-===Processing actions===
-  * <code>Register1 = NOT Register1</code>
+### Processing actions
+  * ```Register1 = NOT Register1```
 
-===Description===
+### Description
 NOT performs a binary ‘not’ by inverting all of the bits in the specified register.
 
-====AND====
+## AND
 Bitwise AND
 
-===AND truth table===
+### AND truth table
 
 ^  A  ^  B  ^  X  |
 |  false  |  false  |  false  |
@@ -858,19 +858,19 @@ Bitwise AND
 |  true  |  false  |  false  |
 |  true  |  true  |  true  |
 
-===Structure and variants===
+### Structure and variants
 ^  Variant  ^  Form  ^  Action  |
-|  1  |<code asm>AND DSTREG, ImmediateValue</code>  |<code c>DSTREG = DSTREG & ImmediateValue;</code>  |
-|  2  |<code asm>AND DSTREG, SRCREG</code>  |<code c>DSTREG = DSTREG & SRCREG;</code>  |
+|  1  |<code asm>AND DSTREG, ImmediateValue```  |<code c>DSTREG = DSTREG & ImmediateValue;```  |
+|  2  |<code asm>AND DSTREG, SRCREG```  |<code c>DSTREG = DSTREG & SRCREG;```  |
 
-===Description===
+### Description
 AND performs a **Bitwise AND** between each pair of respective bits in the 2 specified
 operands. The result is stored in the first of them, which is always a register.
 
-====OR====
+## OR
 Bitwise iOR
 
-===iOR truth table===
+### iOR truth table
 
 ^  A  ^  B  ^  X  |
 |  false  |  false  |  false  |
@@ -878,18 +878,18 @@ Bitwise iOR
 |  true  |  false  |  true  |
 |  true  |  true  |  true  |
 
-===Structure and variants===
+### Structure and variants
 ^  Variant  ^  Form  ^  Action  |
-|  1  |<code asm>OR DSTREG, ImmediateValue</code>  |<code c>DSTREG = DSTREG | ImmediateValue;</code>  |
-|  2  |<code asm>OR DSTREG, SRCREG</code>  |<code c>DSTREG = DSTREG | SRCREG;</code>  |
+|  1  |<code asm>OR DSTREG, ImmediateValue```  |<code c>DSTREG = DSTREG | ImmediateValue;```  |
+|  2  |<code asm>OR DSTREG, SRCREG```  |<code c>DSTREG = DSTREG | SRCREG;```  |
 
-===Description===
+### Description
 OR performs a **Bitwise INCLUSIVE OR** between each pair of respective bits in the 2 specified operands. The result is stored in the first of them, which is always a register.
 
-====XOR====
+## XOR
 Bitwise XOR
 
-===XOR truth table===
+### XOR truth table
 
 ^  A  ^  B  ^  X  |
 |  false  |  false  |  false  |
@@ -897,37 +897,37 @@ Bitwise XOR
 |  true  |  false  |  true  |
 |  true  |  true  |  false  |
 
-===Structure and variants===
+### Structure and variants
 ^  Variant  ^  Form  ^  Action  |
-|  1  |<code asm>XOR DSTREG, ImmediateValue</code>  |<code c>DSTREG = DSTREG ^ ImmediateValue;</code>  |
-|  2  |<code asm>XOR DSTREG, SRCREG</code>  |<code c>DSTREG = DSTREG ^ SRCREG;</code>  |
+|  1  |<code asm>XOR DSTREG, ImmediateValue```  |<code c>DSTREG = DSTREG ^ ImmediateValue;```  |
+|  2  |<code asm>XOR DSTREG, SRCREG```  |<code c>DSTREG = DSTREG ^ SRCREG;```  |
 
-===Description===
+### Description
 XOR performs a **Bitwise EXCLUSIVE OR** between each pair of respective bits in the 2
 specified operands. The result is stored in the first of them, which is always a register.
 
-====BNOT====
+## BNOT
 Boolean NOT
 
-===Structure and variants===
-  * <code>BNOT { Register1 }</code>
+### Structure and variants
+  * ```BNOT { Register1 }```
 
-===Processing actions===
-  * <code>if Register1 == 0 then Register1 = 1 else Register1 = 0</code>
+### Processing actions
+  * ```if Register1 == 0 then Register1 = 1 else Register1 = 0```
 
-===Description===
+### Description
 BNOT interprets the specified register as a boolean and then converts it to the opposite
 boolean value. This is equivalent to first using CIB and then inverting bit number 0.
 
-====SHL====
+## SHL
 Bit shift left
 
-===Structure and variants===
+### Structure and variants
 ^  Variant  ^  Form  ^  Action  |
-|  1  |<code asm>SHL DSTREG, ImmediateValue</code>  |<code c>DSTREG = DSTREG << ImmediateValue;</code>  |
-|  2  |<code asm>SHL DSTREG, SRCREG</code>  |<code c>DSTREG = DSTREG << SRCREG;</code>  |
+|  1  |<code asm>SHL DSTREG, ImmediateValue```  |<code c>DSTREG = DSTREG << ImmediateValue;```  |
+|  2  |<code asm>SHL DSTREG, SRCREG```  |<code c>DSTREG = DSTREG << SRCREG;```  |
 
-===Description===
+### Description
 SHL performs an bit shift to the left in the specified register. The second operand is
 taken as an integer number of positions to shift.
 
@@ -938,410 +938,378 @@ The shift type is logical: in shifts left, overflow is discarded and zeroes are 
 In shifts right, underflow is discarded and zeroes are introduced as most significant bits.
 
 
-====IADD====
+## IADD
 Integer Addition
 
-===Structure and variants===
-  * <code>(Variant 1): IADD { Register1 }, { ImmediateValue }</code>
-  * <code>(Variant 2): IADD { Register1 }, { Register2 }</code>
+### Structure and variants
+  * ```(Variant 1): IADD { Register1 }, { ImmediateValue }```
+  * ```(Variant 2): IADD { Register1 }, { Register2 }```
 
-===Processing actions===
-  * <code>(Variant 1): Register1 += ImmediateValue</code>
-  * <code>(Variant 2): Register1 += Register2</code>
+### Processing actions
+  * ```(Variant 1): Register1 += ImmediateValue```
+  * ```(Variant 2): Register1 += Register2```
 
-===Description===
+### Description
 IADD interprets both of its operands as integers and performs an addition. The result is
 stored in the first operand, which is always a register. Overflow bits are discarded.
 
-====ISUB====
+## ISUB
 Integer Subtraction
 
-===Structure and variants===
-  * <code>(Variant 1): ISUB { Register1 }, { ImmediateValue }</code>
-  * <code>(Variant 2): ISUB { Register1 }, { Register2 }</code>
+### Structure and variants
+  * ```(Variant 1): ISUB { Register1 }, { ImmediateValue }```
+  * ```(Variant 2): ISUB { Register1 }, { Register2 }```
 
-===Processing actions===
-  * <code>(Variant 1): Register1 -= ImmediateValue</code>
-  * <code>(Variant 2): Register1 -= Register2</code>
+### Processing actions
+  * ```(Variant 1): Register1 -= ImmediateValue```
+  * ```(Variant 2): Register1 -= Register2```
 
-===Description===
+### Description
 ISUB interprets both of its operands as integers and performs a subtraction. The result
 is stored in the first operand, which is always a register. Overflow bits are discarded.
 
-====IMUL====
+## IMUL
 Integer Multiplication
 
-===Structure and variants===
-  * <code>(Variant 1): IMUL { Register1 }, { ImmediateValue }</code>
-  * <code>(Variant 2): IMUL { Register1 }, { Register2 }</code>
+### Structure and variants
+  * ```(Variant 1): IMUL { Register1 }, { ImmediateValue }```
+  * ```(Variant 2): IMUL { Register1 }, { Register2 }```
 
-===Processing actions===
-  * <code>(Variant 1): Register1 *= ImmediateValue</code>
-  * <code>(Variant 2): Register1 *= Register2</code>
+### Processing actions
+  * ```(Variant 1): Register1 *= ImmediateValue```
+  * ```(Variant 2): Register1 *= Register2```
 
-===Description===
+### Description
 IMUL interprets both of its operands as integers and performs a multiplication. The
 result is stored in the first operand, which is always a register. Overflow bits are
 discarded.
 
-====IDIV====
+## IDIV
 Integer Division
 
-===Structure and variants===
-  * <code>(Variant 1): IDIV { Register1 }, { ImmediateValue }</code>
-  * <code>(Variant 2): IDIV { Register1 }, { Register2 }</code>
+### Structure and variants
+  * ```(Variant 1): IDIV { Register1 }, { ImmediateValue }```
+  * ```(Variant 2): IDIV { Register1 }, { Register2 }```
 
-===Processing actions===
-  * <code>(Variant 1): Register1 /= ImmediateValue</code>
-  * <code>(Variant 2): Register1 /= Register2</code>
+### Processing actions
+  * ```(Variant 1): Register1 /= ImmediateValue```
+  * ```(Variant 2): Register1 /= Register2```
 
-===Description===
+### Description
 IDIV interprets both of its operands as integers and performs a division. The result is
 stored in the first operand, which is always a register.
 
-====IMOD====
+## IMOD
 Integer Modulus
 
-===Structure and variants===
-  * <code>(Variant 1): IMOD { Register1 }, { ImmediateValue }</code>
-  * <code>(Variant 2): IMOD { Register1 }, { Register2 }</code>
+### Structure and variants
+  * ```(Variant 1): IMOD { Register1 }, { ImmediateValue }```
+  * ```(Variant 2): IMOD { Register1 }, { Register2 }```
 
-===Processing actions===
-  * <code>(Variant 1): Register1 = Register1 mod ImmediateValue</code>
-  * <code>(Variant 2): Register1 = Register1 mod Register2</code>
+### Processing actions
+  * ```(Variant 1): Register1 = Register1 mod ImmediateValue```
+  * ```(Variant 2): Register1 = Register1 mod Register2```
 
-===Description===
+### Description
 IMOD interprets both of its operands as integers and performs a division. The remainder
 of that division is stored in the first operand, which is always a register.
 
-====ISGN====
+## ISGN
 Integer Sign Change
 
-===Structure and variants===
-  * <code>ISGN { Register1 }</code>
+### Structure and variants
+  * ```ISGN { Register1 }```
 
-===Processing actions===
-  * <code>Register1 = -Register1</code>
+### Processing actions
+  * ```Register1 = -Register1```
 
-===Description===
+### Description
 ISGN interprets the operand register as an integer and inverts its sign.
 
-====IMIN====
+## IMIN
 Integer Minimum
 
-===Structure and variants===
-  * <code>(Variant 1): IMIN { Register1 }, { ImmediateValue }</code>
-  * <code>(Variant 2): IMIN { Register1 }, { Register2 }</code>
+### Structure and variants
+  * ```(Variant 1): IMIN { Register1 }, { ImmediateValue }```
+  * ```(Variant 2): IMIN { Register1 }, { Register2 }```
 
-===Processing actions===
-  * <code>(Variant 1): Register1 = min( Register1, ImmediateValue )</code>
-  * <code>(Variant 2): Register1 = min( Register1, Register2 )</code>
+### Processing actions
+  * ```(Variant 1): Register1 = min( Register1, ImmediateValue )```
+  * ```(Variant 2): Register1 = min( Register1, Register2 )```
 
-===Description===
+### Description
 IMIN interprets both of its operands as integers. It then takes the minimum of both
 values and stores it in the first operand, which is always a register.
 
-====IMAX====
+## IMAX
 Integer Maximum
 
-===Structure and variants===
-  * <code>(Variant 1): IMAX { Register1 }, { ImmediateValue }</code>
-  * <code>(Variant 2): IMAX { Register1 }, { Register2 }</code>
+### Structure and variants
+  * ```(Variant 1): IMAX { Register1 }, { ImmediateValue }```
+  * ```(Variant 2): IMAX { Register1 }, { Register2 }```
 
-===Processing actions===
-  * <code>(Variant 1): Register1 = max( Register1, ImmediateValue )</code>
-  * <code>(Variant 2): Register1 = max( Register1, Register2 )</code>
+### Processing actions
+  * ```(Variant 1): Register1 = max( Register1, ImmediateValue )```
+  * ```(Variant 2): Register1 = max( Register1, Register2 )```
 
-===Description===
+### Description
 IMAX interprets both of its operands as integers. It then takes the maximum of both
 values and stores it in the first operand, which is always a register.
 
-====IABS====
+## IABS
 Integer Absolute Value
 
-===Structure and variants===
-  * <code>IABS { Register1 }</code>
+### Structure and variants
+  * ```IABS { Register1 }```
 
-===Processing actions===
-  * <code>Register1 = abs( Register1 )</code>
+### Processing actions
+  * ```Register1 = abs( Register1 )```
 
-===Description===
+### Description
 IABS interprets the operand register as an integer and takes its absolute value.
 
-====FADD====
+## FADD
 Float Addition
 
-===Structure and variants===
-  * <code>(Variant 1): FADD { Register1 }, { ImmediateValue }</code>
-  * <code>(Variant 2): FADD { Register1 }, { Register2 }</code>
+### Structure and variants
+  * ```(Variant 1): FADD { Register1 }, { ImmediateValue }```
+  * ```(Variant 2): FADD { Register1 }, { Register2 }```
 
-===Processing actions===
-  * <code>(Variant 1): Register1 += ImmediateValue</code>
-  * <code>(Variant 2): Register1 += Register2</code>
+### Processing actions
+  * ```(Variant 1): Register1 += ImmediateValue```
+  * ```(Variant 2): Register1 += Register2```
 
-===Description===
+### Description
 FADD interprets both of its operands as floats and performs an addition. The result is
 stored in the first operand, which is always a register. Overflow bits are discarded.
 
-====FSUB====
+## FSUB
 Float Subtraction
 
-===Structure and variants===
-  * <code>(Variant 1): FSUB { Register1 }, { ImmediateValue }</code>
-  * <code>(Variant 2): FSUB { Register1 }, { Register2 }</code>
+### Structure and variants
+  * ```(Variant 1): FSUB { Register1 }, { ImmediateValue }```
+  * ```(Variant 2): FSUB { Register1 }, { Register2 }```
 
-===Processing actions===
-  * <code>(Variant 1): Register1 -= ImmediateValue</code>
-  * <code>(Variant 2): Register1 -= Register2</code>
+### Processing actions
+  * ```(Variant 1): Register1 -= ImmediateValue```
+  * ```(Variant 2): Register1 -= Register2```
 
-===Description===
+### Description
 FSUB interprets both of its operands as floats and performs a subtraction. The result
 is stored in the first operand, which is always a register. Overflow bits are discarded.
 
-====FMUL====
+## FMUL
 Float Multiplication
 
-===Structure and variants===
-  * <code>(Variant 1): FMUL { Register1 }, { ImmediateValue }</code>
-  * <code>(Variant 2): FMUL { Register1 }, { Register2 }</code>
+### Structure and variants
+  * ```(Variant 1): FMUL { Register1 }, { ImmediateValue }```
+  * ```(Variant 2): FMUL { Register1 }, { Register2 }```
 
-===Processing actions===
-  * <code>(Variant 1): Register1 *= ImmediateValue</code>
-  * <code>(Variant 2): Register1 *= Register2</code>
+### Processing actions
+  * ```(Variant 1): Register1 *= ImmediateValue```
+  * ```(Variant 2): Register1 *= Register2```
 
-===Description===
+### Description
 FMUL interprets both of its operands as floats and performs a multiplication. The
 result is stored in the first operand, which is always a register. Overflow bits are
 discarded.
 
-====FDIV====
+## FDIV
 Float Division
 
-===Structure and variants===
-  * <code>(Variant 1): FDIV { Register1 }, { ImmediateValue }</code>
-  * <code>(Variant 2): FDIV { Register1 }, { Register2 }</code>
+### Structure and variants
+  * ```(Variant 1): FDIV { Register1 }, { ImmediateValue }```
+  * ```(Variant 2): FDIV { Register1 }, { Register2 }```
 
-===Processing actions===
-  * <code>(Variant 1): Register1 /= ImmediateValue</code>
-  * <code>(Variant 2): Register1 /= Register2</code>
+### Processing actions
+  * ```(Variant 1): Register1 /= ImmediateValue```
+  * ```(Variant 2): Register1 /= Register2```
 
-===Description===
+### Description
 FDIV interprets both of its operands as floats and performs a division. The result is
 stored in the first operand, which is always a register.
 
-====FMOD====
+## FMOD
 Float Modulus
 
-===Structure and variants===
-  * <code>(Variant 1): FMOD { Register1 }, { ImmediateValue }</code>
-  * <code>(Variant 2): FMOD { Register1 }, { Register2 }</code>
+### Structure and variants
+  * ```(Variant 1): FMOD { Register1 }, { ImmediateValue }```
+  * ```(Variant 2): FMOD { Register1 }, { Register2 }```
 
-===Processing actions===
-  * <code>(Variant 1): Register1 = fmod(Register1, ImmediateValue)</code>
-  * <code>(Variant 2): Register1 = fmod(Register1, Register2)</code>
+### Processing actions
+  * ```(Variant 1): Register1 = fmod(Register1, ImmediateValue)```
+  * ```(Variant 2): Register1 = fmod(Register1, Register2)```
 
-===Description===
+### Description
 FMOD interprets both of its operands as floats and performs a division. It then takes the
 remainder of that division when the result’s fractional part is discarded and stores it in
 the first operand, which is always a register.
 
-====FSGN====
+## FSGN
 Float Sign Change
 
-===Structure and variants===
-  * <code>FSGN { Register1 }</code>
+### Structure and variants
+  * ```FSGN { Register1 }```
 
-===Processing actions===
-  * <code>Register1 = -Register1</code>
+### Processing actions
+  * ```Register1 = -Register1```
 
-===Description===
+### Description
 FSGN interprets the operand register as a float and inverts its sign.
 
-====FMIN====
+## FMIN
 Float Minimum
 
-===Structure and variants===
-  * <code>(Variant 1): FMIN { Register1 }, { ImmediateValue }</code>
-  * <code>(Variant 2): FMIN { Register1 }, { Register2 }</code>
+### Structure and variants
+  * ```(Variant 1): FMIN { Register1 }, { ImmediateValue }```
+  * ```(Variant 2): FMIN { Register1 }, { Register2 }```
 
-===Processing actions===
-  * <code>(Variant 1): Register1 = min( Register1, ImmediateValue )</code>
-  * <code>(Variant 2): Register1 = min( Register1, Register2 )</code>
+### Processing actions
+  * ```(Variant 1): Register1 = min( Register1, ImmediateValue )```
+  * ```(Variant 2): Register1 = min( Register1, Register2 )```
 
-===Description===
+### Description
 FMIN interprets both of its operands as floats. It then takes the minimum of both
 values and stores it in the first operand, which is always a register.
 
-====FMAX====
+## FMAX
 Float Maximum
 
-===Structure and variants===
-  * <code>(Variant 1): FMAX { Register1 }, { ImmediateValue }</code>
-  * <code>(Variant 2): FMAX { Register1 }, { Register2 }</code>
+### Structure and variants
+  * ```(Variant 1): FMAX { Register1 }, { ImmediateValue }```
+  * ```(Variant 2): FMAX { Register1 }, { Register2 }```
 
-===Processing actions===
-  * <code>(Variant 1): Register1 = max( Register1, ImmediateValue )</code>
-  * <code>(Variant 2): Register1 = max( Register1, Register2 )</code>
+### Processing actions
+  * ```(Variant 1): Register1 = max( Register1, ImmediateValue )```
+  * ```(Variant 2): Register1 = max( Register1, Register2 )```
 
-===Description===
+### Description
 FMAX interprets both of its operands as floats. It then takes the maximum of both
 values and stores it in the first operand, which is always a register.
 
-====FABS====
+## FABS
 Float Absolute Value
 
-===Structure and variants===
-  * <code>FABS { Register1 }</code>
+### Structure and variants
+  * ```FABS { Register1 }```
 
-===Processing actions===
-  * <code>Register1 = abs( Register1 )</code>
+### Processing actions
+  * ```Register1 = abs( Register1 )```
 
-===Description===
+### Description
 FABS interprets the operand register as a float and takes its absolute value.
 
 
-====FLR====
+## FLR
 Round down
 
-===Structure and variants===
-  * <code>FLR { Register1 }</code>
+### Structure and variants
+  * ```FLR { Register1 }```
 
-===Processing actions===
-  * <code>Register1 = floor( Register1 )</code>
+### Processing actions
+  * ```Register1 = floor( Register1 )```
 
-===Description===
+### Description
 FLR interprets the operand register as a float and rounds it downwards to an integer
 value. Note that the result is not converted to an integer, but is still a float.
 
-====CEIL====
+## CEIL
 Round up
 
-===Structure and variants===
-  * <code>CEIL { Register1 }</code>
+### Structure and variants
+  * ```CEIL { Register1 }```
 
-===Processing actions===
-  * <code>Register1 = ceil( Register1 )</code>
+### Processing actions
+  * ```Register1 = ceil( Register1 )```
 
-===Description===
+### Description
 CEIL interprets the operand register as a float and rounds it upwards to an integer
 value. Note that the result is not converted to an integer, but is still a float.
 
-====ROUND====
+## ROUND
 Round to nearest integer
 
-===Structure and variants===
-  * <code>ROUND { Register1 }</code>
+### Structure and variants
+  * ```ROUND { Register1 }```
 
-===Processing actions===
-  * <code>Register1 = round( Register1 )</code>
+### Processing actions
+  * ```Register1 = round( Register1 )```
 
-===Description===
+### Description
 ROUND interprets the operand register as a float and rounds it to the closest integer
 value. Note that the result is not converted to an integer, but is still a float.
 
-====SIN====
-Sine
+## SIN
+Calculate the Sine of the value in the indicated register (expecting the data to be in radians)
 
-===Structure and variants===
-  * <code>SIN { Register1 }</code>
+### Structure and variants
+  * ```SIN { Register1 }```
 
-===Processing actions===
-  * <code>Register1 = sin( Register1 )</code>
+### Processing actions
+  * ```Register1 = sin( Register1 )```
 
-===Description===
+### Description
 SIN interprets the operand register as a float and calculates the sine of that value. The
 sine function will interpret its argument in radians.
 
-====ACOS====
+## ACOS
 Arc cosine
 
-===Structure and variants===
-  * <code>ACOS { Register1 }</code>
+### Structure and variants
+  * ```ACOS { Register1 }```
 
-===Processing actions===
-  * <code>Register1 = acos( Register1 )</code>
+### Processing actions
+  * ```Register1 = acos( Register1 )```
 
-===Description===
+### Description
 ACOS interprets the operand register as a float and calculates the arc cosine of that
 value. The result is given in radians, in the range [0, pi].
 
-====ATAN2====
+## ATAN2
 Arc Tangent from x and y
 
-===Structure and variants===
-  * <code>ATAN2 { Register1 }, { Register2 }</code>
+### Structure and variants
+  * ```ATAN2 { Register1 }, { Register2 }```
 
-===Processing actions===
-  * <code>Register1 = atan2( Register1, Register2 )</code>
+### Processing actions
+  * ```Register1 = atan2( Register1, Register2 )```
 
-===Description===
+### Description
 ATAN2 interprets both operand registers as floats and calculates the angle of a vector
 such that Vx = Register2 and Vy = Register1. The result is stored in the first operand
 register and will be given in radians, in the range [-pi, pi]. The origin of angles is located
 at (Vx > 0, Vy = 0) and angles grow when rotating towards (Vx = 0, Vy > 0).
 
-====LOG====
+## LOG
 Natural logarithm
 
-===Structure and variants===
-  * <code>LOG { Register1 }</code>
+### Structure and variants
+  * ```LOG { Register1 }```
 
-===Processing actions===
-  * <code>Register1 = log( Register1 )</code>
+### Processing actions
+  * ```Register1 = log( Register1 )```
 
-===Description===
+### Description
 LOG interprets the operand register as a float and calculates the logarithm base e of that
 value.
 
-====POW====
+## POW
 Raise to a Power
 
-===Structure and variants===
-  * <code>POW { Register1 }, { Register2 }</code>
+### Structure and variants
+  * ```POW { Register1 }, { Register2 }```
 
-===Processing actions===
-  * <code>Register1 = pow( Register1, Register2 )</code>
+### Processing actions
+  * ```Register1 = pow( Register1, Register2 )```
 
-===Description===
+### Description
 POW interprets both operand registers as floats and calculates the result of raising the
 first operand to the power of the second operand. The result is stored in the first operand
 register.
 
 
-====To Be Done====
-<code>
-    // -----------------------------------------------------------------------------
-
-    enum class CPURegisters: int
-    {
-        // all 16 general-purpose registers
-        Register00 = 0,
-        Register01,
-        Register02,
-        Register03,
-        Register04,
-        Register05,
-        Register06,
-        Register07,
-        Register08,
-        Register09,
-        Register10,
-        Register11,
-        Register12,
-        Register13,
-        Register14,
-        Register15,
-
-        // alternate names for specific registers
-        CountRegister       = 11,
-        SourceRegister      = 12,
-        DestinationRegister = 13,
-        BasePointer         = 14,
-        StackPointer        = 15
-    };
-
-    // -----------------------------------------------------------------------------
-
+## To Be Done
+```
     enum class AddressingModes : unsigned int
     {
         RegisterFromImmediate = 0,      // syntax: MOV R1, 25
@@ -1371,4 +1339,4 @@ register.
         PowerError
     };
 }
-</code>
+```
