@@ -395,21 +395,27 @@ States of the sound channels:
 
 ![V32 instruction format](V32_instruction_format.jpg)
 
-  * bits 31-26: opcode
-  * bit 25: immediate value
-  * bits 24-21: register 1
-  * bits 20-17: register 2
-  * bits 16-14: address mode
-  * bits 13-0: port number
+| bits  | description            |
+| ----- | ---------------------- |
+| 31-26 | opcode                 |
+| 25    | immediate value flag   |
+| 24-21 | destination register   |
+| 20-17 | source register        |
+| 16-14 | address mode (for MOV) |
+| 13-0  | port number            |
 
-If the **immediate value** bit is set, an additional word is read to be used as an operand to the instruction.
+If the **immediate value**  bit is set, an additional word  is read to be
+used as an operand to the instruction.
 
 ## HLT
 
 ## WAIT
 
 ## JMP
-Unconditional jump. Forcibly redirect program flow to indicated address. The address is somewhere else in the program logic, likely identified by some set label.
+
+Unconditional jump. Forcibly redirect  program flow to indicated address.
+The address is somewhere else in  the program logic, likely identified by
+some set label.
 
 ### Structure and variants
 
@@ -823,31 +829,45 @@ standard boolean representation and stores the result back in the same register.
 means that all non-zero values will be converted to 1.
 
 ## CFB
+
 Convert Float to Boolean
 
-### Structure and variants
+### Description
+
+CFB interprets  the specified  register as a  float value.  Then converts
+that value to either 0 (for float  value 0.0), or 1 (for any other value)
+and stores it back in that register.
+
+### Variants and Actions
+
 | Variant | Form          | Action                                       |
 | ------- | ------------- | -------------------------------------------- |
 | 1       | ```CFB REG``` | ```if (REG != 0.0) REG = 1; else REG = 0;``` |
 
-### Description
-CFB interprets the specified register as a float value. Then converts that value to either 0
-(for float value 0.0), or 1 (for any other value) and stores it back in that register.
-
 ## NOT
+
 Bitwise NOT
 
-### Structure and variants
-  * ```NOT REG```
-
-### Processing actions
-  * ```REG = NOT REG```
-
 ### Description
-NOT performs a binary ‘not’ by inverting all of the bits in the specified register.
+
+NOT  performs a  binary ‘not’  by inverting  all of  the bits  in the
+specified register.
+
+### Variants and Actions
+
+| Variant | Form          | Action            |
+| ------- | ------------- | ----------------- |
+|  1      | ```NOT REG``` | ```REG = ~REG;``` |
 
 ## AND
+
 Bitwise AND
+
+### Description
+
+AND performs  a **Bitwise AND** between  each pair of respective  bits in
+the 2  specified operands.  The result  is stored in  the first  of them,
+which is always a register.
 
 ### AND truth table
 
@@ -858,20 +878,22 @@ Bitwise AND
 | true  | false | false |
 | true  | true  | true  |
 
-### Structure and variants
+### Variants and Actions
 
 | Variant | Form                             | Action                                  |
 | ------- | -------------------------------- | --------------------------------------- |
 |  1      | ```AND DSTREG, ImmediateValue``` | ```DSTREG = DSTREG & ImmediateValue;``` |
 |  2      | ```AND DSTREG, SRCREG```         | ```DSTREG = DSTREG & SRCREG;```         |
 
-### Description
-AND performs a **Bitwise AND** between each pair of respective bits in the 2 specified
-operands. The result is stored in the first of them, which is always a register.
-
 ## OR
 
 Bitwise inclusive OR (iOR)
+
+### Description
+
+OR performs  a **Bitwise INCLUSIVE  OR** between each pair  of respective
+bits in the  2 specified operands. The  result is stored in  the first of
+them, which is always a register.
 
 ### iOR truth table
 
@@ -882,20 +904,22 @@ Bitwise inclusive OR (iOR)
 | true  | false | true  |
 | true  | true  | true  |
 
-### Structure and variants
+### Variants and Actions
 
-| Variant | Form                            | Action                                  |
-| ------- | ------------------------------- | --------------------------------------- |
+| Variant | Form                            | Processing Action                        |
+| ------- | ------------------------------- | ---------------------------------------- |
 | 1       | ```OR DSTREG, ImmediateValue``` | ```DSTREG = DSTREG \| ImmediateValue;``` |
 | 2       | ```OR DSTREG, SRCREG```         | ```DSTREG = DSTREG \| SRCREG;```         |
-
-### Description
-
-OR performs a **Bitwise INCLUSIVE OR** between each pair of respective bits in the 2 specified operands. The result is stored in the first of them, which is always a register.
 
 ## XOR
 
 Bitwise exclusive OR (XOR)
+
+### Description
+
+XOR performs a  **Bitwise EXCLUSIVE OR** between each  pair of respective
+bits in the  2 specified operands. The  result is stored in  the first of
+them, which is always a register.
 
 ### XOR truth table
 
@@ -906,56 +930,53 @@ Bitwise exclusive OR (XOR)
 | true  | false | true  |
 | true  | true  | false |
 
-### Structure and variants
+### Variants and Actions
 
-| Variant | Form                             | Action                                  |
+| Variant | Form                             | Processing Action                       |
 | ------- | -------------------------------- | --------------------------------------- |
 | 1       | ```XOR DSTREG, ImmediateValue``` | ```DSTREG = DSTREG ^ ImmediateValue;``` |
 | 2       | ```XOR DSTREG, SRCREG```         | ```DSTREG = DSTREG ^ SRCREG;```         |
-
-### Description
-
-XOR performs a **Bitwise EXCLUSIVE OR** between each pair of respective bits in the 2
-specified operands. The result is stored in the first of them, which is always a register.
 
 ## BNOT
 
 boolean NOT
 
-### Structure and variants
-
-  * ```BNOT REG```
-
-### Processing actions
-
-  * ```if (REG == 0) then REG = 1; else REG = 0;```
-
 ### Description
 
-BNOT interprets the specified register as a boolean and then converts it to the opposite
-boolean value. This is equivalent to first using CIB and then inverting bit number 0.
+BNOT interprets the specified register as  a boolean and then converts it
+to the opposite boolean value. This  is equivalent to first using CIB and
+then inverting bit number 0.
+
+### Variants and Actions
+
+| Variant | Form           | Processing Action                        |
+| ------- | -------------- | ------------------------------------------ |
+| 1       | ```BNOT REG``` | ```if (REG == 0) REG = 1; else REG = 0;``` |
 
 ## SHL
 
 Bitwise shift left
 
-### Structure and variants
+### Description
 
-| Variant | Form                             | Action                                   |
+SHL performs  an bit  shift to  the left in  the specified  register. The
+second operand is taken as an integer number of positions to shift.
+
+Shifting  0 positions  has no  effect,  while negative  values result  in
+shifting right.
+
+The shift  type is  logical: in  shifts left,  overflow is  discarded and
+zeroes are introduced as least significant bits.
+
+In shifts right, underflow is discarded and zeroes are introduced as most
+significant bits.
+
+### Variants and Actions
+
+| Variant | Form                             | Processing Action                        |
 | ------- | -------------------------------- | ---------------------------------------- |
 | 1       | ```SHL DSTREG, ImmediateValue``` | ```DSTREG = DSTREG << ImmediateValue;``` |
 | 2       | ```SHL DSTREG, SRCREG```         | ```DSTREG = DSTREG << SRCREG;```         |
-
-### Description
-
-SHL performs an bit shift to the left in the specified register. The second operand is
-taken as an integer number of positions to shift.
-
-Shifting 0 positions has no effect, while negative values result in shifting right.
-
-The shift type is logical: in shifts left, overflow is discarded and zeroes are introduced as least significant bits.
-
-In shifts right, underflow is discarded and zeroes are introduced as most significant bits.
 
 ## IADD
 
