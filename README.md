@@ -859,6 +859,7 @@ Bitwise AND
 | true  | true  | true  |
 
 ### Structure and variants
+
 | Variant | Form                             | Action                                  |
 | ------- | -------------------------------- | --------------------------------------- |
 |  1      | ```AND DSTREG, ImmediateValue``` | ```DSTREG = DSTREG & ImmediateValue;``` |
@@ -869,7 +870,8 @@ AND performs a **Bitwise AND** between each pair of respective bits in the 2 spe
 operands. The result is stored in the first of them, which is always a register.
 
 ## OR
-Bitwise iOR
+
+Bitwise inclusive OR (iOR)
 
 ### iOR truth table
 
@@ -881,16 +883,19 @@ Bitwise iOR
 | true  | true  | true  |
 
 ### Structure and variants
+
 | Variant | Form                            | Action                                  |
 | ------- | ------------------------------- | --------------------------------------- |
 | 1       | ```OR DSTREG, ImmediateValue``` | ```DSTREG = DSTREG \| ImmediateValue;``` |
 | 2       | ```OR DSTREG, SRCREG```         | ```DSTREG = DSTREG \| SRCREG;```         |
 
 ### Description
+
 OR performs a **Bitwise INCLUSIVE OR** between each pair of respective bits in the 2 specified operands. The result is stored in the first of them, which is always a register.
 
 ## XOR
-Bitwise XOR
+
+Bitwise exclusive OR (XOR)
 
 ### XOR truth table
 
@@ -902,38 +907,47 @@ Bitwise XOR
 | true  | true  | false |
 
 ### Structure and variants
+
 | Variant | Form                             | Action                                  |
 | ------- | -------------------------------- | --------------------------------------- |
 | 1       | ```XOR DSTREG, ImmediateValue``` | ```DSTREG = DSTREG ^ ImmediateValue;``` |
 | 2       | ```XOR DSTREG, SRCREG```         | ```DSTREG = DSTREG ^ SRCREG;```         |
 
 ### Description
+
 XOR performs a **Bitwise EXCLUSIVE OR** between each pair of respective bits in the 2
 specified operands. The result is stored in the first of them, which is always a register.
 
 ## BNOT
-Boolean NOT
+
+boolean NOT
 
 ### Structure and variants
+
   * ```BNOT REG```
 
 ### Processing actions
+
   * ```if (REG == 0) then REG = 1; else REG = 0;```
 
 ### Description
+
 BNOT interprets the specified register as a boolean and then converts it to the opposite
 boolean value. This is equivalent to first using CIB and then inverting bit number 0.
 
 ## SHL
-Bit shift left
+
+Bitwise shift left
 
 ### Structure and variants
+
 | Variant | Form                             | Action                                   |
 | ------- | -------------------------------- | ---------------------------------------- |
 | 1       | ```SHL DSTREG, ImmediateValue``` | ```DSTREG = DSTREG << ImmediateValue;``` |
 | 2       | ```SHL DSTREG, SRCREG```         | ```DSTREG = DSTREG << SRCREG;```         |
 
 ### Description
+
 SHL performs an bit shift to the left in the specified register. The second operand is
 taken as an integer number of positions to shift.
 
@@ -943,385 +957,431 @@ The shift type is logical: in shifts left, overflow is discarded and zeroes are 
 
 In shifts right, underflow is discarded and zeroes are introduced as most significant bits.
 
-
 ## IADD
+
 Integer Addition
 
-### Structure and variants
-  * ```(Variant 1): IADD DSTREG, ImmediateValue```
-  * ```(Variant 2): IADD DSTREG, SRCREG```
-
-### Processing actions
-  * ```(Variant 1): DSTREG = DSTREG + ImmediateValue```
-  * ```(Variant 2): DSTREG = DSTREG + SRCREG```
-
 ### Description
-IADD interprets both of its operands as integers and performs an addition. The result is
-stored in the first operand, which is always a register. Overflow bits are discarded.
+
+IADD  interprets  both  of  its  operands as  integers  and  performs  an
+addition. The  result is stored in  the first operand, which  is always a
+register. Overflow bits are discarded.
+
+### Variants and Actions
+
+| Variant | Form                              | Processing Action                      |
+| ------- | --------------------------------- | -------------------------------------- |
+| 1       | ```IADD DSTREG, ImmediateValue``` | ```DSTREG = DSTREG + ImmediateValue``` |
+| 2       | ```IADD DSTREG, SRCREG```         | ```DSTREG = DSTREG + SRCREG```         |
 
 ## ISUB
+
 Integer Subtraction
 
-### Structure and variants
-  * ```(Variant 1): ISUB DSTREG, ImmediateValue```
-  * ```(Variant 2): ISUB DSTREG, SRCREG```
-
-### Processing actions
-  * ```(Variant 1): DSTREG = DSTREG - ImmediateValue```
-  * ```(Variant 2): DSTREG = DSTREG - SRCREG```
-
 ### Description
-ISUB interprets both of its operands as integers and performs a subtraction. The result
-is stored in the first operand, which is always a register. Overflow bits are discarded.
+
+ISUB  interprets  both  of  its  operands  as  integers  and  performs  a
+subtraction. The result is stored in the first operand, which is always a
+register. Overflow bits are discarded.
+
+### Variants and Actions
+
+| Variant | Form                              | Processing Action                      |
+| ------- | --------------------------------- | -------------------------------------- |
+| 1       | ```ISUB DSTREG, ImmediateValue``` | ```DSTREG = DSTREG - ImmediateValue``` |
+| 2       | ```ISUB DSTREG, SRCREG```         | ```DSTREG = DSTREG - SRCREG```         |
 
 ## IMUL
+
 Integer Multiplication
 
-### Structure and variants
-  * ```(Variant 1): IMUL DSTREG, ImmediateValue```
-  * ```(Variant 2): IMUL DSTREG, SRCREG```
-
-### Processing actions
-  * ```(Variant 1): DSTREG = DSTREG * ImmediateValue```
-  * ```(Variant 2): DSTREG = DSTREG * SRCREG```
-
 ### Description
-IMUL interprets both of its operands as integers and performs a multiplication. The
-result is stored in the first operand, which is always a register. Overflow bits are
-discarded.
+
+IMUL  interprets  both  of  its  operands  as  integers  and  performs  a
+multiplication.  The result  is stored  in  the first  operand, which  is
+always a register. Overflow bits are discarded.
+
+### Variants and Actions
+
+| Variant | Form                              | Processing Action                      |
+| ------- | --------------------------------- | -------------------------------------- |
+| 1       | ```IMUL DSTREG, ImmediateValue``` | ```DSTREG = DSTREG * ImmediateValue``` |
+| 2       | ```IMUL DSTREG, SRCREG```         | ```DSTREG = DSTREG * SRCREG```         |
 
 ## IDIV
+
 Integer Division
 
-### Structure and variants
-  * ```(Variant 1): IDIV DSTREG, ImmediateValue```
-  * ```(Variant 2): IDIV DSTREG, SRCREG```
-
-### Processing actions
-  * ```(Variant 1): DSTREG = DSTREG / ImmediateValue```
-  * ```(Variant 2): DSTREG = DSTREG / SRCREG```
-
 ### Description
-IDIV interprets both of its operands as integers and performs a division. The result is
-stored in the first operand, which is always a register.
+
+IDIV interprets both of its operands as integers and performs a division.
+The result (quotient)  is stored in the first operand,  which is always a
+register.
+
+### Variants and Actions
+
+| Variant | Form                              | Processing Action                      |
+| ------- | --------------------------------- | -------------------------------------- |
+| 1       | ```IDIV DSTREG, ImmediateValue``` | ```DSTREG = DSTREG / ImmediateValue``` |
+| 2       | ```IDIV DSTREG, SRCREG```         | ```DSTREG = DSTREG / SRCREG```         |
 
 ## IMOD
+
 Integer Modulus
 
-### Structure and variants
-  * ```(Variant 1): IMOD DSTREG, ImmediateValue```
-  * ```(Variant 2): IMOD DSTREG, SRCREG```
-
-### Processing actions
-  * ```(Variant 1): DSTREG = DSTREG % ImmediateValue```
-  * ```(Variant 2): DSTREG = DSTREG % SRCREG```
-
 ### Description
-IMOD interprets both of its operands as integers and performs a division. The remainder
-of that division is stored in the first operand, which is always a register.
+
+IMOD interprets both of its operands as integers and performs a division.
+The remainder of  that division is stored in the  first operand, which is
+always a register.
+
+### Variants and Actions
+
+| Variant | Form                              | Processing Action                      |
+| ------- | --------------------------------- | -------------------------------------- |
+| 1       | ```IMOD DSTREG, ImmediateValue``` | ```DSTREG = DSTREG % ImmediateValue``` |
+| 2       | ```IMOD DSTREG, SRCREG```         | ```DSTREG = DSTREG % SRCREG```         |
 
 ## ISGN
+
 Integer Sign Change
 
-### Structure and variants
-  * ```ISGN REG```
-
-### Processing actions
-  * ```REG = -REG```
-
 ### Description
+
 ISGN interprets the operand register as an integer and inverts its sign.
 
+### Variants and Actions
+
+| Variant | Form           | Processing Action |
+| ------- | -------------- | ----------------- |
+| 1       | ```ISGN REG``` | ```REG = -REG```  |
+
 ## IMIN
+
 Integer Minimum
 
-### Structure and variants
-  * ```(Variant 1): IMIN DSTREG, ImmediateValue```
-  * ```(Variant 2): IMIN DSTREG, SRCREG```
-
-### Processing actions
-  * ```(Variant 1): DSTREG = min(DSTREG, ImmediateValue)```
-  * ```(Variant 2): DSTREG = min(DSTREG, SRCREG)```
-
 ### Description
-IMIN interprets both of its operands as integers. It then takes the minimum of both
-values and stores it in the first operand, which is always a register.
+
+IMIN  interprets both  of its  operands as  integers. It  then takes  the
+minimum (smaller)  of both  values and  stores it  in the  first operand,
+which is always a register.
+
+### Variants and Actions
+
+| Variant | Form                              | Processing Action                         |
+| ------- | --------------------------------- | ----------------------------------------- |
+| 1       | ```IMIN DSTREG, ImmediateValue``` | ```DSTREG = min(DSTREG, ImmediateValue``` |
+| 2       | ```IMIN DSTREG, SRCREG```         | ```DSTREG = min(DSTREG, SRCREG)```        |
 
 ## IMAX
+
 Integer Maximum
 
-### Structure and variants
-  * ```(Variant 1): IMAX DSTREG, ImmediateValue```
-  * ```(Variant 2): IMAX DSTREG, SRCREG```
-
-### Processing actions
-  * ```(Variant 1): DSTREG = max(DSTREG, ImmediateValue)```
-  * ```(Variant 2): DSTREG = max(DSTREG, SRCREG)```
-
 ### Description
-IMAX interprets both of its operands as integers. It then takes the maximum of both
-values and stores it in the first operand, which is always a register.
+
+IMAX  interprets both  of its  operands as  integers. It  then takes  the
+maximum (larger) of both values and stores it in the first operand, which
+is always a register.
+
+### Variants and Actions
+
+| Variant | Form                              | Processing Action                         |
+| ------- | --------------------------------- | ----------------------------------------- |
+| 1       | ```IMAX DSTREG, ImmediateValue``` | ```DSTREG = max(DSTREG, ImmediateValue``` |
+| 2       | ```IMAX DSTREG, SRCREG```         | ```DSTREG = max(DSTREG, SRCREG)```        |
 
 ## IABS
+
 Integer Absolute Value
 
-### Structure and variants
-  * ```IABS REG```
-
-### Processing actions
-  * ```REG = abs(REG)```
-
 ### Description
+
 IABS interprets the operand register as an integer and takes its absolute value.
 
+### Variants and Actions
+
+| Variant | Form           | Processing Action     |
+| ------- | -------------- | --------------------- |
+| 1       | ```IABS REG``` | ```REG = abs(REG)```  |
+
 ## FADD
+
 Float Addition
 
-### Structure and variants
-  * ```(Variant 1): FADD DSTREG, ImmediateValue```
-  * ```(Variant 2): FADD DSTREG, SRCREG```
-
-### Processing actions
-  * ```(Variant 1): DSTREG = DSTREG + ImmediateValue```
-  * ```(Variant 2): DSTREG = DSTREG + SRCREG```
-
 ### Description
-FADD interprets both of its operands as floats and performs an addition. The result is
-stored in the first operand, which is always a register. Overflow bits are discarded.
+
+FADD interprets both of its operands  as floats and performs an addition.
+The result  is stored in the  first operand, which is  always a register.
+Overflow bits are discarded.
+
+### Variants and Actions
+
+| Variant | Form                              | Processing Action                      |
+| ------- | --------------------------------- | -------------------------------------- |
+| 1       | ```FADD DSTREG, ImmediateValue``` | ```DSTREG = DSTREG + ImmediateValue``` |
+| 2       | ```FADD DSTREG, SRCREG```         | ```DSTREG = DSTREG + SRCREG```         |
 
 ## FSUB
+
 Float Subtraction
 
-### Structure and variants
-  * ```(Variant 1): FSUB DSTREG, ImmediateValue```
-  * ```(Variant 2): FSUB DSTREG, SRCREG```
-
-### Processing actions
-  * ```(Variant 1): DSTREG = DSTREG - ImmediateValue```
-  * ```(Variant 2): DSTREG = DSTREG - SRCREG```
-
 ### Description
-FSUB interprets both of its operands as floats and performs a subtraction. The result
-is stored in the first operand, which is always a register. Overflow bits are discarded.
+
+FSUB  interprets  both   of  its  operands  as  floats   and  performs  a
+subtraction. The result is stored in the first operand, which is always a
+register. Overflow bits are discarded.
+
+### Variants and Actions
+
+| Variant | Form                              | Processing Action                      |
+| ------- | --------------------------------- | -------------------------------------- |
+| 1       | ```FSUB DSTREG, ImmediateValue``` | ```DSTREG = DSTREG - ImmediateValue``` |
+| 2       | ```FSUB DSTREG, SRCREG```         | ```DSTREG = DSTREG - SRCREG```         |
 
 ## FMUL
+
 Float Multiplication
 
-### Structure and variants
-  * ```(Variant 1): FMUL DSTREG, ImmediateValue```
-  * ```(Variant 2): FMUL DSTREG, SRCREG```
-
-### Processing actions
-  * ```(Variant 1): DSTREG = DSTREG * ImmediateValue```
-  * ```(Variant 2): DSTREG = DSTREG * SRCREG```
-
 ### Description
-FMUL interprets both of its operands as floats and performs a multiplication. The
-result is stored in the first operand, which is always a register. Overflow bits are
-discarded.
+
+FMUL  interprets  both   of  its  operands  as  floats   and  performs  a
+multiplication.  The result  is stored  in  the first  operand, which  is
+always a register. Overflow bits are discarded.
+
+### Variants and Actions
+
+| Variant | Form                              | Processing Action                      |
+| ------- | --------------------------------- | -------------------------------------- |
+| 1       | ```FMUL DSTREG, ImmediateValue``` | ```DSTREG = DSTREG * ImmediateValue``` |
+| 2       | ```FMUL DSTREG, SRCREG```         | ```DSTREG = DSTREG * SRCREG```         |
 
 ## FDIV
+
 Float Division
 
-### Structure and variants
-  * ```(Variant 1): FDIV DSTREG, ImmediateValue```
-  * ```(Variant 2): FDIV DSTREG, SRCREG```
-
-### Processing actions
-  * ```(Variant 1): DSTREG /= ImmediateValue```
-  * ```(Variant 2): DSTREG /= SRCREG```
-
 ### Description
-FDIV interprets both of its operands as floats and performs a division. The result is
-stored in the first operand, which is always a register.
+
+FDIV interprets both  of its operands as floats and  performs a division.
+The result (quotient)  is stored in the first operand,  which is always a
+register.
+
+### Variants and Actions
+
+| Variant | Form                              | Processing Action                      |
+| ------- | --------------------------------- | -------------------------------------- |
+| 1       | ```FDIV DSTREG, ImmediateValue``` | ```DSTREG = DSTREG / ImmediateValue``` |
+| 2       | ```FDIV DSTREG, SRCREG```         | ```DSTREG = DSTREG / SRCREG```         |
 
 ## FMOD
-Float Modulus
 
-### Structure and variants
-  * ```(Variant 1): FMOD DSTREG, ImmediateValue```
-  * ```(Variant 2): FMOD DSTREG, SRCREG```
-
-### Processing actions
-  * ```(Variant 1): DSTREG = fmod(DSTREG, ImmediateValue)```
-  * ```(Variant 2): DSTREG = fmod(DSTREG, SRCREG)```
+Float Modulus (Remainder from Division)
 
 ### Description
-FMOD interprets both of its operands as floats and performs a division. It then takes the
-remainder of that division when the result’s fractional part is discarded and stores it in
-the first operand, which is always a register.
+
+FMOD interprets  both of its operands  as floats and performs  a floating
+point division.  It then takes  the remainder  of that division  when the
+result’s  fractional part  is  discarded  and stores  it  in the  first
+operand, which is always a register.
+
+### Variants and Actions
+
+| Variant | Form                              | Processing Action                      |
+| ------- | --------------------------------- | -------------------------------------- |
+| 1       | ```FMOD DSTREG, ImmediateValue``` | ```DSTREG = DSTREG % ImmediateValue``` |
+| 2       | ```FMOD DSTREG, SRCREG```         | ```DSTREG = DSTREG % SRCREG```         |
 
 ## FSGN
+
 Float Sign Change
 
-### Structure and variants
-  * ```FSGN REG```
-
-### Processing actions
-  * ```REG = -REG```
-
 ### Description
+
 FSGN interprets the operand register as a float and inverts its sign.
 
+### Variants and Actions
+
+| Variant | Form           | Processing Action |
+| ------- | -------------- | ----------------- |
+| 1       | ```FSGN REG``` | ```REG = -REG```  |
+
 ## FMIN
+
 Float Minimum
 
-### Structure and variants
-  * ```(Variant 1): FMIN DSTREG, ImmediateValue```
-  * ```(Variant 2): FMIN DSTREG, SRCREG```
-
-### Processing actions
-  * ```(Variant 1): DSTREG = min(DSTREG, ImmediateValue)```
-  * ```(Variant 2): DSTREG = min(DSTREG, SRCREG)```
-
 ### Description
-FMIN interprets both of its operands as floats. It then takes the minimum of both
-values and stores it in the first operand, which is always a register.
+
+FMIN interprets both of its operands as floats. It then takes the minimum
+(smaller) of  both values and  stores it in  the first operand,  which is
+always a register.
+
+### Variants and Actions
+
+| Variant | Form                              | Processing Action                         |
+| ------- | --------------------------------- | ----------------------------------------- |
+| 1       | ```FMIN DSTREG, ImmediateValue``` | ```DSTREG = min(DSTREG, ImmediateValue``` |
+| 2       | ```FMIN DSTREG, SRCREG```         | ```DSTREG = min(DSTREG, SRCREG)```        |
 
 ## FMAX
+
 Float Maximum
 
-### Structure and variants
-  * ```(Variant 1): FMAX DSTREG, ImmediateValue```
-  * ```(Variant 2): FMAX DSTREG, SRCREG```
-
-### Processing actions
-  * ```(Variant 1): DSTREG = max(DSTREG, ImmediateValue)```
-  * ```(Variant 2): DSTREG = max(DSTREG, SRCREG)```
-
 ### Description
-FMAX interprets both of its operands as floats. It then takes the maximum of both
-values and stores it in the first operand, which is always a register.
+
+FMAX interprets both of its operands as floats. It then takes the maximum
+(larger) of  both values  and stores  it in the  first operand,  which is
+always a register.
+
+### Variants and Actions
+
+| Variant | Form                              | Processing Action                         |
+| ------- | --------------------------------- | ----------------------------------------- |
+| 1       | ```FMAX DSTREG, ImmediateValue``` | ```DSTREG = max(DSTREG, ImmediateValue``` |
+| 2       | ```FMAX DSTREG, SRCREG```         | ```DSTREG = max(DSTREG, SRCREG)```        |
 
 ## FABS
-Float Absolute Value
 
-### Structure and variants
-  * ```FABS REG```
-
-### Processing actions
-  * ```REG = abs(DSTREG)```
+Floating Point Absolute Value
 
 ### Description
-FABS interprets the operand register as a float and takes its absolute value.
 
+FABS interprets  the operand register as  a float and takes  its absolute
+value.
+
+### Variants and Actions
+
+| Variant | Form           | Processing Action     |
+| ------- | -------------- | --------------------- |
+| 1       | ```FABS REG``` | ```REG = abs(REG)```  |
 
 ## FLR
-Round down
 
-### Structure and variants
-  * ```FLR REG```
-
-### Processing actions
-  * ```REG = floor(DSTREG)```
+Floating Point Round Down (Floor)
 
 ### Description
-FLR interprets the operand register as a float and rounds it downwards to an integer
-value. Note that the result is not converted to an integer, but is still a float.
+
+FLR interprets the operand register as a float and rounds it downwards to
+an integer  value. Note that the  result is not converted  to an integer,
+but is still a float.
+
+### Variants and Actions
+
+| Variant | Form          | Processing Action       |
+| ------- | ------------- | ----------------------- |
+| 1       | ```FLR REG``` | ```REG = floor(REG)```  |
 
 ## CEIL
-Round up
 
-### Structure and variants
-  * ```CEIL REG```
-
-### Processing actions
-  * ```REG = ceil(REG)```
+Floating Point Round Up (Ceiling)
 
 ### Description
-CEIL interprets the operand register as a float and rounds it upwards to an integer
-value. Note that the result is not converted to an integer, but is still a float.
+
+CEIL interprets the operand register as  a float and rounds it upwards to
+an integer  value. Note that the  result is not converted  to an integer,
+but is still a float.
+
+### Variants and Actions
+
+| Variant | Form           | Processing Action      |
+| ------- | -------------- | ---------------------- |
+| 1       | ```CEIL REG``` | ```REG = ceil(REG)```  |
 
 ## ROUND
-Round to nearest integer
 
-### Structure and variants
-  * ```ROUND REG```
-
-### Processing actions
-  * ```REG = round(REG)```
+Floating Point Round to Nearest Whole Value
 
 ### Description
-ROUND interprets the operand register as a float and rounds it to the closest integer
-value. Note that the result is not converted to an integer, but is still a float.
+
+ROUND interprets  the operand register  as a float  and rounds it  to the
+closest  integer value.  Note  that the  result is  not  converted to  an
+integer, but is still a float.
+
+### Variants and Actions
+
+| Variant | Form            | Processing Action       |
+| ------- | --------------- | ----------------------- |
+| 1       | ```ROUND REG``` | ```REG = round(REG)```  |
 
 ## SIN
-Calculate the Sine of the value in the indicated register (expecting the data to be in radians)
 
-### Structure and variants
-  * ```SIN REG```
-
-### Processing actions
-  * ```DSTREG = sin(REG)```
+Calculate the Sine
 
 ### Description
-SIN interprets the operand register as a float and calculates the sine of that value. The
-sine function will interpret its argument in radians.
+
+SIN interprets the operand register as a float and calculates the sine of
+that value. The sine function will interpret its argument in radians.
+
+### Variants and Actions
+
+| Variant | Form          | Processing Action     |
+| ------- | ------------- | --------------------- |
+| 1       | ```SIN REG``` | ```REG = sin(REG)```  |
 
 ## ACOS
 Arc cosine
 
-### Structure and variants
-  * ```ACOS REG```
-
-### Processing actions
-  * ```REG = acos(REG)```
-
 ### Description
-ACOS interprets the operand register as a float and calculates the arc cosine of that
-value. The result is given in radians, in the range [0, pi].
+
+ACOS interprets  the operand register as  a float and calculates  the arc
+cosine of that value.  The result is given in radians, in  the range 0 to
+pi.
+
+### Variants and Actions
+
+| Variant | Form           | Processing Action     |
+| ------- | -------------- | --------------------- |
+| 1       | ```ACOS REG``` | ```REG = acos(REG)``` |
 
 ## ATAN2
+
 Arc Tangent from x and y
 
-### Structure and variants
-  * ```ATAN2 DSTREG, SRCREG```
-
-### Processing actions
-  * ```DSTREG = atan2(DSTREG, SRCREG)```
-
 ### Description
-ATAN2 interprets both operand registers as floats and calculates the angle of a vector
-such that Vx = SRCREG and Vy = DSTREG. The result is stored in the first operand
-register and will be given in radians, in the range [-pi, pi]. The origin of angles is located
-at (Vx > 0, Vy = 0) and angles grow when rotating towards (Vx = 0, Vy > 0).
+
+ATAN2  interprets both  operand registers  as floats  and calculates  the
+angle of a  vector such that Vx =  SRCREG and Vy = DSTREG.  The result is
+stored in the first operand register and will be given in radians, in the
+range of -pi to pi.  The origin of angles is located at (Vx  > 0, Vy = 0)
+and angles grow when rotating towards (Vx = 0, Vy > 0).
+
+### Variants and Actions
+
+| Variant | Form                      | Processing Action                 |
+| ------- | ------------------------- | --------------------------------- |
+| 1       | ```ATAN DSTREG, SRCREG``` | ```REG = atan2(DSTREG, SRCREG)``` |
 
 ## LOG
+
 Natural logarithm
 
-### Structure and variants
-  * ```LOG REG```
-
-### Processing actions
-  * ```DSTREG = log(DSTREG)```
-
 ### Description
-LOG interprets the operand register as a float and calculates the logarithm base e of that
-value.
+
+LOG  interprets  the operand  register  as  a  float and  calculates  the
+logarithm base e of that value.
+
+### Variants and Actions
+
+| Variant | Form          | Processing Action    |
+| ------- | ------------- | -------------------- |
+| 1       | ```LOG REG``` | ```REG = log(REG)``` |
 
 ## POW
+
 Raise to a Power
 
-### Structure and variants
-  * ```POW DSTREG, SRCREG```
-
-### Processing actions
-  * ```DSTREG = pow(DSTREG, SRCREG)```
-
 ### Description
-POW interprets both operand registers as floats and calculates the result of raising the
-first operand to the power of the second operand. The result is stored in the first operand
-register.
 
+POW interprets both operand registers as floats and calculates the result
+of raising  the first  operand to  the power of  the second  operand. The
+result is stored in the first operand register.
+
+### Variants and Actions
+
+| Variant | Form                     | Processing Action               |
+| ------- | ------------------------ | ------------------------------- |
+| 1       | ```POW DSTREG, SRCREG``` | ```REG = pow(DSTREG, SRCREG)``` |
 
 ## To Be Done
 ```
-    enum class AddressingModes : unsigned int
-    {
-    };
-
-    // -----------------------------------------------------------------------------
-
     enum class CPUErrorCodes: uint32_t
     {
         InvalidMemoryRead = 0,
