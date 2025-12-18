@@ -7,6 +7,7 @@ This document is based on Vircon32 DevTools **v25.1.19** or later; older version
 ## table of contents
 
   * [System Quick Reference](#system-quick-reference)
+  * [CPU Error Codes](#cpu-error-codes)
   * [Assembler Data Directives](#assember-data-directives)
   * [Vircon32 Instruction Set Category Overview](#vircon32-instruction-set-category-overview)
   * [Vircon32 Instruction Set Detailed View](#vircon32-instruction-set-detailed-view)
@@ -14,8 +15,8 @@ This document is based on Vircon32 DevTools **v25.1.19** or later; older version
     * [Stack Operations](#stack-operations)
     * [String Operations](#string-operations)
   * [Vircon32 Memory Map](#vircon32-memory-map)
-  * [Vircon32 IOPorts Layout](#vircon32-ioports-layout)
   * [IOPorts](#ioports)
+    * [Vircon32 IOPorts Layout](#vircon32-ioports-layout)
     * [TIME](#time)
     * [RNG](#rng)
     * [GPU](#gpu)
@@ -62,6 +63,24 @@ This document is based on Vircon32 DevTools **v25.1.19** or later; older version
 | ControlBusSlaves            | 8                                 |
 | GamepadPorts                | 4                                 |
 
+## CPU Error Codes
+
+Runtime errors that Vircon32 generates:
+
+| Value | Type               | Description                             |
+| ----- | ------------------ | --------------------------------------- |
+| 0     | InvalidMemoryRead  | read from invalid memory location       |
+| 1     | InvalidMemoryWrite | write to invalid memory location        |
+| 2     | InvalidPortRead    | invalid read from write-only port       |
+| 3     | InvalidPortWrite   | invalid write to read-only port         |
+| 4     | StackOverflow      | push would exceed lower bound of memory |
+| 5     | StackUnderflow     | pop would exceed upper bound of memory  |
+| 6     | DivisionError      | division by zero                        |
+| 7     | ArcCosineError     | undefined value                         |
+| 8     | ArcTangent2Error   | undefined value                         |
+| 9     | LogarithmError     | undefined value                         |
+| 10    | PowerError         | undefined value                         |
+
 ## Assembler Data Directives
 
 | keyword  | description                  |
@@ -98,7 +117,10 @@ Use commas to separate values (create "array" of values)
 |                |             |               |               | [FABS](#FABS) |                 |
 
 ## Vircon32 Instruction Set Detailed View
-There  are 64  CPU opcodes,  instructions  encode them  in 6  bits. No invalid opcodes  can exist. HLT  is opcode 0 for  safety: if an  empty or invalid instruction is found, the CPU will stop execution.
+
+There are 64 CPU opcodes, instructions  encode them in 6 bits. No invalid
+opcodes can  exist. HLT is  opcode 0 for safety:  if an empty  or invalid
+instruction is found, the CPU will stop execution.
 
 | opcode | binary | mneumonic       | category   | operands | description                               |
 | ------ | ------ | --------------- | ---------- | -------- | -----------                               |
@@ -169,9 +191,12 @@ There  are 64  CPU opcodes,  instructions  encode them  in 6  bits. No invalid o
 
 ## Vircon32 Registers
 
-Vircon32 has 16 general purpose registers, which can be used for either **integer** or **floating point** operation (just: only one at any given moment).
+Vircon32 has 16  general purpose registers, which can be  used for either
+**integer** or **floating point** operation  (just: only one at any given
+moment).
 
-Some registers are used by various instructions, so if used, should be avoided to prevent data hazards.
+Some registers  are used by various  instructions, so if used,  should be
+avoided to prevent data hazards.
 
 | Register | Binary | Alias | Description                  |
 | -------- | ------ | ----- | ---------------------------- |
@@ -194,17 +219,30 @@ Some registers are used by various instructions, so if used, should be avoided t
 
 ### stack operations
 
-The stack is a convenient and often-used strategy on the CPU. It relies on the tracking of an otherwise unused (or carefully conflict-averse) region of memory, typically located at the end of an addressable range of RAM. There are two components: the base of the stack, and the top of the stack.
+The stack is  a convenient and often-used strategy on  the CPU. It relies
+on the  tracking of  an otherwise  unused (or  carefully conflict-averse)
+region of memory, typically located at the end of an addressable range of
+RAM. There are two components: the base  of the stack, and the top of the
+stack.
 
-When you [PUSH](#PUSH) an item onto the stack, the stack pointer register (**SP**) is decremented by one word, and the intended value stored at the memory location stored therein.
+When you [PUSH](#PUSH) an item onto the stack, the stack pointer register
+(**SP**) is decremented by one word, and the intended value stored at the
+memory location stored therein.
 
-When you [POP](#POP) an item off the stack, the value in memory at the current location stored in the stack pointer register (**SP**) is obtained, then the stack pointer register (**SP**) is incremented by one word.
+When you [POP](#POP)  an item off the  stack, the value in  memory at the
+current  location  stored  in  the stack  pointer  register  (**SP**)  is
+obtained, then the stack pointer  register (**SP**) is incremented by one
+word.
 
 ### string operations
 
-For a small subset of instructions, typically intended for string-like operations (in the C sense: a string is an array of individual values), the CR/SR/DR registers can be used to facilitate iterative operations on data.
+For a  small subset of  instructions, typically intended  for string-like
+operations (in the  C sense: a string is an  array of individual values),
+the CR/SR/DR registers can be  used to facilitate iterative operations on
+data.
 
-The three instructions that utilize this functionality on Vircon32 are [MOVS](#MOVS), [SETS](#SETS), and [CMPS](#CMPS).
+The three  instructions that utilize  this functionality on  Vircon32 are
+[MOVS](#MOVS), [SETS](#SETS), and [CMPS](#CMPS).
 
 ## Vircon32 Memory Map
 
@@ -218,6 +256,8 @@ The three instructions that utilize this functionality on Vircon32 are [MOVS](#M
 | CartridgeProgramROMFirstAddress | 0x20000000 | Cartridge Data                            |
 | MemoryCardRAMFirstAddress       | 0x30000000 | Memory Card Data                          |
 
+# IOPorts
+
 ## Vircon32 IOPorts Layout
 
 | Address | Vircon32 ID                 | Description                |
@@ -229,8 +269,6 @@ The three instructions that utilize this functionality on Vircon32 are [MOVS](#M
 | 0x400   | [INP_FirstPort](#INPUT)     | input (game controllers)   |
 | 0x500   | [CAR_FirstPort](#CARTRIDGE) | cartridge interface        |
 | 0x600   | [MEM_FirstPort](#MEMCARD)   | memory card                |
-
-# IOPorts
 
 ## TIME
 
@@ -244,7 +282,7 @@ The three instructions that utilize this functionality on Vircon32 are [MOVS](#M
 ### example: get current frame count
 
 ```
-    in R0,  TIM_FrameCounter    ; load current frame count into R0
+    IN R0,  TIM_FrameCounter    ; load current frame count into R0
 ```
 
 ## RNG
@@ -335,6 +373,7 @@ Active blending:
 | ???  | 0x30D | SPU_ChannelPosition      | ???  |
 
 ### SPU Commands
+
 Commands for the SPU:
 
 | Value | Name                            | Description                                         |
@@ -347,6 +386,7 @@ Commands for the SPU:
 | 0x35  | SPUCommand_StopAllChannels      | same as applying StopChannel to all channels        |
 
 ### SPU Channel States
+
 States of the sound channels:
 
 | Value | Name                    | Description                                                     |
@@ -417,193 +457,223 @@ Unconditional jump. Forcibly redirect  program flow to indicated address.
 The address is somewhere else in  the program logic, likely identified by
 some set label.
 
-### Structure and variants
-
-  * Variant 1: ```JMP ImmediateValue```
-  * Variant 2: ```JMP REG```
-
-### Processing actions
-  * Variant 1: ```InstructionPointer = ImmediateValue```
-  * Variant 2: ```InstructionPointer = REG```
-
 ### Description
-**JMP** performs an unconditional jump to the address specified by its operand. After processing this instruction the CPU will continue execution at the new address.
 
-### Examples
-Jumping to a label (memory address/offset):
+**JMP**  performs  an unconditional  jump  to  the address  specified  by
+its  operand. After  processing this  instruction the  CPU will  continue
+execution at the new address.
 
-```
-    jmp _label
-    ...
-_label:
-```
+### Variants and Actions
 
-Jumping to address stored in register:
-
-```
-    jmp R0
-```
+|     | Form                | Processing Action                     |
+| --- | ------------------- | ------------------------------------- |
+| 1   | ```JMP Immediate``` | ```InstructionPointer = Immediate;``` |
+| 2   | ```JT  SRCREG```    | ```InstructionPointer = SRCREG;```    |
 
 ## CALL
 
 ## RET
 
 ## JT
-Jump if True: a conditional jump typically used following a comparison instruction, should the queried register contain a true (1) value, jump to indicated address.
+
+Jump if  True: a conditional  jump typically used following  a comparison
+instruction, should the  queried register contain a true  (1) value, jump
+to indicated address.
+
+### Description
+
+JT performs a jump only if its  first operand is true, i.e. non zero when
+taken  as an  integer.  In that  case  its  behavior is  the  same as  an
+unconditional jump. Otherwise it has no effect.
 
 ### NOTE
+
 For the purposes of comparisons and conditional jumps on Vircon32:
 
   * true is 1 (technically non-zero)
   * false is 0
 
-### Structure and variants
-  * Variant 1: ```JT DSTREG, ImmediateValue```
-  * Variant 2: ```JT DSTREG, SRCREG```
+### Variants and Actions
 
-### Effect
-
-  * Variant 1: ```if DSTREG != 0 then InstructionPointer = ImmediateValue```
-  * Variant 2: ```if DSTREG != 0 then InstructionPointer = SRCREG```
-
-### Description
-JT performs a jump only if its first operand is true, i.e. non zero when taken as an integer. In that case its behavior is the same as an unconditional jump. Otherwise it has no effect.
+|     | Form                        | Processing Action                                     |
+| --- | --------------------------- | ----------------------------------------------------- |
+| 1   | ```JT  DSTREG, Immediate``` | ```InstructionPointer = (DSTREG != 0) ? Immediate;``` |
+| 2   | ```JT  DSTREG, SRCREG```    | ```InstructionPointer = (DSTREG != 0) ? SRCREG;```    |
 
 ## JF
-Jump if False: a conditional jump typically used following a comparison instruction, should the queried register contain a false (0) value, jump to indicated address.
+
+Jump if False:  a conditional jump typically used  following a comparison
+instruction, should the queried register  contain a false (0) value, jump
+to indicated address.
+
+### Description
+
+JF performs  a jump only  if its first operand  is false, i.e.  zero when
+taken  as an  integer.  In that  case  its  behavior is  the  same as  an
+unconditional jump. Otherwise it has no effect.
 
 ### NOTE
+
 For the purposes of comparisons and conditional jumps on Vircon32:
 
   * true is 1 (technically non-zero)
   * false is 0
 
-### Structure and variants
-  * Variant 1: ```JF DSTREG, ImmediateValue```
-  * Variant 2: ```JF DSTREG, SRCREG```
+### Variants and Actions
 
-### Effect
+|     | Form                        | Processing Action                                     |
+| --- | --------------------------- | ----------------------------------------------------- |
+| 1   | ```JF  DSTREG, Immediate``` | ```InstructionPointer = (DSTREG == 0) ? Immediate;``` |
+| 2   | ```JF  DSTREG, SRCREG```    | ```InstructionPointer = (DSTREG == 0) ? SRCREG;```    |
 
-  * Variant 1: ```if DSTREG == 0 then InstructionPointer = ImmediateValue```
-  * Variant 2: ```if DSTREG == 0 then InstructionPointer = SRCREG```
+## Comparisons
 
-### Description
-JF performs a jump only if its first operand is false, i.e. zero when taken as an integer. In that case its behavior is the same as an unconditional jump. Otherwise it has no effect.
-
-## Integer Comparisons
 For the purposes of comparisons and conditional jumps on Vircon32:
 
   * true is 1 (technically non-zero)
   * false is 0
 
-There are six relational operations:
+There are six relational operations (for integers and floats):
 
-  * is equal to
-  * is not equal to
-  * is less than
-  * is than or equal to
-  * is greater than
-  * is greater than or equal to
+  * (xEQ) is equal to
+  * (xNE) is not equal to
+  * (xLT) is less than
+  * (xLE) is than or equal to
+  * (xGT) is greater than
+  * (xGE) is greater than or equal to
 
 ## IEQ
-Integer Compare Equality: comparisons allow us typically to evaluate two values, in accordance with some relational operation, resulting in a true (1) or false (0) result.
 
-Should the first operand contain the same information as the second operand, the result will be true. Otherwise, false.
+Integer Compare Equality: comparisons allow  us typically to evaluate two
+values, in accordance with some relational operation, resulting in a true
+(1) or false (0) result.
 
-### Structure and variants
-  * Variant 1: ```IEQ DSTREG, ImmediateValue```
-  * Variant 2: ```IEQ DSTREG, SRCREG```
-
-### Processing actions
-  * Variant 1: ```if DSTREG == ImmediateValue then DSTREG = 1 else DSTREG = 0```
-  * Variant 2: ```if DSTREG == SRCREG then DSTREG = 1 else DSTREG = 0```
+Should  the first  operand contain  the  same information  as the  second
+operand, the result will be true. Otherwise, false.
 
 ### Description
-IEQ takes two operands interpreted as integers, and checks if they are equal. It will store the boolean result in the first operand, which is always a register.
+
+IEQ takes  two operands interpreted as  integers, and checks if  they are
+equal. It  will store the boolean  result in the first  operand, which is
+always a register.
+
+### Variants and Actions
+
+|     | Form                        | Processing Action                             |
+| --- | --------------------------- | --------------------------------------------- |
+| 1   | ```IEQ DSTREG, Immediate``` | ```DSTREG = (DSTREG == Immediate) ? 1 : 0;``` |
+| 2   | ```IEQ DSTREG, SRCREG```    | ```DSTREG = (DSTREG == SRCREG) ? 1 : 0;```    |
 
 ## INE
-Integer Not Equal: comparisons allow us typically to evaluate two values, in accordance with some relational operation, resulting in a true (1) or false (0) result.
 
-Here, we test to see if the first operand is not equal to the second operand. If they are equal, the result is false, otherwise, not being equal yields a result of true.
+Integer Not Equal: comparisons allow us typically to evaluate two values,
+in accordance with some relational operation,  resulting in a true (1) or
+false (0) result.
 
-### Structure and variants
-  * Variant 1: ```INE DSTREG, ImmediateValue```
-  * Variant 2: ```INE DSTREG, SRCREG```
-
-### Processing actions
-  * Variant 1: ```if DSTREG != ImmediateValue then DSTREG = 1 else DSTREG = 0```
-  * Variant 2: ```if DSTREG != SRCREG then DSTREG = 1 else DSTREG = 0```
+Here, we  test to see  if the  first operand is  not equal to  the second
+operand. If  they are equal,  the result  is false, otherwise,  not being
+equal yields a result of true.
 
 ### Description
-INE takes two operands interpreted as integers, and checks if they are different. It will store the boolean result in the first operand, which is always a register.
+
+INE takes  two operands interpreted as  integers, and checks if  they are
+different. It will  store the boolean result in the  first operand, which
+is always a register.
+
+### Variants and Actions
+
+|     | Form                        | Processing Action                             |
+| --- | --------------------------- | --------------------------------------------- |
+| 1   | ```INE DSTREG, Immediate``` | ```DSTREG = (DSTREG != Immediate) ? 1 : 0;``` |
+| 2   | ```INE DSTREG, SRCREG```    | ```DSTREG = (DSTREG != SRCREG) ? 1 : 0;```    |
 
 ## IGT
-Integer Greater Than: comparisons allow us typically to evaluate two values, in accordance with some relational operation, resulting in a true (1) or false (0) result.
 
-In this case, we are testing if the first operand is greater than the second operand.
+Integer  Greater Than:  comparisons allow  us typically  to evaluate  two
+values, in accordance with some relational operation, resulting in a true
+(1) or false (0) result.
 
-### Structure and variants
-  * Variant 1: ```IGT DSTREG, ImmediateValue```
-  * Variant 2: ```IGT DSTREG, SRCREG```
-
-### Processing actions
-  * Variant 1: ```if DSTREG > ImmediateValue then DSTREG = 1 else DSTREG = 0```
-  * Variant 2: ```if DSTREG > SRCREG then DSTREG = 1 else DSTREG = 0```
+In this  case, we are  testing if the first  operand is greater  than the
+second operand.
 
 ### Description
-IGT takes two operands interpreted as integers, and checks if the first one is greater than the second. It will store the boolean result in the first operand, which is always a register.
 
+IGT takes two  operands interpreted as integers, and checks  if the first
+one is greater than  the second. It will store the  boolean result in the
+first operand, which is always a register.
+
+### Variants and Actions
+
+|     | Form                        | Processing Action                             |
+| --- | --------------------------- | --------------------------------------------- |
+| 1   | ```IGT DSTREG, Immediate``` | ```DSTREG = (DSTREG >  Immediate) ? 1 : 0;``` |
+| 2   | ```IGT DSTREG, SRCREG```    | ```DSTREG = (DSTREG >  SRCREG) ? 1 : 0;```    |
 
 ## IGE
-Integer Greater Than Or Equal: comparisons allow us typically to evaluate two values, in accordance with some relational operation, resulting in a true (1) or false (0) result.
 
-In this case, we are testing if the first operand is greater than or equal to the second operand.
+Integer Greater Than Or Equal: comparisons allow us typically to evaluate
+two values, in accordance with  some relational operation, resulting in a
+true (1) or false (0) result.
 
-### Structure and variants
-  * Variant 1: ```IGE DSTREG, ImmediateValue```
-  * Variant 2: ```IGE DSTREG, SRCREG```
-
-### Processing actions
-  * Variant 1: ```if DSTREG >= ImmediateValue then DSTREG = 1 else DSTREG = 0```
-  * Variant 2: ```if DSTREG >= SRCREG then DSTREG = 1 else DSTREG = 0```
+In this  case, we  are testing if  the first operand  is greater  than or
+equal to the second operand.
 
 ### Description
-IGE takes two operands interpreted as integers, and checks if the first one is greater or equal to the second. It will store the boolean result in the first operand, which is always a register.
+
+IGE takes two  operands interpreted as integers, and checks  if the first
+one is greater or  equal to the second. It will  store the boolean result
+in the first operand, which is always a register.
+
+### Variants and Actions
+
+|     | Form                        | Processing Action                             |
+| --- | --------------------------- | --------------------------------------------- |
+| 1   | ```IGE DSTREG, Immediate``` | ```DSTREG = (DSTREG >= Immediate) ? 1 : 0;``` |
+| 2   | ```IGE DSTREG, SRCREG```    | ```DSTREG = (DSTREG >= SRCREG) ? 1 : 0;```    |
 
 ## ILT
-Integer Less Than: comparisons allow us typically to evaluate two values, in accordance with some relational operation, resulting in a true (1) or false (0) result.
 
-In this case, we are testing if the first operand is less than the second operand.
+Integer Less Than: comparisons allow us typically to evaluate two values,
+in accordance with some relational operation,  resulting in a true (1) or
+false (0) result.
 
-### Structure and variants
-  * Variant 1: ```ILT DSTREG, ImmediateValue```
-  * Variant 2: ```ILT DSTREG, SRCREG```
-
-### Processing actions
-  * Variant 1: ```if DSTREG < ImmediateValue then DSTREG = 1 else DSTREG = 0```
-  * Variant 2: ```if DSTREG < SRCREG then DSTREG = 1 else DSTREG = 0```
+In this case, we are testing if the first operand is less than the second
+operand.
 
 ### Description
-ILT takes two operands interpreted as integers, and checks if the first one is less than the second. It will store the boolean result in the first operand, which is always a register.
+
+ILT takes two  operands interpreted as integers, and checks  if the first
+one is  less than  the second. It  will store the  boolean result  in the
+first operand, which is always a register.
+
+### Variants and Actions
+
+|     | Form                        | Processing Action                             |
+| --- | --------------------------- | --------------------------------------------- |
+| 1   | ```ILT DSTREG, Immediate``` | ```DSTREG = (DSTREG <  Immediate) ? 1 : 0;``` |
+| 2   | ```ILT DSTREG, SRCREG```    | ```DSTREG = (DSTREG <  SRCREG) ? 1 : 0;```    |
 
 ## ILE
-Integer Less Than Or Equal: comparisons allow us typically to evaluate two values, in accordance with some relational operation, resulting in a true (1) or false (0) result.
 
-In this case, we are testing if the first operand is less than or equal to the second operand.
+Integer Less  Than Or Equal:  comparisons allow us typically  to evaluate
+two values, in accordance with  some relational operation, resulting in a
+true (1) or false (0) result.
 
-### Structure and variants
-^  Variant  ^  Form  ^  Action  |
-|  1  |```ILE DSTREG, ImmediateValue```  |```if (DSTREG <= ImmediateValue)
-    DSTREG=1;
-else
-    DSTREG=0;```  |
-|  2  |```ILE DSTREG, SRCREG```  |```if (DSTREG <= SRCREG)
-    DSTREG=1;
-else
-    DSTREG=0;```  |
+In this case, we  are testing if the first operand is  less than or equal
+to the second operand.
 
 ### Description
-ILE takes two operands interpreted as integers, and checks if the first one is less or equal to the second. It will store the boolean result in the first operand, which is always a register.
+
+ILE takes two  operands interpreted as integers, and checks  if the first
+one is less or  equal to the second. It will store  the boolean result in
+the first operand, which is always a register.
+
+### Variants and Actions
+
+|     | Form                        | Processing Action                             |
+| --- | --------------------------- | --------------------------------------------- |
+| 1   | ```ILE DSTREG, Immediate``` | ```DSTREG = (DSTREG <= Immediate) ? 1 : 0;``` |
+| 2   | ```ILE DSTREG, SRCREG```    | ```DSTREG = (DSTREG <= SRCREG) ? 1 : 0;```    |
 
 ## FEQ
 ## FNE
@@ -613,13 +683,28 @@ ILE takes two operands interpreted as integers, and checks if the first one is l
 ## FLE
 
 ## MOV
+
 MOVE: general purpose data-copying instruction.
 
-Indirect  processing  is  accomplished  with the  **```[  ]```**  (square brackets)  surrounding  the  value  we wish  to  dereference  (we're  not interested in  the direct  thing: the memory  address, but  indirectly in what that memory address contains).
+Indirect  processing  is  accomplished  with the  **```[  ]```**  (square
+brackets)  surrounding  the  value  we wish  to  dereference  (we're  not
+interested in  the direct  thing: the memory  address, but  indirectly in
+what that memory address contains).
 
-### Structure and variants
+### Description
 
-| Type              | Binary | Form                           | Action                          |
+MOV copies  the value indicated in  its second (source) operand  into the
+register or memory address indicated  by its first (destination) operand.
+MOV  is the  most  complex instruction  to process  because  it needs  to
+distinguish between 8 different addressing modes.
+
+The  instruction  specifies   which  of  the  8  modes  to   use  in  its
+“Addressing  mode” field,  being the  possible values  interpreted as
+follows:
+
+### Variants and Actions
+
+| Type              | Binary | Form                           | Processing Action               |
 | ----------------- | ------ | ------------------------------ | ------------------------------- |
 | RegFromImm        | 000    | ```MOV DSTREG, Imm```          | ```DSTREG = Imm;```             |
 | RegFromReg        | 001    | ```MOV DSTREG, SRCREG```       | ```DSTREG = SRCREG;```          |
@@ -641,80 +726,113 @@ Indirect  processing  is  accomplished  with the  **```[  ]```**  (square bracke
 | ```DSTREG``` | Destination Register (first operand) |
 | ```SRCREG``` | Source Register (second operand)     |
 
-### Description
-MOV copies the value indicated in its second (source) operand into the register or memory address indicated by its first (destination) operand. MOV is the most complex instruction to process because it needs to distinguish between 8 different addressing modes.
-
-The instruction specifies which of the 8 modes to use in its “Addressing mode” field, being the possible values interpreted as follows:
-
 ## LEA
+
 Load Effective Address of a memory position.
 
-### Structure and variants
-  * Variant 1: ```LEA DSTREG, [SRCREG]```
-  * Variant 2: ```LEA DSTREG, [SRCREG+ImmediateValue]```
-
-### Processing actions
-  * Register: ```DSTREG = SRCREG```
-  * Indexed:  ```DSTREG = SRCREG + ImmediateValue```
-
 ### Description
-LEA takes a memory address as second operand. It stores that address (not its contents) into the register given as first operand. The most useful case is when the address is given in the form pointer + offset, since the addition is automatically performed.
+
+LEA takes a memory address as second operand. It stores that address (not
+its contents) into  the register given as first operand.  The most useful
+case is when the address is given in the form pointer + offset, since the
+addition is automatically performed.
+
+### Variants and Actions
+
+|     | Form                                 | Processing Action                  |
+| --- | ------------------------------------ | ---------------------------------- |
+| 1   | ```LEA DSTREG, [SRCREG]```           | ```DSTREG = SRCREG;```             |
+| 2   | ```LEA DSTREG, [SRCREG+Immediate]``` | ```DSTREG = SRCREG + Immediate;``` |
 
 ## PUSH
-Save to top of stack
 
-### Structure and variants
-  * ```PUSH REG```
-
-### Processing actions
-  * ```Stack.Push(REG)```
+Store register contents to top of stack
 
 ### Description
-PUSH uses the CPU hardware stack to add the value contained in the given register at the top of the stack. When you PUSH a value onto the stack, the STACK POINTER (SP) is adjusted downward by one address offset (stack grows down).
+
+PUSH uses the CPU hardware stack to  add the value contained in the given
+register at the top  of the stack. When you PUSH a  value onto the stack,
+the STACK POINTER (SP) is adjusted  downward by one address offset (stack
+grows down).
+
+### Variants and Actions
+
+|     | Form              | Processing Action         |
+| --- | ----------------- | ------------------------- |
+|  1  | ```PUSH SRCREG``` | ```Stack.Push(SRCREG);``` |
 
 ## POP
-Load from top of stack
 
-### Structure and variants
-  * ```POP REG```
-
-### Processing actions
-  * ```REG = Stack.Pop()```
+Load from top of stack to register
 
 ### Description
-POP uses the CPU hardware stack to remove a value from the top of the stack and write it in the given register. When you POP a value off the stack, the STACK POINTER (SP) is adjusted upward by one address offset (stack grows down, shrinks up).
+
+POP uses  the CPU hardware stack  to remove a  value from the top  of the
+stack and write  it in the given  register. When you POP a  value off the
+stack, the  STACK POINTER (SP) is  adjusted upward by one  address offset
+(stack grows down, shrinks up).
+
+### Variants and Actions
+
+|     | Form             | Processing Action           |
+| --- | ---------------- | --------------------------- |
+|  1  | ```POP DSTREG``` | ```DSTREG = Stack.Pop();``` |
 
 ## IN
-Receive input from an I/O port
 
-### Structure and variants
-  * ```IN DSTREG, PortNumber```
-
-### Processing actions
-  * ```DSTREG = Port[PortNumber]```
+Read from an I/O port
 
 ### Description
-In uses the control bus to read from an I/O port in another chip and stores the returned value in the specified register. This read request may lead to side effects depending on the specified port.
+
+In uses  the control bus  to read  from an I/O  port in another  chip and
+stores the  returned value in  the specified register. This  read request
+may lead to side effects depending on the specified port.
+
+### Variants and Actions
+
+|     | Form                        | Processing Action                |
+| --- | --------------------------- | -------------------------------- |
+|  1  | ```IN DSTREG, PortNumber``` | ```DSTREG = Port[PortNumber];``` |
 
 ## OUT
+
 Write to an I/O port
 
-### Structure and variants
-  * ```OUT PortNumber, [ImmediateValue]```
-  * ```OUT PortNumber, SRCREG```
-
-### Processing actions
-  * ```Port[PortNumber] = ImmediateValue```
-  * ```Port[PortNumber] = SRCREG```
-
 ### Description
-OUT uses the control bus to write the specified value to an I/O port in another chip. This write request may lead to side effects depending on the specified port
+
+OUT uses the control  bus to write the specified value to  an I/O port in
+another chip.  This write request may  lead to side effects  depending on
+the specified port.
+
+### Variants and Actions
+
+|     | Form                                 | Processing Action                        |
+| --- | ------------------------------------ | ---------------------------------------- |
+|  1  | ```OUT PortNumber, ImmediateValue``` | ```Port[PortNumber] = ImmediateValue;``` |
+|  2  | ```OUT PortNumber, SRCREG```         | ```Port[PortNumber] = SRCREG;```         |
 
 ## MOVS
+
 Copy string (HW memcpy)
 
-### Structure and variants
-  * ```MOVS``` (no operands)
+### Description
+
+MOVS copies  a value  from the memory  address pointed by  SR to  the one
+pointed by  DR (as in  a supposed MOV [DR],  [SR]). It then  implements a
+local loop  to repeat  itself until  the counter in  CR reaches  0, while
+working on consecutive addresses.
+
+Note that even when called with a value  of CR of zero or less, MOVS will
+always perform the described loop at least once.
+
+This instruction is the only way  in Vircon32 CPU to directly copy values
+from 2 places in memory without going through a register.
+
+### Variants and Actions
+
+|     | Form       | Processing Action                            |
+| --- | ---------- | -------------------------------------------- |
+| 1   | ```MOVS``` | see below                                    |
 
 ### Processing actions
 
@@ -732,20 +850,24 @@ while (CR > 0)
 }
 ```
 
-### Description
-MOVS copies a value from the memory address pointed by SR to the one pointed by DR
-(as in a supposed MOV [DR], [SR]). It then implements a local loop to repeat itself until
-the counter in CR reaches 0, while working on consecutive addresses.
-Note that even when called with a value of CR of zero or less, MOVS will always perform
-the described loop at least once.
-This instruction is the only way in Vircon32 CPU to directly copy values from 2 places in
-memory without going through a register.
-
 ## SETS
+
 Set string (HW memset)
 
-### Structure and variants
-  * ```SETS``` (no operands)
+### Description
+
+SETS copies  the value in SR  to the address pointed  by DR (as in  a MOV
+[DR], SR).  It then implements  a local loop  to repeat itself  until the
+counter in CR reaches 0, while writing to consecutive addresses.
+
+Note that even when called with a value  of CR of zero or less, SETS will
+always perform the described loop at least once.
+
+### Variants and Actions
+
+|     | Form       | Processing Action                            |
+| --- | ---------- | -------------------------------------------- |
+| 1   | ```SETS``` | see below                                    |
 
 ### Processing actions
   * ```Memory[DR] = SR```
@@ -753,18 +875,28 @@ Set string (HW memset)
   * ```CR = CR - 1```
   * ```if CR > 0 then InstructionPointer = InstructionPointer - 1```
 
-### Description
-SETS copies the value in SR to the address pointed by DR (as in a MOV [DR], SR). It
-then implements a local loop to repeat itself until the counter in CR reaches 0, while
-writing to consecutive addresses.
-Note that even when called with a value of CR of zero or less, SETS will always perform
-the described loop at least once.
-
 ## CMPS
+
 Compare string (HW memcmp)
 
-### Structure and variants
-  * ```CMPS DSTREG```
+### Description
+
+CMPS takes as  a reference the compares the value  in the address pointed
+by DR and compares it with the one pointed by SR, by subtracting. It then
+implements a local loop to repeat  itself until the counter in CR reaches
+0, while  reading consecutive  addresses. The  comparison result  will be
+stored in the  specified register, and will be zero  when equal, positive
+when some value at [DR] was greater, and negative when some value in [SR]
+was greater.
+
+Note that even when called with a value  of CR of zero or less, CMPS will
+always perform the described loop at least once.
+
+### Variants and Actions
+
+|     | Form           | Processing Action                            |
+| --- | -------------- | -------------------------------------------- |
+| 1   | ```CMPS REG``` | see below                                    |
 
 ### Processing actions
   * ```DSTREG = Memory[ DR ] – Memory[ SR ]```
@@ -774,59 +906,63 @@ Compare string (HW memcmp)
   * ```CR -= 1```
   * ```if CR > 0 then InstructionPointer -= 1```
 
-### Description
-CMPS takes as a reference the compares the value in the address pointed by DR and
-compares it with the one pointed by SR, by subtracting. It then implements a local loop
-to repeat itself until the counter in CR reaches 0, while reading consecutive addresses.
-The comparison result will be stored in the specified register, and will be zero when
-equal, positive when some value at [DR] was greater, and negative when some value in
-[SR] was greater.
-
-Note that even when called with a value of CR of zero or less, CMPS will always perform
-the described loop at least once.
-
 ## CIF
+
 Convert Integer to Float
 
-### Structure and variants
-| Variant | Form          | Action                                       |
-| ------- | ------------- | -------------------------------------------- |
-| 1       | ```CIF REG``` | ```REG = (float)REG;```                      |
-
 ### Description
-CIF interprets the specified register as an integer value. Then converts that value to a
-float representation and stores the result back in the same register.
 
-Note that, due to the limited precision of the float representation, high enough values of
-a 32-bit integer will result in a precision loss when represented as a float.
+CIF interprets the specified register  as an integer value. Then converts
+that value  to a float representation  and stores the result  back in the
+same register.
+
+Note that, due to the limited precision of the float representation, high
+enough values  of a 32-bit integer  will result in a  precision loss when
+represented as a float.
+
+### Variants and Actions
+
+|     | Form          | Processing Action                            |
+| --- | ------------- | -------------------------------------------- |
+| 1   | ```CIF REG``` | ```REG = (float)REG;```                      |
 
 ## CFI
+
 Convert Float to Integer
 
-### Structure and variants
-| Variant | Form          | Action                                       |
-| ------- | ------------- | -------------------------------------------- |
-| 1       | ```CFI REG``` | ```REG = (int)REG;```                        |
-
 ### Description
-CFI interprets the specified register as a float value. Then converts that value to an
-integer representation and stores the result back in the same register. Conversion is not
-done through rounding, but instead by truncating (the fractional part is discarded).
-Note that, due to the much greater range of the float representation, high enough values
-of a float will result in a precision loss when represented as a 32-bit integer.
+
+CFI interprets  the specified  register as a  float value.  Then converts
+that value to an integer representation and stores the result back in the
+same register.  Conversion is not  done through rounding, but  instead by
+truncating (the fractional part is discarded).
+
+Note that,  due to the  much greater  range of the  float representation,
+high  enough values  of a  float  will result  in a  precision loss  when
+represented as a 32-bit integer.
+
+### Variants and Actions
+
+|     | Form          | Processing Action                            |
+| --- | ------------- | -------------------------------------------- |
+| 1   | ```CFI REG``` | ```REG = (int)REG;```                        |
 
 ## CIB
+
 Convert Integer to Boolean
 
-### Structure and variants
-| Variant | Form          | Action                                       |
-| ------- | ------------- | -------------------------------------------- |
-| 1       | ```CIB REG``` | ```if (REG != 0) REG = 1; else REG = 0;```   |
-
 ### Description
-CIB interprets the specified register as an integer value. Then converts that value to its
-standard boolean representation and stores the result back in the same register. This
-means that all non-zero values will be converted to 1.
+
+CIB interprets the specified register  as an integer value. Then converts
+that value to  its standard boolean representation and  stores the result
+back in  the same register. This  means that all non-zero  values will be
+converted to 1.
+
+### Variants and Actions
+
+|     | Form          | Processing Action               |
+| --- | ------------- | ------------------------------- |
+| 1   | ```CIB REG``` | ```REG = (REG != 0) ? 1 : 0;``` |
 
 ## CFB
 
@@ -840,9 +976,9 @@ and stores it back in that register.
 
 ### Variants and Actions
 
-| Variant | Form          | Action                                       |
-| ------- | ------------- | -------------------------------------------- |
-| 1       | ```CFB REG``` | ```if (REG != 0.0) REG = 1; else REG = 0;``` |
+|     | Form          | Processing Action                 |
+| --- | ------------- | --------------------------------- |
+| 1   | ```CFB REG``` | ```REG = (REG != 0.0) ? 1 : 0;``` |
 
 ## NOT
 
@@ -855,9 +991,9 @@ specified register.
 
 ### Variants and Actions
 
-| Variant | Form          | Action            |
-| ------- | ------------- | ----------------- |
-|  1      | ```NOT REG``` | ```REG = ~REG;``` |
+|     | Form          | Processing Action |
+| --- | ------------- | ----------------- |
+|  1  | ```NOT REG``` | ```REG = ~REG;``` |
 
 ## AND
 
@@ -880,10 +1016,10 @@ which is always a register.
 
 ### Variants and Actions
 
-| Variant | Form                             | Action                                  |
-| ------- | -------------------------------- | --------------------------------------- |
-|  1      | ```AND DSTREG, ImmediateValue``` | ```DSTREG = DSTREG & ImmediateValue;``` |
-|  2      | ```AND DSTREG, SRCREG```         | ```DSTREG = DSTREG & SRCREG;```         |
+|     | Form                             | Processing Action                       |
+| --- | -------------------------------- | --------------------------------------- |
+|  1  | ```AND DSTREG, ImmediateValue``` | ```DSTREG = DSTREG & ImmediateValue;``` |
+|  2  | ```AND DSTREG, SRCREG```         | ```DSTREG = DSTREG & SRCREG;```         |
 
 ## OR
 
@@ -906,10 +1042,10 @@ them, which is always a register.
 
 ### Variants and Actions
 
-| Variant | Form                            | Processing Action                        |
-| ------- | ------------------------------- | ---------------------------------------- |
-| 1       | ```OR DSTREG, ImmediateValue``` | ```DSTREG = DSTREG \| ImmediateValue;``` |
-| 2       | ```OR DSTREG, SRCREG```         | ```DSTREG = DSTREG \| SRCREG;```         |
+|     | Form                            | Processing Action                        |
+| --- | ------------------------------- | ---------------------------------------- |
+| 1   | ```OR DSTREG, ImmediateValue``` | ```DSTREG = DSTREG \| ImmediateValue;``` |
+| 2   | ```OR DSTREG, SRCREG```         | ```DSTREG = DSTREG \| SRCREG;```         |
 
 ## XOR
 
@@ -932,10 +1068,10 @@ them, which is always a register.
 
 ### Variants and Actions
 
-| Variant | Form                             | Processing Action                       |
-| ------- | -------------------------------- | --------------------------------------- |
-| 1       | ```XOR DSTREG, ImmediateValue``` | ```DSTREG = DSTREG ^ ImmediateValue;``` |
-| 2       | ```XOR DSTREG, SRCREG```         | ```DSTREG = DSTREG ^ SRCREG;```         |
+|     | Form                             | Processing Action                       |
+| --- | -------------------------------- | --------------------------------------- |
+| 1   | ```XOR DSTREG, ImmediateValue``` | ```DSTREG = DSTREG ^ ImmediateValue;``` |
+| 2   | ```XOR DSTREG, SRCREG```         | ```DSTREG = DSTREG ^ SRCREG;```         |
 
 ## BNOT
 
@@ -949,9 +1085,9 @@ then inverting bit number 0.
 
 ### Variants and Actions
 
-| Variant | Form           | Processing Action                        |
-| ------- | -------------- | ------------------------------------------ |
-| 1       | ```BNOT REG``` | ```if (REG == 0) REG = 1; else REG = 0;``` |
+|     | Form           | Processing Action               |
+| --- | -------------- | ------------------------------- |
+| 1   | ```BNOT REG``` | ```REG = (REG == 0) ? 1 : 0;``` |
 
 ## SHL
 
@@ -973,10 +1109,10 @@ significant bits.
 
 ### Variants and Actions
 
-| Variant | Form                             | Processing Action                        |
-| ------- | -------------------------------- | ---------------------------------------- |
-| 1       | ```SHL DSTREG, ImmediateValue``` | ```DSTREG = DSTREG << ImmediateValue;``` |
-| 2       | ```SHL DSTREG, SRCREG```         | ```DSTREG = DSTREG << SRCREG;```         |
+|     | Form                             | Processing Action                        |
+| --- | -------------------------------- | ---------------------------------------- |
+| 1   | ```SHL DSTREG, ImmediateValue``` | ```DSTREG = DSTREG << ImmediateValue;``` |
+| 2   | ```SHL DSTREG, SRCREG```         | ```DSTREG = DSTREG << SRCREG;```         |
 
 ## IADD
 
@@ -990,10 +1126,10 @@ register. Overflow bits are discarded.
 
 ### Variants and Actions
 
-| Variant | Form                              | Processing Action                      |
-| ------- | --------------------------------- | -------------------------------------- |
-| 1       | ```IADD DSTREG, ImmediateValue``` | ```DSTREG = DSTREG + ImmediateValue``` |
-| 2       | ```IADD DSTREG, SRCREG```         | ```DSTREG = DSTREG + SRCREG```         |
+|     | Form                              | Processing Action                      |
+| --- | --------------------------------- | -------------------------------------- |
+| 1   | ```IADD DSTREG, ImmediateValue``` | ```DSTREG = DSTREG + ImmediateValue``` |
+| 2   | ```IADD DSTREG, SRCREG```         | ```DSTREG = DSTREG + SRCREG```         |
 
 ## ISUB
 
@@ -1007,10 +1143,10 @@ register. Overflow bits are discarded.
 
 ### Variants and Actions
 
-| Variant | Form                              | Processing Action                      |
-| ------- | --------------------------------- | -------------------------------------- |
-| 1       | ```ISUB DSTREG, ImmediateValue``` | ```DSTREG = DSTREG - ImmediateValue``` |
-| 2       | ```ISUB DSTREG, SRCREG```         | ```DSTREG = DSTREG - SRCREG```         |
+|     | Form                              | Processing Action                      |
+| --- | --------------------------------- | -------------------------------------- |
+| 1   | ```ISUB DSTREG, ImmediateValue``` | ```DSTREG = DSTREG - ImmediateValue``` |
+| 2   | ```ISUB DSTREG, SRCREG```         | ```DSTREG = DSTREG - SRCREG```         |
 
 ## IMUL
 
@@ -1024,10 +1160,10 @@ always a register. Overflow bits are discarded.
 
 ### Variants and Actions
 
-| Variant | Form                              | Processing Action                      |
-| ------- | --------------------------------- | -------------------------------------- |
-| 1       | ```IMUL DSTREG, ImmediateValue``` | ```DSTREG = DSTREG * ImmediateValue``` |
-| 2       | ```IMUL DSTREG, SRCREG```         | ```DSTREG = DSTREG * SRCREG```         |
+|     | Form                              | Processing Action                      |
+| --- | --------------------------------- | -------------------------------------- |
+| 1   | ```IMUL DSTREG, ImmediateValue``` | ```DSTREG = DSTREG * ImmediateValue``` |
+| 2   | ```IMUL DSTREG, SRCREG```         | ```DSTREG = DSTREG * SRCREG```         |
 
 ## IDIV
 
@@ -1041,10 +1177,10 @@ register.
 
 ### Variants and Actions
 
-| Variant | Form                              | Processing Action                      |
-| ------- | --------------------------------- | -------------------------------------- |
-| 1       | ```IDIV DSTREG, ImmediateValue``` | ```DSTREG = DSTREG / ImmediateValue``` |
-| 2       | ```IDIV DSTREG, SRCREG```         | ```DSTREG = DSTREG / SRCREG```         |
+|     | Form                              | Processing Action                      |
+| --- | --------------------------------- | -------------------------------------- |
+| 1   | ```IDIV DSTREG, ImmediateValue``` | ```DSTREG = DSTREG / ImmediateValue``` |
+| 2   | ```IDIV DSTREG, SRCREG```         | ```DSTREG = DSTREG / SRCREG```         |
 
 ## IMOD
 
@@ -1058,10 +1194,10 @@ always a register.
 
 ### Variants and Actions
 
-| Variant | Form                              | Processing Action                      |
-| ------- | --------------------------------- | -------------------------------------- |
-| 1       | ```IMOD DSTREG, ImmediateValue``` | ```DSTREG = DSTREG % ImmediateValue``` |
-| 2       | ```IMOD DSTREG, SRCREG```         | ```DSTREG = DSTREG % SRCREG```         |
+|     | Form                              | Processing Action                      |
+| --- | --------------------------------- | -------------------------------------- |
+| 1   | ```IMOD DSTREG, ImmediateValue``` | ```DSTREG = DSTREG % ImmediateValue``` |
+| 2   | ```IMOD DSTREG, SRCREG```         | ```DSTREG = DSTREG % SRCREG```         |
 
 ## ISGN
 
@@ -1073,9 +1209,9 @@ ISGN interprets the operand register as an integer and inverts its sign.
 
 ### Variants and Actions
 
-| Variant | Form           | Processing Action |
-| ------- | -------------- | ----------------- |
-| 1       | ```ISGN REG``` | ```REG = -REG```  |
+|     | Form           | Processing Action |
+| --- | -------------- | ----------------- |
+| 1   | ```ISGN REG``` | ```REG = -REG```  |
 
 ## IMIN
 
@@ -1089,10 +1225,10 @@ which is always a register.
 
 ### Variants and Actions
 
-| Variant | Form                              | Processing Action                         |
-| ------- | --------------------------------- | ----------------------------------------- |
-| 1       | ```IMIN DSTREG, ImmediateValue``` | ```DSTREG = min(DSTREG, ImmediateValue``` |
-| 2       | ```IMIN DSTREG, SRCREG```         | ```DSTREG = min(DSTREG, SRCREG)```        |
+|     | Form                              | Processing Action                         |
+| --- | --------------------------------- | ----------------------------------------- |
+| 1   | ```IMIN DSTREG, ImmediateValue``` | ```DSTREG = min(DSTREG, ImmediateValue``` |
+| 2   | ```IMIN DSTREG, SRCREG```         | ```DSTREG = min(DSTREG, SRCREG)```        |
 
 ## IMAX
 
@@ -1106,10 +1242,10 @@ is always a register.
 
 ### Variants and Actions
 
-| Variant | Form                              | Processing Action                         |
-| ------- | --------------------------------- | ----------------------------------------- |
-| 1       | ```IMAX DSTREG, ImmediateValue``` | ```DSTREG = max(DSTREG, ImmediateValue``` |
-| 2       | ```IMAX DSTREG, SRCREG```         | ```DSTREG = max(DSTREG, SRCREG)```        |
+|     | Form                              | Processing Action                         |
+| --- | --------------------------------- | ----------------------------------------- |
+| 1   | ```IMAX DSTREG, ImmediateValue``` | ```DSTREG = max(DSTREG, ImmediateValue``` |
+| 2   | ```IMAX DSTREG, SRCREG```         | ```DSTREG = max(DSTREG, SRCREG)```        |
 
 ## IABS
 
@@ -1121,9 +1257,9 @@ IABS interprets the operand register as an integer and takes its absolute value.
 
 ### Variants and Actions
 
-| Variant | Form           | Processing Action     |
-| ------- | -------------- | --------------------- |
-| 1       | ```IABS REG``` | ```REG = abs(REG)```  |
+|     | Form           | Processing Action     |
+| --- | -------------- | --------------------- |
+| 1   | ```IABS REG``` | ```REG = abs(REG)```  |
 
 ## FADD
 
@@ -1137,10 +1273,10 @@ Overflow bits are discarded.
 
 ### Variants and Actions
 
-| Variant | Form                              | Processing Action                      |
-| ------- | --------------------------------- | -------------------------------------- |
-| 1       | ```FADD DSTREG, ImmediateValue``` | ```DSTREG = DSTREG + ImmediateValue``` |
-| 2       | ```FADD DSTREG, SRCREG```         | ```DSTREG = DSTREG + SRCREG```         |
+|     | Form                              | Processing Action                      |
+| --- | --------------------------------- | -------------------------------------- |
+| 1   | ```FADD DSTREG, ImmediateValue``` | ```DSTREG = DSTREG + ImmediateValue``` |
+| 2   | ```FADD DSTREG, SRCREG```         | ```DSTREG = DSTREG + SRCREG```         |
 
 ## FSUB
 
@@ -1154,10 +1290,10 @@ register. Overflow bits are discarded.
 
 ### Variants and Actions
 
-| Variant | Form                              | Processing Action                      |
-| ------- | --------------------------------- | -------------------------------------- |
-| 1       | ```FSUB DSTREG, ImmediateValue``` | ```DSTREG = DSTREG - ImmediateValue``` |
-| 2       | ```FSUB DSTREG, SRCREG```         | ```DSTREG = DSTREG - SRCREG```         |
+|     | Form                              | Processing Action                      |
+| --- | --------------------------------- | -------------------------------------- |
+| 1   | ```FSUB DSTREG, ImmediateValue``` | ```DSTREG = DSTREG - ImmediateValue``` |
+| 2   | ```FSUB DSTREG, SRCREG```         | ```DSTREG = DSTREG - SRCREG```         |
 
 ## FMUL
 
@@ -1171,10 +1307,10 @@ always a register. Overflow bits are discarded.
 
 ### Variants and Actions
 
-| Variant | Form                              | Processing Action                      |
-| ------- | --------------------------------- | -------------------------------------- |
-| 1       | ```FMUL DSTREG, ImmediateValue``` | ```DSTREG = DSTREG * ImmediateValue``` |
-| 2       | ```FMUL DSTREG, SRCREG```         | ```DSTREG = DSTREG * SRCREG```         |
+|     | Form                              | Processing Action                      |
+| --- | --------------------------------- | -------------------------------------- |
+| 1   | ```FMUL DSTREG, ImmediateValue``` | ```DSTREG = DSTREG * ImmediateValue``` |
+| 2   | ```FMUL DSTREG, SRCREG```         | ```DSTREG = DSTREG * SRCREG```         |
 
 ## FDIV
 
@@ -1188,10 +1324,10 @@ register.
 
 ### Variants and Actions
 
-| Variant | Form                              | Processing Action                      |
-| ------- | --------------------------------- | -------------------------------------- |
-| 1       | ```FDIV DSTREG, ImmediateValue``` | ```DSTREG = DSTREG / ImmediateValue``` |
-| 2       | ```FDIV DSTREG, SRCREG```         | ```DSTREG = DSTREG / SRCREG```         |
+|     | Form                              | Processing Action                      |
+| --- | --------------------------------- | -------------------------------------- |
+| 1   | ```FDIV DSTREG, ImmediateValue``` | ```DSTREG = DSTREG / ImmediateValue``` |
+| 2   | ```FDIV DSTREG, SRCREG```         | ```DSTREG = DSTREG / SRCREG```         |
 
 ## FMOD
 
@@ -1206,10 +1342,10 @@ operand, which is always a register.
 
 ### Variants and Actions
 
-| Variant | Form                              | Processing Action                      |
-| ------- | --------------------------------- | -------------------------------------- |
-| 1       | ```FMOD DSTREG, ImmediateValue``` | ```DSTREG = DSTREG % ImmediateValue``` |
-| 2       | ```FMOD DSTREG, SRCREG```         | ```DSTREG = DSTREG % SRCREG```         |
+|     | Form                              | Processing Action                      |
+| --- | --------------------------------- | -------------------------------------- |
+| 1   | ```FMOD DSTREG, ImmediateValue``` | ```DSTREG = DSTREG % ImmediateValue``` |
+| 2   | ```FMOD DSTREG, SRCREG```         | ```DSTREG = DSTREG % SRCREG```         |
 
 ## FSGN
 
@@ -1221,9 +1357,9 @@ FSGN interprets the operand register as a float and inverts its sign.
 
 ### Variants and Actions
 
-| Variant | Form           | Processing Action |
-| ------- | -------------- | ----------------- |
-| 1       | ```FSGN REG``` | ```REG = -REG```  |
+|     | Form           | Processing Action |
+| --- | -------------- | ----------------- |
+| 1   | ```FSGN REG``` | ```REG = -REG```  |
 
 ## FMIN
 
@@ -1237,10 +1373,10 @@ always a register.
 
 ### Variants and Actions
 
-| Variant | Form                              | Processing Action                         |
-| ------- | --------------------------------- | ----------------------------------------- |
-| 1       | ```FMIN DSTREG, ImmediateValue``` | ```DSTREG = min(DSTREG, ImmediateValue``` |
-| 2       | ```FMIN DSTREG, SRCREG```         | ```DSTREG = min(DSTREG, SRCREG)```        |
+|     | Form                              | Processing Action                         |
+| --- | --------------------------------- | ----------------------------------------- |
+| 1   | ```FMIN DSTREG, ImmediateValue``` | ```DSTREG = min(DSTREG, ImmediateValue``` |
+| 2   | ```FMIN DSTREG, SRCREG```         | ```DSTREG = min(DSTREG, SRCREG)```        |
 
 ## FMAX
 
@@ -1254,10 +1390,10 @@ always a register.
 
 ### Variants and Actions
 
-| Variant | Form                              | Processing Action                         |
-| ------- | --------------------------------- | ----------------------------------------- |
-| 1       | ```FMAX DSTREG, ImmediateValue``` | ```DSTREG = max(DSTREG, ImmediateValue``` |
-| 2       | ```FMAX DSTREG, SRCREG```         | ```DSTREG = max(DSTREG, SRCREG)```        |
+|     | Form                              | Processing Action                         |
+| --- | --------------------------------- | ----------------------------------------- |
+| 1   | ```FMAX DSTREG, ImmediateValue``` | ```DSTREG = max(DSTREG, ImmediateValue``` |
+| 2   | ```FMAX DSTREG, SRCREG```         | ```DSTREG = max(DSTREG, SRCREG)```        |
 
 ## FABS
 
@@ -1270,9 +1406,9 @@ value.
 
 ### Variants and Actions
 
-| Variant | Form           | Processing Action     |
-| ------- | -------------- | --------------------- |
-| 1       | ```FABS REG``` | ```REG = abs(REG)```  |
+|     | Form           | Processing Action     |
+| --- | -------------- | --------------------- |
+| 1   | ```FABS REG``` | ```REG = abs(REG)```  |
 
 ## FLR
 
@@ -1286,9 +1422,9 @@ but is still a float.
 
 ### Variants and Actions
 
-| Variant | Form          | Processing Action       |
-| ------- | ------------- | ----------------------- |
-| 1       | ```FLR REG``` | ```REG = floor(REG)```  |
+|     | Form          | Processing Action       |
+| --- | ------------- | ----------------------- |
+| 1   | ```FLR REG``` | ```REG = floor(REG)```  |
 
 ## CEIL
 
@@ -1302,9 +1438,9 @@ but is still a float.
 
 ### Variants and Actions
 
-| Variant | Form           | Processing Action      |
-| ------- | -------------- | ---------------------- |
-| 1       | ```CEIL REG``` | ```REG = ceil(REG)```  |
+|     | Form           | Processing Action      |
+| --- | -------------- | ---------------------- |
+| 1   | ```CEIL REG``` | ```REG = ceil(REG)```  |
 
 ## ROUND
 
@@ -1318,9 +1454,9 @@ integer, but is still a float.
 
 ### Variants and Actions
 
-| Variant | Form            | Processing Action       |
-| ------- | --------------- | ----------------------- |
-| 1       | ```ROUND REG``` | ```REG = round(REG)```  |
+|     | Form            | Processing Action       |
+| --- | --------------- | ----------------------- |
+| 1   | ```ROUND REG``` | ```REG = round(REG)```  |
 
 ## SIN
 
@@ -1333,9 +1469,9 @@ that value. The sine function will interpret its argument in radians.
 
 ### Variants and Actions
 
-| Variant | Form          | Processing Action     |
-| ------- | ------------- | --------------------- |
-| 1       | ```SIN REG``` | ```REG = sin(REG)```  |
+|     | Form          | Processing Action     |
+| --- | ------------- | --------------------- |
+| 1   | ```SIN REG``` | ```REG = sin(REG)```  |
 
 ## ACOS
 Arc cosine
@@ -1344,13 +1480,13 @@ Arc cosine
 
 ACOS interprets  the operand register as  a float and calculates  the arc
 cosine of that value.  The result is given in radians, in  the range 0 to
-pi.
+PI.
 
 ### Variants and Actions
 
-| Variant | Form           | Processing Action     |
-| ------- | -------------- | --------------------- |
-| 1       | ```ACOS REG``` | ```REG = acos(REG)``` |
+|     | Form           | Processing Action      |
+| --- | -------------- | ---------------------- |
+| 1   | ```ACOS REG``` | ```REG = acos(REG);``` |
 
 ## ATAN2
 
@@ -1361,14 +1497,14 @@ Arc Tangent from x and y
 ATAN2  interprets both  operand registers  as floats  and calculates  the
 angle of a  vector such that Vx =  SRCREG and Vy = DSTREG.  The result is
 stored in the first operand register and will be given in radians, in the
-range of -pi to pi.  The origin of angles is located at (Vx  > 0, Vy = 0)
+range of -PI to PI.  The origin of angles is located at (Vx  > 0, Vy = 0)
 and angles grow when rotating towards (Vx = 0, Vy > 0).
 
 ### Variants and Actions
 
-| Variant | Form                      | Processing Action                 |
-| ------- | ------------------------- | --------------------------------- |
-| 1       | ```ATAN DSTREG, SRCREG``` | ```REG = atan2(DSTREG, SRCREG)``` |
+|     | Form                       | Processing Action                  |
+| --- | -------------------------- | ---------------------------------- |
+| 1   | ```ATAN2 DSTREG, SRCREG``` | ```REG = atan2(DSTREG, SRCREG);``` |
 
 ## LOG
 
@@ -1381,9 +1517,9 @@ logarithm base e of that value.
 
 ### Variants and Actions
 
-| Variant | Form          | Processing Action    |
-| ------- | ------------- | -------------------- |
-| 1       | ```LOG REG``` | ```REG = log(REG)``` |
+|     | Form          | Processing Action     |
+| --- | ------------- | --------------------- |
+| 1   | ```LOG REG``` | ```REG = log(REG);``` |
 
 ## POW
 
@@ -1397,25 +1533,6 @@ result is stored in the first operand register.
 
 ### Variants and Actions
 
-| Variant | Form                     | Processing Action               |
-| ------- | ------------------------ | ------------------------------- |
-| 1       | ```POW DSTREG, SRCREG``` | ```REG = pow(DSTREG, SRCREG)``` |
-
-## To Be Done
-```
-    enum class CPUErrorCodes: uint32_t
-    {
-        InvalidMemoryRead = 0,
-        InvalidMemoryWrite,
-        InvalidPortRead,
-        InvalidPortWrite,
-        StackOverflow,
-        StackUnderflow,
-        DivisionError,
-        ArcCosineError,
-        ArcTangent2Error,
-        LogarithmError,
-        PowerError
-    };
-}
-```
+|     | Form                     | Processing Action                |
+| --- | ------------------------ | -------------------------------- |
+| 1   | ```POW DSTREG, SRCREG``` | ```REG = pow(DSTREG, SRCREG);``` |
