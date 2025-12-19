@@ -1756,19 +1756,19 @@ The binary formats of the Vircon32 ROM/Cartridge are as follows:
 
 ### packed V32 ROM
 
-!(V32 ROM header)[V32_ROM_header.png]
+![V32 ROM header](V32_ROM_header.png)
 
 Once assembled into object form, and packed together with any graphics or
 audio assets, we have this final ROM. The general layout is as follows:
 
-!(V32 ROM layout)[V32_ROM_layout.png]
+![V32 ROM layout](V32_ROM_layout.png)
 
 ### assembled VBIN
 
 Once code  is assembled,  we have  the Vircon32  equivalent of  an object
 file, known as a **VBIN** file. Its header is as follows:
 
-!(V32 VBIN header)[V32_VBIN_header.png]
+![V32 VBIN header](V32_VBIN_header.png)
 
 Note the word offsets (and how a word is 4 bytes). This will be useful to
 calculate any offsets when debugging.
@@ -1778,4 +1778,4 @@ calculate any offsets when debugging.
 Any image assets, once processed, are stored in the Vircon32 VTEX format,
 which has a header as follows:
 
-!(V32 VTEX header)[V32_VTEX_header.png]
+![V32 VTEX header](V32_VTEX_header.png)
