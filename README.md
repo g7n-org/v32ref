@@ -191,12 +191,15 @@ instruction is found, the CPU will stop execution.
 
 ## Vircon32 Registers
 
-Vircon32 has 16  general purpose registers, which can be  used for either
-**integer** or **floating point** operation  (just: only one at any given
-moment).
+Vircon32 has 16 general purpose registers and 3 internal registers.
+
+The general purpose  registers, which can be used  for either **integer**
+or **floating point** operation (just: only one at any given moment).
 
 Some registers  are used by various  instructions, so if used,  should be
 avoided to prevent data hazards.
+
+### General Purpose Registers
 
 | Register | Binary | Alias | Description                  |
 | -------- | ------ | ----- | ---------------------------- |
@@ -217,7 +220,27 @@ avoided to prevent data hazards.
 | R14      | 1110   | BP    | stack: base pointer (base)   |
 | R15      | 1111   | SP    | stack: stack pointer (top)   |
 
-### stack operations
+### Internal Registers
+
+The Vircon32 internal registers are used  in the operation of the system,
+and are  not directly  accessible to  the user  via programming.  Some of
+these registers can be influenced based on actions taken.
+
+| Register            | Description                                                        |
+| ------------------- | ------------------------------------------------------------------ |
+| InstructionPointer  | memory address from which the CPU will read the next instruction   |
+| InstructionRegister | stores the last read instruction (the one currently executed)      |
+| ImmediateValue      | if last read instruction sets the immediate flag, place value here |
+
+The   **branch**  and   **control**   instructions   can  influence   the
+**InstructionRegister**,  as redirecting  program flow  is the  result of
+altering  the  register contents  (versus  just  proceeding to  the  next
+instruction in sequence).
+
+Any  instruction  that accepts  an  **Immediate**  value influences  this
+internal **ImmediateValue** register.
+
+### Stack Operations
 
 The stack is  a convenient and often-used strategy on  the CPU. It relies
 on the  tracking of  an otherwise  unused (or  carefully conflict-averse)
@@ -234,7 +257,7 @@ current  location  stored  in  the stack  pointer  register  (**SP**)  is
 obtained, then the stack pointer  register (**SP**) is incremented by one
 word.
 
-### string operations
+### String Operations
 
 For a  small subset of  instructions, typically intended  for string-like
 operations (in the  C sense: a string is an  array of individual values),
@@ -243,6 +266,26 @@ data.
 
 The three  instructions that utilize  this functionality on  Vircon32 are
 [MOVS](#MOVS), [SETS](#SETS), and [CMPS](#CMPS).
+
+## Control Flags
+
+The CPU Control  Flags halt the CPU in  specific situations, interrupting
+normal operations.
+
+| Name     | Description                         |
+| -------- | ----------------------------------- |
+| HaltFlag | halt CPU until reset or power cycle |
+| WaitFlag | halt CPU until next frame commences |
+
+Flag values are 0 when reset, 1 when set.
+
+## Control Signals
+
+| signal | description                                                       |
+| ------ | ----------------------------------------------------------------- |
+| Reset  | Halt/Wait flags, registers reset; BP, SP, IP reset to defaults    |
+| Frame  | Wait flag is reset                                                |
+| Cycle  | if control flags set, do nothing; otherwise, do instruction cycle |
 
 ## Vircon32 Memory Map
 
@@ -449,13 +492,46 @@ used as an operand to the instruction.
 
 ## HLT
 
+Halt CPU
+
+### Description
+
+HLT sets the CPU’s Halt flag. This will cause the CPU to stop execution
+until the flag is cleared at the next console power on or reset.
+
+Note that other components will keep functioning: for instance,  if the
+SPU was playing music it will continue to do so.
+
+### Variants and Actions
+
+| Form      | Processing Action   |
+| --------- | ------------------- |
+| ```HLT``` | ```HaltFlag = 1;``` |
+
 ## WAIT
+
+Pause execution until the next frame starts
+
+### Description
+
+WAIT activates  the CPU’s Wait flag.  This will cause the  CPU to pause
+execution until the  flag is cleared when the timer  signals the start of
+the next frame. Reset or power-on actions will also resume CPU execution,
+since they also  cause a new frame  to begin.
+
+When the  new frame begins, the  CPU will resume execution  following the
+usual order,  i.e. processing the  instruction directly after  WAIT. Note
+that other components will keep functioning
+
+### Variants and Actions
+
+| Form       | Processing Action   |
+| ---------- | ------------------- |
+| ```WAIT``` | ```WaitFlag = 1;``` |
 
 ## JMP
 
-Unconditional jump. Forcibly redirect  program flow to indicated address.
-The address is somewhere else in  the program logic, likely identified by
-some set label.
+Unconditional jump.
 
 ### Description
 
@@ -463,16 +539,59 @@ some set label.
 its  operand. After  processing this  instruction the  CPU will  continue
 execution at the new address.
 
+This causes a forcible redirect of program flow to the indicated address;
+this is done  by causing the **InstructionPointer**  internal register to
+be modified. The  address is somewhere else in the  program logic, likely
+identified by some set label.
+
 ### Variants and Actions
 
 | Form                | Processing Action                     |
 | ------------------- | ------------------------------------- |
 | ```JMP Immediate``` | ```InstructionPointer = Immediate;``` |
-| ```JT  SRCREG```    | ```InstructionPointer = SRCREG;```    |
+| ```JMP SRCREG```    | ```InstructionPointer = SRCREG;```    |
 
 ## CALL
 
+Call subroutine
+
+### Description
+
+CALL performs a subroutine call to the specified address. When processing
+this  instruction,  the current  Instruction  Pointer  (that was  already
+incremented) will be  saved to the top  of the stack and then  it will be
+overwritten  with the  new address.  Execution will  continue at  the new
+address.
+
+### Variants and Actions
+
+| Form                 | Processing Action                                                     |
+| -------------------- | --------------------------------------------------------------------- |
+| ```CALL Immediate``` | ```Stack.Push(InstructionPointer); InstructionPointer = Immediate;``` |
+| ```CALL SRCREG```    | ```Stack.Push(InstructionPointer); InstructionPointer = SRCREG;```    |
+
+04 Instruction RET (Return)
+Structure and variants:
+RET
+Processing actions:
+InstructionPointer = Stack.Pop( )
+
 ## RET
+
+Return from subroutine
+
+### Description
+
+RET returns  from a  previously called  subroutine. When  processing this
+instruction, the current Instruction Pointer will be overwritten with the
+topmost  value  in  the  stack.  Execution will  then  continue  at  that
+previously saved address.
+
+### Variants and Actions
+
+| Form      | Processing Action                        |
+| --------- | ---------------------------------------- |
+| ```RET``` | ```InstructionPointer  = Stack.Pop();``` |
 
 ## JT
 
@@ -544,12 +663,7 @@ There are six relational operations (for integers and floats):
 
 ## IEQ
 
-Integer Compare Equality: comparisons allow  us typically to evaluate two
-values, in accordance with some relational operation, resulting in a true
-(1) or false (0) result.
-
-Should  the first  operand contain  the  same information  as the  second
-operand, the result will be true. Otherwise, false.
+Integer Compare Equality
 
 ### Description
 
@@ -566,13 +680,7 @@ always a register.
 
 ## INE
 
-Integer Not Equal: comparisons allow us typically to evaluate two values,
-in accordance with some relational operation,  resulting in a true (1) or
-false (0) result.
-
-Here, we  test to see  if the  first operand is  not equal to  the second
-operand. If  they are equal,  the result  is false, otherwise,  not being
-equal yields a result of true.
+Integer Not Equal
 
 ### Description
 
@@ -589,12 +697,7 @@ is always a register.
 
 ## IGT
 
-Integer  Greater Than:  comparisons allow  us typically  to evaluate  two
-values, in accordance with some relational operation, resulting in a true
-(1) or false (0) result.
-
-In this  case, we are  testing if the first  operand is greater  than the
-second operand.
+Integer  Greater Than
 
 ### Description
 
@@ -611,12 +714,7 @@ first operand, which is always a register.
 
 ## IGE
 
-Integer Greater Than Or Equal: comparisons allow us typically to evaluate
-two values, in accordance with  some relational operation, resulting in a
-true (1) or false (0) result.
-
-In this  case, we  are testing if  the first operand  is greater  than or
-equal to the second operand.
+Integer Greater Than Or Equal
 
 ### Description
 
@@ -633,12 +731,7 @@ in the first operand, which is always a register.
 
 ## ILT
 
-Integer Less Than: comparisons allow us typically to evaluate two values,
-in accordance with some relational operation,  resulting in a true (1) or
-false (0) result.
-
-In this case, we are testing if the first operand is less than the second
-operand.
+Integer Less Than
 
 ### Description
 
@@ -655,12 +748,7 @@ first operand, which is always a register.
 
 ## ILE
 
-Integer Less  Than Or Equal:  comparisons allow us typically  to evaluate
-two values, in accordance with  some relational operation, resulting in a
-true (1) or false (0) result.
-
-In this case, we  are testing if the first operand is  less than or equal
-to the second operand.
+Integer Less  Than Or Equal
 
 ### Description
 
@@ -676,11 +764,106 @@ the first operand, which is always a register.
 | ```ILE DSTREG, SRCREG```    | ```DSTREG = (DSTREG <= SRCREG) ? 1 : 0;```    |
 
 ## FEQ
+
+Float Compare Equality
+
+### Description:
+
+FEQ takes  two operands  interpreted as  floats, and  checks if  they are
+equal. It  will store the boolean  result in the first  operand, which is
+always a register.
+
+### Variants and Actions
+
+| Form                        | Processing Action                             |
+| --------------------------- | --------------------------------------------- |
+| ```FEQ DSTREG, Immediate``` | ```DSTREG = (DSTREG == Immediate) ? 1 : 0;``` |
+| ```FEQ DSTREG, SRCREG```    | ```DSTREG = (DSTREG == SRCREG) ? 1 : 0;```    |
+
 ## FNE
+
+Float Not Equal
+
+### Description
+
+FNE takes  two operands  interpreted as  floats, and  checks if  they are
+different. It will  store the boolean result in the  first operand, which
+is always a register.
+
+### Variants and Actions
+
+| Form                        | Processing Action                             |
+| --------------------------- | --------------------------------------------- |
+| ```FNE DSTREG, Immediate``` | ```DSTREG = (DSTREG != Immediate) ? 1 : 0;``` |
+| ```FNE DSTREG, SRCREG```    | ```DSTREG = (DSTREG != SRCREG) ? 1 : 0;```    |
+
 ## FGT
+
+Float Greater Than
+
+### Description
+
+FGT takes two operands interpreted as floats, and checks if the first one
+is greater than the second. It will store the boolean result in the first
+operand, which is always a register.
+
+### Variants and Actions
+
+| Form                        | Processing Action                             |
+| --------------------------- | --------------------------------------------- |
+| ```FGT DSTREG, Immediate``` | ```DSTREG = (DSTREG >  Immediate) ? 1 : 0;``` |
+| ```FGT DSTREG, SRCREG```    | ```DSTREG = (DSTREG >  SRCREG) ? 1 : 0;```    |
+
 ## FGE
+
+Float Greater Than or Equal
+
+### Description
+
+FGE takes two  operands interpreted as integers, and checks  if the first
+one is greater or  equal to the second. It will  store the boolean result
+in the first operand, which is always a register.
+
+### Variants and Actions
+
+| Form                        | Processing Action                             |
+| --------------------------- | --------------------------------------------- |
+| ```FGE DSTREG, Immediate``` | ```DSTREG = (DSTREG >= Immediate) ? 1 : 0;``` |
+| ```FGE DSTREG, SRCREG```    | ```DSTREG = (DSTREG >= SRCREG) ? 1 : 0;```    |
+
 ## FLT
+
+Float Less Than
+
+### Description
+
+FLT takes two operands interpreted as floats, and checks if the first one
+is less than  the second. It will  store the boolean result  in the first
+operand, which is always a register.
+
+### Variants and Actions
+
+| Form                        | Processing Action                             |
+| --------------------------- | --------------------------------------------- |
+| ```FLT DSTREG, Immediate``` | ```DSTREG = (DSTREG <  Immediate) ? 1 : 0;``` |
+| ```FLT DSTREG, SRCREG```    | ```DSTREG = (DSTREG <  SRCREG) ? 1 : 0;```    |
+
 ## FLE
+
+Float Less Than or Equal
+
+### Description
+
+FLE takes two operands interpreted as floats, and checks if the first one
+is less or equal  to the second. It will store the  boolean result in the
+first operand, which is always a register.
+
+### Variants and Actions
+
+| Form                        | Processing Action                             |
+| --------------------------- | --------------------------------------------- |
+| ```FLE DSTREG, Immediate``` | ```DSTREG = (DSTREG <= Immediate) ? 1 : 0;``` |
+| ```FLE DSTREG, SRCREG```    | ```DSTREG = (DSTREG <= SRCREG) ? 1 : 0;```    |
 
 ## MOV
 
