@@ -1,8 +1,11 @@
 # v32ref: Vircon32 assembly language reference
 
-An information-dense, quick-reference guide to Vircon32 system details and assembly language mneumonics to aid in development.
+An   information-dense,  quick-reference   markdown-formatted  guide   to
+Vircon32  system  details and  assembly  language  mneumonics to  aid  in
+development.
 
-This document is based on Vircon32 DevTools **v25.1.19** or later; older versions will contain inconsistencies.
+This document is based on  Vircon32 DevTools **v25.1.19** or later; older
+versions will contain inconsistencies.
 
 ## table of contents
 
@@ -12,8 +15,12 @@ This document is based on Vircon32 DevTools **v25.1.19** or later; older version
   * [Vircon32 Instruction Set Category Overview](#vircon32-instruction-set-category-overview)
   * [Vircon32 Instruction Set Detailed View](#vircon32-instruction-set-detailed-view)
   * [Vircon32 Registers](#vircon32-registers)
+    * [General Purpose Registers](#general-purpose-registers)
+    * [Internal Registers](#internal-registers)
     * [Stack Operations](#stack-operations)
     * [String Operations](#string-operations)
+  * [Control Flags](#control-flags)
+  * [Control Signals](#control-signals)
   * [Vircon32 Memory Map](#vircon32-memory-map)
   * [IOPorts](#ioports)
     * [Vircon32 IOPorts Layout](#vircon32-ioports-layout)
@@ -1020,17 +1027,14 @@ from 2 places in memory without going through a register.
 ### Processing actions
 
 ```
-while (CR > 0)
+do
 {
     MEM[DR]  = MEM[SR];
-    DR       = DR + 1;
-    SR       = SR + 1;
-    CR       = CR - 1;
-    if (CR  >  0)
-    {
-        InstructionPointer = InstructionPointer - 1;
-    }
-}
+    DR       = DR + 1; // DR: Destination Register (R13)
+    SR       = SR + 1; // SR: Source Register (R12)
+    CR       = CR - 1; // CR: Count Register (R11)
+    IP       = IP - 1; // IP: InstructionPointer internal register
+} while (CR > 0);
 ```
 
 ## SETS
@@ -1053,10 +1057,16 @@ always perform the described loop at least once.
 | ```SETS``` | see below                                    |
 
 ### Processing actions
-  * ```Memory[DR] = SR```
-  * ```DR = DR + 1```
-  * ```CR = CR - 1```
-  * ```if CR > 0 then InstructionPointer = InstructionPointer - 1```
+
+```
+do
+{
+    Memory[DR]  = SR;     // SR: Source Register (R12)
+    DR          = DR + 1; // DR: Destination Register (R13)
+    CR          = CR - 1; // CR: Count Register (R11)
+    IP          = IP - 1; // IP: InstructionPointer internal register
+} while (CR > 0);
+```
 
 ## CMPS
 
@@ -1082,12 +1092,21 @@ always perform the described loop at least once.
 | ```CMPS REG``` | see below                                    |
 
 ### Processing actions
-  * ```DSTREG = Memory[ DR ] – Memory[ SR ]```
-  * ```if DSTREG != 0 then end processing```
-  * ```DR += 1```
-  * ```SR += 1```
-  * ```CR -= 1```
-  * ```if CR > 0 then InstructionPointer -= 1```
+
+```
+do
+{
+    DSTREG      = Memory[DR] – Memory[SR];
+    if (DSTREG != 0)
+    {
+        break;
+    }
+    DR          = DR + 1; // DR: Destination Register (R13)
+    SR          = SR + 1; // SR: Source Register (R12)
+    CR          = CR - 1; // CR: Count Register (R11)
+    IP          = IP - 1; // IP: InstructionPointer internal register
+} while (CR > 0);
+```
 
 ## CIF
 
@@ -1107,7 +1126,7 @@ represented as a float.
 
 | Form          | Processing Action                            |
 | ------------- | -------------------------------------------- |
-| ```CIF REG``` | ```REG = (float)REG;```                      |
+| ```CIF REG``` | ```REG = (float) REG;```                     |
 
 ## CFI
 
@@ -1128,7 +1147,7 @@ represented as a 32-bit integer.
 
 | Form          | Processing Action                            |
 | ------------- | -------------------------------------------- |
-| ```CFI REG``` | ```REG = (int)REG;```                        |
+| ```CFI REG``` | ```REG = (int) REG;```                       |
 
 ## CIB
 
@@ -1254,7 +1273,7 @@ them, which is always a register.
 | Form                        | Processing Action                  |
 | --------------------------- | ---------------------------------- |
 | ```XOR DSTREG, Immediate``` | ```DSTREG = DSTREG ^ Immediate;``` |
-| ```XOR DSTREG, SRCREG```    | ```DSTREG = DSTREG ^ SRCREG;``     |
+| ```XOR DSTREG, SRCREG```    | ```DSTREG = DSTREG ^ SRCREG;```    |
 
 ## BNOT
 
@@ -1271,6 +1290,12 @@ then inverting bit number 0.
 | Form           | Processing Action               |
 | -------------- | ------------------------------- |
 | ```BNOT REG``` | ```REG = (REG == 0) ? 1 : 0;``` |
+
+### Errata
+
+Prior to release **v25.10.29**, there was  a bug in the compiler where in
+some contexts,  a bitwise NOT would  be erroneously applied instead  of a
+boolean NOT. Upgrading to v25.10.29 or later fixes this issue.
 
 ## SHL
 
