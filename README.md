@@ -40,10 +40,13 @@ versions will contain inconsistencies.
     * [CARTRIDGE](#cartridge)
     * [MEMCARD](#memcard)
   * [Vircon32 instructions](#vircon32-instructions)
+  * [Vircon32 Binary Specifications](#vircon32-binary-specifications)
     * [Instruction Format](#instruction-format)
-  * [Vircon32 ROM specification](#vircon32-rom-specification)
+    * [Packed V32 ROM](#packed-v32-rom)
+    * [Assembled VBIN](#assembled-vbin)
+    * [Texture VTEX](#texture-vtex)
 
-## system quick reference
+## System Quick Reference
 
 | Attribute                   | Value                             |
 | --------------------------- | --------------------------------- |
@@ -485,22 +488,6 @@ States of the sound channels:
 | IN?  | 0x600 | MEM_Connected | status of memory card being connected |
 
 # Vircon32 instructions
-
-## Instruction Format
-
-![V32 instruction format](V32_instruction_format.jpg)
-
-| bits  | description            |
-| ----- | ---------------------- |
-| 31-26 | opcode                 |
-| 25    | immediate value flag   |
-| 24-21 | destination register   |
-| 20-17 | source register        |
-| 16-14 | address mode (for MOV) |
-| 13-0  | port number            |
-
-If the **immediate value**  bit is set, an additional word  is read to be
-used as an operand to the instruction.
 
 ## HLT
 
@@ -1750,11 +1737,27 @@ result is stored in the first operand register.
 | ------------------------ | -------------------------------- |
 | ```POW DSTREG, SRCREG``` | ```REG = pow(DSTREG, SRCREG);``` |
 
-## Vircon32 ROM Specification
+## Vircon32 Binary Specifications
 
-The binary formats of the Vircon32 ROM/Cartridge are as follows:
+The binary formats of Vircon32 are as follows:
 
-### packed V32 ROM
+### Instruction Format
+
+![V32 instruction format](V32_instruction_format.jpg)
+
+| bits  | description            |
+| ----- | ---------------------- |
+| 31-26 | opcode                 |
+| 25    | immediate value flag   |
+| 24-21 | destination register   |
+| 20-17 | source register        |
+| 16-14 | address mode (for MOV) |
+| 13-0  | port number            |
+
+If the **immediate value**  bit is set, an additional word  is read to be
+used as an operand to the instruction.
+
+### Packed V32 ROM
 
 ![V32 ROM header](V32_ROM_header.png)
 
@@ -1763,7 +1766,7 @@ audio assets, we have this final ROM. The general layout is as follows:
 
 ![V32 ROM layout](V32_ROM_layout.png)
 
-### assembled VBIN
+### Assembled VBIN
 
 Once code  is assembled,  we have  the Vircon32  equivalent of  an object
 file, known as a **VBIN** file. Its header is as follows:
@@ -1773,7 +1776,7 @@ file, known as a **VBIN** file. Its header is as follows:
 Note the word offsets (and how a word is 4 bytes). This will be useful to
 calculate any offsets when debugging.
 
-### texture VTEX
+### Texture VTEX
 
 Any image assets, once processed, are stored in the Vircon32 VTEX format,
 which has a header as follows:
