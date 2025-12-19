@@ -4,6 +4,10 @@ An   information-dense,  quick-reference   markdown-formatted  guide   to
 Vircon32  system  details and  assembly  language  mneumonics to  aid  in
 development.
 
+Information  in  this   document  is  based  on   the  official  Vircon32
+Specification documents,  and the Vircon32  source code. Most  images are
+from the specification documents.
+
 This document is based on  Vircon32 DevTools **v25.1.19** or later; older
 versions will contain inconsistencies.
 
@@ -37,6 +41,7 @@ versions will contain inconsistencies.
     * [MEMCARD](#memcard)
   * [Vircon32 instructions](#vircon32-instructions)
     * [Instruction Format](#instruction-format)
+  * [Vircon32 ROM specification](#vircon32-rom-specification)
 
 ## system quick reference
 
@@ -1744,3 +1749,33 @@ result is stored in the first operand register.
 | Form                     | Processing Action                |
 | ------------------------ | -------------------------------- |
 | ```POW DSTREG, SRCREG``` | ```REG = pow(DSTREG, SRCREG);``` |
+
+## Vircon32 ROM Specification
+
+The binary formats of the Vircon32 ROM/Cartridge are as follows:
+
+### packed V32 ROM
+
+!(V32 ROM header)[V32_ROM_header.png]
+
+Once assembled into object form, and packed together with any graphics or
+audio assets, we have this final ROM. The general layout is as follows:
+
+!(V32 ROM layout)[V32_ROM_layout.png]
+
+### assembled VBIN
+
+Once code  is assembled,  we have  the Vircon32  equivalent of  an object
+file, known as a **VBIN** file. Its header is as follows:
+
+!(V32 VBIN header)[V32_VBIN_header.png]
+
+Note the word offsets (and how a word is 4 bytes). This will be useful to
+calculate any offsets when debugging.
+
+### texture VTEX
+
+Any image assets, once processed, are stored in the Vircon32 VTEX format,
+which has a header as follows:
+
+!(V32 VTEX header)[V32_VTEX_header.png]
