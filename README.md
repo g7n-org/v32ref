@@ -1737,13 +1737,36 @@ result is stored in the first operand register.
 | ------------------------ | -------------------------------- |
 | ```POW DSTREG, SRCREG``` | ```REG = pow(DSTREG, SRCREG);``` |
 
+## Vircon32 BIOS
+
+The Vircon32 BIOS  is responsible for initializing  the system, including
+managing system errors.
+
+### BIOS texture
+
+It includes  a BIOS texture,  which can be accessed  programmatically via
+texture **-1**.
+
+![V32 BIOS font](images/V32_BIOS_texture.png)
+
+### BIOS font
+
+On that  BIOS texture is a  character set, used for  display of on-screen
+fonts. It largely mirrors that of the extended ASCII character set (fonts
+and drawing  symbols), although  there are  some alternate  characters in
+various positions.
+
+The symbol regions within the BIOS texture are as follows:
+
+![V32 BIOS font](images/V32_BIOS_font.png)
+
 ## Vircon32 Binary Specifications
 
 The binary formats of Vircon32 are as follows:
 
 ### Instruction Format
 
-![V32 instruction format](V32_instruction_format.jpg)
+![V32 instruction format](images/V32_instruction_format.jpg)
 
 | bits  | description            |
 | ----- | ---------------------- |
@@ -1759,19 +1782,19 @@ used as an operand to the instruction.
 
 ### Packed V32 ROM
 
-![V32 ROM header](V32_ROM_header.png)
+![V32 ROM header](images/V32_ROM_header.png)
 
 Once assembled into object form, and packed together with any graphics or
 audio assets, we have this final ROM. The general layout is as follows:
 
-![V32 ROM layout](V32_ROM_layout.png)
+![V32 ROM layout](images/V32_ROM_layout.png)
 
 ### Assembled VBIN
 
 Once code  is assembled,  we have  the Vircon32  equivalent of  an object
 file, known as a **VBIN** file. Its header is as follows:
 
-![V32 VBIN header](V32_VBIN_header.png)
+![V32 VBIN header](images/V32_VBIN_header.png)
 
 Note the word offsets (and how a word is 4 bytes). This will be useful to
 calculate any offsets when debugging.
@@ -1781,4 +1804,4 @@ calculate any offsets when debugging.
 Any image assets, once processed, are stored in the Vircon32 VTEX format,
 which has a header as follows:
 
-![V32 VTEX header](V32_VTEX_header.png)
+![V32 VTEX header](images/V32_VTEX_header.png)
