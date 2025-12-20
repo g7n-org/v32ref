@@ -13,6 +13,7 @@ versions will contain inconsistencies.
 
 ## table of contents
 
+  * [Internet Resources](#internet-resources)
   * [System Quick Reference](#system-quick-reference)
   * [CPU Error Codes](#cpu-error-codes)
   * [Assembler Data Directives](#assember-data-directives)
@@ -39,12 +40,40 @@ versions will contain inconsistencies.
     * [INPUT](#input)
     * [CARTRIDGE](#cartridge)
     * [MEMCARD](#memcard)
-  * [Vircon32 instructions](#vircon32-instructions)
+  * [Vircon32 Instructions](#vircon32-instructions)
+  * [Vircon32 BIOS](#vircon32-bios)
+    * [Vircon32 BIOS Texture](#vircon32-bios-texture)
+    * [Vircon32 BIOS Font](#vircon32-bios-font)
   * [Vircon32 Binary Specifications](#vircon32-binary-specifications)
     * [Instruction Format](#instruction-format)
     * [Packed V32 ROM](#packed-v32-rom)
     * [Assembled VBIN](#assembled-vbin)
     * [Texture VTEX](#texture-vtex)
+
+## Internet Resources
+
+  * [Vircon32 home page](https://www.vircon32.com/)
+  * [Vircon32 releases](https://github.com/vircon32/ComputerSoftware/releases)
+  * [Vircon32 Specifications](https://github.com/vircon32/Vircon32Documents/tree/main/Specification/English/PDF%20documents):
+    * [Part 1: The Vircon32 System](https://github.com/vircon32/Vircon32Documents/blob/main/Specification/English/PDF%20documents/Spec%20part%201%20-%20The%20Vircon32%20System.pdf)
+    * [Part 2: Console Architecture](https://github.com/vircon32/Vircon32Documents/blob/main/Specification/English/PDF%20documents/Spec%20part%202%20-%20Console%20architecture.pdf)
+    * [Part 3: The Processor (CPU)](https://github.com/vircon32/Vircon32Documents/blob/main/Specification/English/PDF%20documents/Spec%20part%203%20-%20The%20processor%20\(CPU\).pdf)
+    * [Part 4: The Graphics Chip (GPU)](https://github.com/vircon32/Vircon32Documents/blob/main/Specification/English/PDF%20documents/Spec%20part%204%20-%20The%20graphics%20chip%20\(GPU\).pdf)
+    * [Part 5: The Sound Chip (SPU)](https://github.com/vircon32/Vircon32Documents/blob/main/Specification/English/PDF%20documents/Spec%20part%205%20-%20The%20sound%20chip%20\(SPU\).pdf)
+    * [Part 6: Controller Chips](https://github.com/vircon32/Vircon32Documents/blob/main/Specification/English/PDF%20documents/Spec%20part%206%20-%20Controller%20chips.pdf)
+    * [Part 7: Other Console Components](https://github.com/vircon32/Vircon32Documents/blob/main/Specification/English/PDF%20documents/Spec%20part%207%20-%20Other%20console%20components.pdf)
+    * [Part 8: External Elements](https://github.com/vircon32/Vircon32Documents/blob/main/Specification/English/PDF%20documents/Spec%20part%208%20-%20External%20elements.pdf)
+    * [Part 9: File Formats](https://github.com/vircon32/Vircon32Documents/blob/main/Specification/English/PDF%20documents/Spec%20part%209%20-%20File%20formats.pdf)
+  * [Vircon32 Guides](https://github.com/vircon32/Vircon32Documents/tree/main/Guides/English/PDF%20documents):
+    * [C Compiler](https://github.com/vircon32/Vircon32Documents/blob/main/Guides/English/PDF%20documents/Guide%20-%20Guide%20for%20the%20C%20compiler.pdf)
+    * [Console Operations](https://github.com/vircon32/Vircon32Documents/blob/main/Guides/English/PDF%20documents/Guide%20-%20How%20the%20console%20works.pdf)
+    * [Making Games](https://github.com/vircon32/Vircon32Documents/blob/main/Guides/English/PDF%20documents/Guide%20-%20How%20to%20make%20games.pdf)
+    * [Learning C](https://github.com/vircon32/Vircon32Documents/blob/main/Guides/English/PDF%20documents/Guide%20-%20Learning%20C%20language.pdf)
+    * [Assembly](https://github.com/vircon32/Vircon32Documents/blob/main/Guides/English/PDF%20documents/Guide%20-%20Programming%20in%20assembly.pdf)
+  * [Vircon32 github](https://github.com/vircon32):
+    * [ComputerSoftware.git](https://github.com/vircon32/ComputerSoftware)
+    * [ConsoleSoftware.git](https://github.com/vircon32/ConsoleSoftware)
+    * [CommunityContent.git](https://github.com/vircon32/CommunityContent)
 
 ## System Quick Reference
 
@@ -131,6 +160,8 @@ Use commas to separate values (create "array" of values)
 |                |             |               |               | [FMAX](#FMAX) |                 |
 |                |             |               |               | [FABS](#FABS) |                 |
 
+More information can be found in the Section 3: The Processor (CPU) Specifications document.
+
 ## Vircon32 Instruction Set Detailed View
 
 There are 64 CPU opcodes, instructions  encode them in 6 bits. No invalid
@@ -203,6 +234,8 @@ instruction is found, the CPU will stop execution.
 | 0x3D   | 111101 | [ATAN2](#ATAN2) | math       | 2        | perform float arc tangent operation       |
 | 0x3E   | 111110 | [LOG](#LOG)     | math       | 1        | perform float natural logarithm operation |
 | 0x3F   | 111111 | [POW](#POW)     | math       | 2        | perform float power operation             |
+
+More information can be found in the Section 3: The Processor (CPU) Specifications document.
 
 ## Vircon32 Registers
 
@@ -337,6 +370,8 @@ Flag values are 0 when reset, 1 when set.
 | IN   | 0x002 | TIM_FrameCounter | retrieve current frame count |
 | IN   | 0x003 | TIM_CycleCounter | retrieve current cycle count |
 
+More information can be found in the Section 7: Other Console Components Specifications document.
+
 ### binary format
 
 ![V32 date and time binary representation](images/V32_datetime.png)
@@ -353,6 +388,8 @@ Flag values are 0 when reset, 1 when set.
 | ----- | ----- | ---------------- | ---------------------------- |
 | IN    | 0x100 | RNG_CurrentValue | obtain pseudorandom value    |
 | OUT   | 0x100 | RNG_CurrentValue | seed random number generator |
+
+More information can be found in the Section 7: Other Console Components Specifications document.
 
 ## GPU
 
@@ -392,6 +429,8 @@ Flag values are 0 when reset, 1 when set.
 | OUT   | 0x20F | GPU_RegionHotspotX  | set region Hotspot X coordinate                |
 | IN    | 0x210 | GPU_RegionHotspotY  | obtain region Hotspot Y coordinate             |
 | OUT   | 0x210 | GPU_RegionHotspotY  | set region Hotspot Y coordinate                |
+
+More information can be found in the Part 4: The Graphics Chip (GPU) Specifications document.
 
 ### GPU Commands
 
@@ -437,6 +476,8 @@ Active blending:
 | ???  | 0x30B | SPU_ChannelSpeed         | ???  |
 | ???  | 0x30C | SPU_ChannelLoopEnabled   | ???  |
 | ???  | 0x30D | SPU_ChannelPosition      | ???  |
+
+More information can be found in the Part 5: The Sound Chip (SPU) Specifications document.
 
 ### SPU Commands
 
@@ -499,7 +540,7 @@ States of the sound channels:
 | ---- | ----- | ------------- | ------------------------------------- |
 | IN?  | 0x600 | MEM_Connected | status of memory card being connected |
 
-# Vircon32 instructions
+# Vircon32 Instructions
 
 ## HLT
 
@@ -1754,14 +1795,14 @@ result is stored in the first operand register.
 The Vircon32 BIOS  is responsible for initializing  the system, including
 managing system errors.
 
-### BIOS texture
+### BIOS Texture
 
 It includes  a BIOS texture,  which can be accessed  programmatically via
 texture **-1**.
 
 ![V32 BIOS font](images/V32_BIOS_texture.png)
 
-### BIOS font
+### BIOS Font
 
 On that  BIOS texture is a  character set, used for  display of on-screen
 fonts. It largely mirrors that of the extended ASCII character set (fonts
@@ -1771,6 +1812,8 @@ various positions.
 The symbol regions within the BIOS texture are as follows:
 
 ![V32 BIOS font](images/V32_BIOS_font.png)
+
+These regions are already defined when your cartridge begins processing.
 
 ## Vircon32 Binary Specifications
 
