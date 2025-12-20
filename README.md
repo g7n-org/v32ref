@@ -337,6 +337,10 @@ Flag values are 0 when reset, 1 when set.
 | IN   | 0x002 | TIM_FrameCounter | retrieve current frame count |
 | IN   | 0x003 | TIM_CycleCounter | retrieve current cycle count |
 
+### binary format
+
+![V32 date and time binary representation](images/V32_datetime.png)
+
 ### example: get current frame count
 
 ```
@@ -411,6 +415,10 @@ Active blending:
 | 0x21  | GPUBlendingMode_Add      | colors are added (light effect): aka "linear dodge"     |
 | 0x22  | GPUBlendingMode_Subtract | colors are subtracted (shadow effect): aka "difference" |
 
+### GPU Color binary format
+
+![V32 GPU color binary representation](images/V32_GPU_color.png)
+
 ## SPU
 
 | Type | Port  | Name                     | Description                                    |
@@ -452,6 +460,10 @@ States of the sound channels:
 | 0x40  | SPUChannelState_Stopped | channel is not playing, and will begin new reproduction on play |
 | 0x41  | SPUChannelState_Paused  | channel is paused, and will resume reproduction on play         |
 | 0x42  | SPUChannelState_Playing | channel is currently playing, until its assigned sound ends     |
+
+### SPU binary format
+
+![V32 SPU sample binary representation](images/V32_SPU_sample.png)
 
 ## INPUT
 
@@ -1766,7 +1778,7 @@ The binary formats of Vircon32 are as follows:
 
 ### Instruction Format
 
-![V32 instruction format](images/V32_instruction_format.jpg)
+![V32 instruction format](images/V32_instruction_format.png)
 
 | bits  | description            |
 | ----- | ---------------------- |
