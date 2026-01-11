@@ -274,11 +274,11 @@ The Vircon32 internal registers are used  in the operation of the system,
 and are  not directly  accessible to  the user  via programming.  Some of
 these registers can be influenced based on actions taken.
 
-| Register            | Description                                                        |
-| ------------------- | ------------------------------------------------------------------ |
-| InstructionPointer  | memory address from which the CPU will read the next instruction   |
-| InstructionRegister | stores the last read instruction (the one currently executed)      |
-| ImmediateValue      | if last read instruction sets the immediate flag, place value here |
+| Register              | Description                                   |
+| --------------------- | --------------------------------------------- |
+| `InstructionPointer`  | address where CPU reads the next instruction  |
+| `InstructionRegister` | stores last read instruction (currently run)  |
+| `ImmediateValue`      | if `immflag` is set, place that value here    |
 
 The   **branch**  and   **control**   instructions   can  influence   the
 **InstructionRegister**,  as redirecting  program flow  is the  result of
@@ -573,7 +573,7 @@ since they also  cause a new frame  to begin.
 
 When the  new frame begins, the  CPU will resume execution  following the
 usual order,  i.e. processing the  instruction directly after  WAIT. Note
-that other components will keep functioning
+that other components will keep functioning.
 
 ### Variants and Actions
 
