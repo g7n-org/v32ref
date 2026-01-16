@@ -168,74 +168,75 @@ There are 64 CPU opcodes, instructions  encode them in 6 bits. No invalid
 opcodes can  exist. HLT is  opcode 0 for safety:  if an empty  or invalid
 instruction is found, the CPU will stop execution.
 
-| opcode | binary | mneumonic       | category   | operands | description                               |
-| ------ | ------ | --------------- | ---------- | -------- | -----------                               |
-| 0x00   | 000000 | [HLT](#HLT)     | control    | 0        | halt processing                           |
-| 0x01   | 000001 | [WAIT](#WAIT)   | control    | 0        | pause processing, wait for next frame     |
-| 0x02   | 000010 | [JMP](#JMP)     | branch     | 1        | unconditional jump to address             |
-| 0x03   | 000011 | [CALL](#CALL)   | branch     | 1        | call subroutine                           |
-| 0x04   | 000100 | [RET](#RET)     | branch     | 0        | return from subroutine                    |
-| 0x05   | 000101 | [JT](#JT)       | branch     | 2        | jump if true (1)                          |
-| 0x06   | 000110 | [JF](#JF)       | branch     | 2        | jump if false (0)                         |
-| 0x07   | 000111 | [IEQ](#IEQ)     | compare    | 2        | integer equal                             |
-| 0x08   | 001000 | [INE](#INE)     | compare    | 2        | integer not equal                         |
-| 0x09   | 001001 | [IGT](#IGT)     | compare    | 2        | integer greater than                      |
-| 0x0A   | 001010 | [IGE](#IGE)     | compare    | 2        | integer greater than or equal             |
-| 0x0B   | 001011 | [ILT](#ILT)     | compare    | 2        | integer less than                         |
-| 0x0C   | 001100 | [ILE](#ILE)     | compare    | 2        | integer less than or equal                |
-| 0x0D   | 001101 | [FEQ](#FEQ)     | compare    | 2        | float equal                               |
-| 0x0E   | 001110 | [FNE](#FNE)     | compare    | 2        | float not equal                           |
-| 0x0F   | 001111 | [FGT](#FGT)     | compare    | 2        | float greater than                        |
-| 0x10   | 010000 | [FGE](#FGE)     | compare    | 2        | float greater than or equal               |
-| 0x11   | 010001 | [FLT](#FLT)     | compare    | 2        | float less than                           |
-| 0x12   | 010010 | [FLE](#FLE)     | compare    | 2        | float less than or equal                  |
-| 0x13   | 010011 | [MOV](#MOV)     | data       | 2        | copy data                                 |
-| 0x14   | 010100 | [LEA](#LEA)     | data       | 2        | load effective address                    |
-| 0x15   | 010101 | [PUSH](#PUSH)   | data       | 2        | push data to stack                        |
-| 0x16   | 010110 | [POP](#POP)     | data       | 2        | pop data from stack                       |
-| 0x17   | 010111 | [IN](#IN)       | data       | 2        | read data in from port                    |
-| 0x18   | 011000 | [OUT](#OUT)     | data       | 2        | write data out to port                    |
-| 0x19   | 011001 | [MOVS](#MOVS)   | data       | 0        | move string                               |
-| 0x1A   | 011010 | [SETS](#SETS)   | data       | 0        | set string                                |
-| 0x1B   | 011011 | [CMPS](#CMPS)   | data       | 1        | compare string                            |
-| 0x1C   | 011100 | [CIF](#CIF)     | convert    | 1        | convert integer to float                  |
-| 0x1D   | 011101 | [CFI](#CFI)     | convert    | 1        | convert float to integer                  |
-| 0x1E   | 011110 | [CIB](#CIB)     | convert    | 1        | convert integer to boolean                |
-| 0x1F   | 011111 | [CFB](#CFB)     | convert    | 1        | convert float to boolean                  |
-| 0x20   | 100000 | [NOT](#NOT)     | logic      | 1        | perform bitwise NOT                       |
-| 0x21   | 100001 | [AND](#AND)     | logic      | 2        | perform bitwise AND                       |
-| 0x22   | 100010 | [OR](#OR)       | logic      | 2        | perform bitwise iOR                       |
-| 0x23   | 100011 | [XOR](#XOR)     | logic      | 2        | perform bitwise XOR                       |
-| 0x24   | 100100 | [BNOT](#BNOT)   | logic      | 1        | perform boolean NOT                       |
-| 0x25   | 100101 | [SHL](#SHL)     | logic      | 2        | perform left shift                        |
-| 0x26   | 100110 | [IADD](#IADD)   | arithmetic | 2        | perform integer addition                  |
-| 0x27   | 100111 | [ISUB](#ISUB)   | arithmetic | 2        | perform integer subtraction               |
-| 0x28   | 101000 | [IMUL](#IMUL)   | arithmetic | 2        | perform integer multiplication            |
-| 0x29   | 101001 | [IDIV](#IDIV)   | arithmetic | 2        | perform integer division                  |
-| 0x2A   | 101010 | [IMOD](#IMOD)   | arithmetic | 2        | perform integer modulus                   |
-| 0x2B   | 101011 | [ISGN](#ISGN)   | arithmetic | 1        | perform integer sign toggle               |
-| 0x2C   | 101100 | [IMIN](#IMIN)   | arithmetic | 2        | perform integer minimum                   |
-| 0x2D   | 101101 | [IMAX](#IMAX)   | arithmetic | 2        | perform integer maximum                   |
-| 0x2E   | 101110 | [IABS](#IABS)   | arithmetic | 1        | perform integer absolute value            |
-| 0x2F   | 101111 | [FADD](#FADD)   | arithmetic | 2        | perform float addition                    |
-| 0x30   | 110000 | [FSUB](#FSUB)   | arithmetic | 2        | perform float subtraction                 |
-| 0x31   | 110001 | [FMUL](#FMUL)   | arithmetic | 2        | perform float multiplication              |
-| 0x32   | 110010 | [FDIV](#FDIV)   | arithmetic | 2        | perform float division                    |
-| 0x33   | 110011 | [FMOD](#FMOD)   | arithmetic | 2        | perform float modulus                     |
-| 0x34   | 110100 | [FSGN](#FSGN)   | arithmetic | 1        | perform float sign toggle                 |
-| 0x35   | 110101 | [FMIN](#FMIN)   | arithmetic | 2        | perform float minimum                     |
-| 0x36   | 110110 | [FMAX](#FMAX)   | arithmetic | 2        | perform float maximum                     |
-| 0x37   | 110111 | [FABS](#FABS)   | arithmetic | 1        | perform float absolute value              |
-| 0x38   | 111000 | [FLR](#FLR)     | math       | 1        | perform float floor operation             |
-| 0x39   | 111001 | [CEIL](#CEIL)   | math       | 1        | perform float ceiling operation           |
-| 0x3A   | 111010 | [ROUND](#ROUND) | math       | 1        | perform float rounding operation          |
-| 0x3B   | 111011 | [SIN](#SIN)     | math       | 1        | perform float sine operation              |
-| 0x3C   | 111100 | [ACOS](#ACOS)   | math       | 1        | perform float arc cosine operation        |
-| 0x3D   | 111101 | [ATAN2](#ATAN2) | math       | 2        | perform float arc tangent operation       |
-| 0x3E   | 111110 | [LOG](#LOG)     | math       | 1        | perform float natural logarithm operation |
-| 0x3F   | 111111 | [POW](#POW)     | math       | 2        | perform float power operation             |
+| opcode | binary | mneumonic       | category   | operands | description            |
+| ------ | ------ | --------------- | ---------- | -------- | ---------------------- |
+| 0x00   | 000000 | [HLT](#HLT)     | control    | 0        | halt processing        |
+| 0x01   | 000001 | [WAIT](#WAIT)   | control    | 0        | wait for new frame     |
+| 0x02   | 000010 | [JMP](#JMP)     | branch     | 1        | unconditional jump     |
+| 0x03   | 000011 | [CALL](#CALL)   | branch     | 1        | call subroutine        |
+| 0x04   | 000100 | [RET](#RET)     | branch     | 0        | return from subroutine |
+| 0x05   | 000101 | [JT](#JT)       | branch     | 2        | jump if true (1)       |
+| 0x06   | 000110 | [JF](#JF)       | branch     | 2        | jump if false (0)      |
+| 0x07   | 000111 | [IEQ](#IEQ)     | compare    | 2        | int equal              |
+| 0x08   | 001000 | [INE](#INE)     | compare    | 2        | int not equal          |
+| 0x09   | 001001 | [IGT](#IGT)     | compare    | 2        | int greater than       |
+| 0x0A   | 001010 | [IGE](#IGE)     | compare    | 2        | int greater than/equal |
+| 0x0B   | 001011 | [ILT](#ILT)     | compare    | 2        | int less than          |
+| 0x0C   | 001100 | [ILE](#ILE)     | compare    | 2        | int less than or equal |
+| 0x0D   | 001101 | [FEQ](#FEQ)     | compare    | 2        | FP equal               |
+| 0x0E   | 001110 | [FNE](#FNE)     | compare    | 2        | FP not equal           |
+| 0x0F   | 001111 | [FGT](#FGT)     | compare    | 2        | FP greater than        |
+| 0x10   | 010000 | [FGE](#FGE)     | compare    | 2        | FP greater than/equal  |
+| 0x11   | 010001 | [FLT](#FLT)     | compare    | 2        | FP less than           |
+| 0x12   | 010010 | [FLE](#FLE)     | compare    | 2        | FP less than or equal  |
+| 0x13   | 010011 | [MOV](#MOV)     | data       | 2        | copy data              |
+| 0x14   | 010100 | [LEA](#LEA)     | data       | 2        | load effective address |
+| 0x15   | 010101 | [PUSH](#PUSH)   | data       | 2        | push data to stack     |
+| 0x16   | 010110 | [POP](#POP)     | data       | 2        | pop data from stack    |
+| 0x17   | 010111 | [IN](#IN)       | data       | 2        | read data in from port |
+| 0x18   | 011000 | [OUT](#OUT)     | data       | 2        | write data out to port |
+| 0x19   | 011001 | [MOVS](#MOVS)   | data       | 0        | move string            |
+| 0x1A   | 011010 | [SETS](#SETS)   | data       | 0        | set string             |
+| 0x1B   | 011011 | [CMPS](#CMPS)   | data       | 1        | compare string         |
+| 0x1C   | 011100 | [CIF](#CIF)     | convert    | 1        | integer to float       |
+| 0x1D   | 011101 | [CFI](#CFI)     | convert    | 1        | float to integer       |
+| 0x1E   | 011110 | [CIB](#CIB)     | convert    | 1        | integer to boolean     |
+| 0x1F   | 011111 | [CFB](#CFB)     | convert    | 1        | float to boolean       |
+| 0x20   | 100000 | [NOT](#NOT)     | logic      | 1        | bitwise NOT            |
+| 0x21   | 100001 | [AND](#AND)     | logic      | 2        | bitwise AND            |
+| 0x22   | 100010 | [OR](#OR)       | logic      | 2        | bitwise iOR            |
+| 0x23   | 100011 | [XOR](#XOR)     | logic      | 2        | bitwise XOR            |
+| 0x24   | 100100 | [BNOT](#BNOT)   | logic      | 1        | boolean NOT            |
+| 0x25   | 100101 | [SHL](#SHL)     | logic      | 2        | left shift             |
+| 0x26   | 100110 | [IADD](#IADD)   | arithmetic | 2        | integer addition       |
+| 0x27   | 100111 | [ISUB](#ISUB)   | arithmetic | 2        | integer subtraction    |
+| 0x28   | 101000 | [IMUL](#IMUL)   | arithmetic | 2        | integer multiplication |
+| 0x29   | 101001 | [IDIV](#IDIV)   | arithmetic | 2        | integer division       |
+| 0x2A   | 101010 | [IMOD](#IMOD)   | arithmetic | 2        | integer modulus        |
+| 0x2B   | 101011 | [ISGN](#ISGN)   | arithmetic | 1        | integer sign toggle    |
+| 0x2C   | 101100 | [IMIN](#IMIN)   | arithmetic | 2        | integer minimum        |
+| 0x2D   | 101101 | [IMAX](#IMAX)   | arithmetic | 2        | integer maximum        |
+| 0x2E   | 101110 | [IABS](#IABS)   | arithmetic | 1        | integer absolute value |
+| 0x2F   | 101111 | [FADD](#FADD)   | arithmetic | 2        | float addition         |
+| 0x30   | 110000 | [FSUB](#FSUB)   | arithmetic | 2        | float subtraction      |
+| 0x31   | 110001 | [FMUL](#FMUL)   | arithmetic | 2        | float multiplication   |
+| 0x32   | 110010 | [FDIV](#FDIV)   | arithmetic | 2        | float division         |
+| 0x33   | 110011 | [FMOD](#FMOD)   | arithmetic | 2        | float modulus          |
+| 0x34   | 110100 | [FSGN](#FSGN)   | arithmetic | 1        | float sign toggle      |
+| 0x35   | 110101 | [FMIN](#FMIN)   | arithmetic | 2        | float minimum          |
+| 0x36   | 110110 | [FMAX](#FMAX)   | arithmetic | 2        | float maximum          |
+| 0x37   | 110111 | [FABS](#FABS)   | arithmetic | 1        | float absolute value   |
+| 0x38   | 111000 | [FLR](#FLR)     | math       | 1        | float floor            |
+| 0x39   | 111001 | [CEIL](#CEIL)   | math       | 1        | float ceiling          |
+| 0x3A   | 111010 | [ROUND](#ROUND) | math       | 1        | float rounding         |
+| 0x3B   | 111011 | [SIN](#SIN)     | math       | 1        | float sine             |
+| 0x3C   | 111100 | [ACOS](#ACOS)   | math       | 1        | float arc cosine       |
+| 0x3D   | 111101 | [ATAN2](#ATAN2) | math       | 2        | float arc tangent      |
+| 0x3E   | 111110 | [LOG](#LOG)     | math       | 1        | float natural log      |
+| 0x3F   | 111111 | [POW](#POW)     | math       | 2        | float power            |
 
-More information can be found in the Section 3: The Processor (CPU) Specifications document.
+More  information can  be found  in the  Section 3:  The Processor  (CPU)
+Specifications document.
 
 ## Vircon32 Registers
 
@@ -251,22 +252,22 @@ avoided to prevent data hazards.
 
 | Register | Binary | Alias | Description                  |
 | -------- | ------ | ----- | ---------------------------- |
-| R0       | 0000   |       |                              |
-| R1       | 0001   |       |                              |
-| R2       | 0010   |       |                              |
-| R3       | 0011   |       |                              |
-| R4       | 0100   |       |                              |
-| R5       | 0101   |       |                              |
-| R6       | 0110   |       |                              |
-| R7       | 0111   |       |                              |
-| R8       | 1000   |       |                              |
-| R9       | 1001   |       |                              |
-| R10      | 1010   |       |                              |
-| R11      | 1011   | CR    | string: count register       |
-| R12      | 1100   | SR    | string: source register      |
-| R13      | 1101   | DR    | string: destination register |
-| R14      | 1110   | BP    | stack: base pointer (base)   |
-| R15      | 1111   | SP    | stack: stack pointer (top)   |
+| `R0`     | `0000` |       |                              |
+| `R1`     | `0001` |       |                              |
+| `R2`     | `0010` |       |                              |
+| `R3`     | `0011` |       |                              |
+| `R4`     | `0100` |       |                              |
+| `R5`     | `0101` |       |                              |
+| `R6`     | `0110` |       |                              |
+| `R7`     | `0111` |       |                              |
+| `R8`     | `1000` |       |                              |
+| `R9`     | `1001` |       |                              |
+| `R10`    | `1010` |       |                              |
+| `R11`    | `1011` | `CR`  | string: count register       |
+| `R12`    | `1100` | `SR`  | string: source register      |
+| `R13`    | `1101` | `DR`  | string: destination register |
+| `R14`    | `1110` | `BP`  | stack: base pointer (base)   |
+| `R15`    | `1111` | `SP`  | stack: stack pointer (top)   |
 
 ### Internal Registers
 
@@ -320,32 +321,32 @@ The three  instructions that utilize  this functionality on  Vircon32 are
 The CPU Control  Flags halt the CPU in  specific situations, interrupting
 normal operations.
 
-| Name     | Description                         |
-| -------- | ----------------------------------- |
-| HaltFlag | halt CPU until reset or power cycle |
-| WaitFlag | halt CPU until next frame commences |
+| Name       | Description                         |
+| ---------- | ----------------------------------- |
+| `HaltFlag` | halt CPU until reset or power cycle |
+| `WaitFlag` | halt CPU until next frame commences |
 
 Flag values are 0 when reset, 1 when set.
 
 ## Control Signals
 
-| signal | description                                                       |
-| ------ | ----------------------------------------------------------------- |
-| Reset  | Halt/Wait flags, registers reset; BP, SP, IP reset to defaults    |
-| Frame  | Wait flag is reset                                                |
-| Cycle  | if control flags set, do nothing; otherwise, do instruction cycle |
+| signal   | description                                                       |
+| -------- | ----------------------------------------------------------------- |
+| `Reset`  | Halt/Wait flags, registers reset; BP, SP, IP reset to defaults    |
+| `Frame`  | Wait flag is reset                                                |
+| `Cycle`  | if control flags set, do nothing; otherwise, do instruction cycle |
 
 ## Vircon32 Memory Map
 
-| Name                            | Address    | Description                               |
-| ------------------------------- | ---------- | ----------------------------------------- |
-| RAMFirstAddress                 | 0x00000000 | read/write memory (16MB)                  |
-| stack init address              | 0x003FFFFF | default location of SP (last RAM address) |
-| BiosProgramROMFirstAddress      | 0x10000000 | Vircon32 BIOS                             |
-| BIOS error handler address      | 0x10000000 | start of error handler logic              |
-| BIOS program start address      | 0x10000004 | start of BIOS main logic                  |
-| CartridgeProgramROMFirstAddress | 0x20000000 | Cartridge Data                            |
-| MemoryCardRAMFirstAddress       | 0x30000000 | Memory Card Data                          |
+| Name                            | Address    | Description                           |
+| ------------------------------- | ---------- | ------------------------------------- |
+| RAMFirstAddress                 | 0x00000000 | read/write memory (16MB)              |
+| stack init address              | 0x003FFFFF | SP default address (last RAM address) |
+| BiosProgramROMFirstAddress      | 0x10000000 | Vircon32 BIOS                         |
+| BIOS error handler address      | 0x10000000 | start of error handler logic          |
+| BIOS program start address      | 0x10000004 | start of BIOS main logic              |
+| CartridgeProgramROMFirstAddress | 0x20000000 | Cartridge Data                        |
+| MemoryCardRAMFirstAddress       | 0x30000000 | Memory Card Data                      |
 
 # IOPorts
 
@@ -353,22 +354,22 @@ Flag values are 0 when reset, 1 when set.
 
 | Address | Vircon32 ID                 | Description                |
 | ------- | --------------------------- | -------------------------- |
-| 0x000   | [TIM_FirstPort](#TIME)      | time related functionality |
-| 0x100   | [RNG_FirstPort](#RNG)       | random number generator    |
-| 0x200   | [GPU_FirstPort](#GPU)       | graphics                   |
-| 0x300   | [SPU_FirstPort](#SPU)       | sound processing           |
-| 0x400   | [INP_FirstPort](#INPUT)     | input (game controllers)   |
-| 0x500   | [CAR_FirstPort](#CARTRIDGE) | cartridge interface        |
-| 0x600   | [MEM_FirstPort](#MEMCARD)   | memory card                |
+| `0x000` | [TIM_FirstPort](#TIME)      | time related functionality |
+| `0x100` | [RNG_FirstPort](#RNG)       | random number generator    |
+| `0x200` | [GPU_FirstPort](#GPU)       | graphics                   |
+| `0x300` | [SPU_FirstPort](#SPU)       | sound processing           |
+| `0x400` | [INP_FirstPort](#INPUT)     | input (game controllers)   |
+| `0x500` | [CAR_FirstPort](#CARTRIDGE) | cartridge interface        |
+| `0x600` | [MEM_FirstPort](#MEMCARD)   | memory card                |
 
 ## TIME
 
-| Type | Port  | Name             | Description                  |
-| ---- | ----- | ---------------- | ---------------------------- |
-| IN   | 0x000 | TIM_CurrentDate  | retrieve current date        |
-| IN   | 0x001 | TIM_CurrentTime  | retrieve current time        |
-| IN   | 0x002 | TIM_FrameCounter | retrieve current frame count |
-| IN   | 0x003 | TIM_CycleCounter | retrieve current cycle count |
+| Type | Port    | Name               | Description                  |
+| ---- | ------- | ------------------ | ---------------------------- |
+| `IN` | `0x000` | `TIM_CurrentDate`  | retrieve current date        |
+| `IN` | `0x001` | `TIM_CurrentTime`  | retrieve current time        |
+| `IN` | `0x002` | `TIM_FrameCounter` | retrieve current frame count |
+| `IN` | `0x003` | `TIM_CycleCounter` | retrieve current cycle count |
 
 More information can be found in the Section 7: Other Console Components Specifications document.
 
@@ -384,75 +385,77 @@ More information can be found in the Section 7: Other Console Components Specifi
 
 ## RNG
 
-| Type  | Port  | Name             | Description                  |
-| ----- | ----- | ---------------- | ---------------------------- |
-| IN    | 0x100 | RNG_CurrentValue | obtain pseudorandom value    |
-| OUT   | 0x100 | RNG_CurrentValue | seed random number generator |
+| Type  | Port    | Name               | Description                  |
+| ----- | ------- | ------------------ | ---------------------------- |
+| `IN`  | `0x100` | `RNG_CurrentValue` | obtain pseudorandom value    |
+| `OUT` | `0x100` | `RNG_CurrentValue` | seed random number generator |
 
-More information can be found in the Section 7: Other Console Components Specifications document.
+More information can be found in  the Section 7: Other Console Components
+Specifications document.
 
 ## GPU
 
-| Type  | Port  | Name                | Description                                    |
-| ----- | ----- | ------------------- | ---------------------------------------------- |
-| OUT   | 0x200 | GPU_Command         | perform GPU operation                          |
-| IN    | 0x201 | GPU_RemainingPixels | ???                                            |
-| IN    | 0x202 | GPU_ClearColor      | obtain current clear color                     |
-| OUT   | 0x202 | GPU_ClearColor      | color to clear the screen with                 |
-| IN    | 0x203 | GPU_MultiplyColor   | obtain current color multiplier                |
-| OUT   | 0x203 | GPU_MultiplyColor   | color multiplier to draw sprites with          |
-| IN    | 0x204 | GPU_ActiveBlending  | obtain current blending mode                   |
-| OUT   | 0x204 | GPU_ActiveBlending  | blending method to draw sprites with           |
-| IN    | 0x204 | GPU_SelectedTexture | obtain current selected texture                |
-| OUT   | 0x204 | GPU_SelectedTexture | texture ID to select (-1 for BIOS)             |
-| IN    | 0x205 | GPU_SelectedRegion  | obtain current selected region                 |
-| OUT   | 0x205 | GPU_SelectedRegion  | region ID to select                            |
-| IN    | 0x206 | GPU_DrawingPointX   | obtain X position to draw selected region      |
-| OUT   | 0x206 | GPU_DrawingPointX   | set X position to draw selected region         |
-| IN    | 0x207 | GPU_DrawingPointY   | obtain Y position to draw selected region      |
-| OUT   | 0x207 | GPU_DrawingPointY   | set Y position to draw selected region         |
-| IN    | 0x208 | GPU_DrawingScaleX   | obtain X scaling as a float                    |
-| OUT   | 0x208 | GPU_DrawingScaleX   | sets X scaling with a float as input           |
-| IN    | 0x209 | GPU_DrawingScaleY   | obtain Y scaling as a float                    |
-| OUT   | 0x209 | GPU_DrawingScaleY   | sets Y scaling with a float as input           |
-| IN    | 0x20A | GPU_DrawingAngle    | obtain the sprite rotation as a float          |
-| OUT   | 0x20A | GPU_DrawingAngle    | sets the sprite rotation with a float as input |
-| IN    | 0x20B | GPU_RegionMinX      | obtain Min X coordinate for region             |
-| OUT   | 0x20B | GPU_RegionMinX      | set Min X coordinate for region                |
-| IN    | 0x20C | GPU_RegionMinY      | obtain Min Y coordinate for region             |
-| OUT   | 0x20C | GPU_RegionMinY      | set Min Y coordinate for region                |
-| IN    | 0x20D | GPU_RegionMaxX      | obtain Max X coordinate for region             |
-| OUT   | 0x20D | GPU_RegionMaxX      | set Max X coordinate for region                |
-| IN    | 0x20E | GPU_RegionMaxY      | obtain Max Y coordinate for region             |
-| OUT   | 0x20E | GPU_RegionMaxY      | set Max Y coordinate for region                |
-| IN    | 0x20F | GPU_RegionHotspotX  | obtain region Hotspot X coordinate             |
-| OUT   | 0x20F | GPU_RegionHotspotX  | set region Hotspot X coordinate                |
-| IN    | 0x210 | GPU_RegionHotspotY  | obtain region Hotspot Y coordinate             |
-| OUT   | 0x210 | GPU_RegionHotspotY  | set region Hotspot Y coordinate                |
+| Type  | Port    | Name                  | Description                              |
+| ----- | ------- | --------------------- | ---------------------------------------- |
+| `OUT` | `0x200` | `GPU_Command`         | perform GPU operation                    |
+| `IN`  | `0x201` | `GPU_RemainingPixels` | ???                                      |
+| `IN`  | `0x202` | `GPU_ClearColor`      | obtain current clear color               |
+| `OUT` | `0x202` | `GPU_ClearColor`      | color to clear the screen with           |
+| `IN`  | `0x203` | `GPU_MultiplyColor`   | obtain current color multiplier          |
+| `OUT` | `0x203` | `GPU_MultiplyColor`   | color multiplier to draw sprites with    |
+| `IN`  | `0x204` | `GPU_ActiveBlending`  | obtain current blending mode             |
+| `OUT` | `0x204` | `GPU_ActiveBlending`  | blending method to draw sprites with     |
+| `IN`  | `0x204` | `GPU_SelectedTexture` | obtain current selected texture          |
+| `OUT` | `0x204` | `GPU_SelectedTexture` | texture ID to select (-1 for BIOS)       |
+| `IN`  | `0x205` | `GPU_SelectedRegion`  | obtain current selected region           |
+| `OUT` | `0x205` | `GPU_SelectedRegion`  | region ID to select                      |
+| `IN`  | `0x206` | `GPU_DrawingPointX`   | get X position to draw selected region   |
+| `OUT` | `0x206` | `GPU_DrawingPointX`   | set X position to draw selected region   |
+| `IN`  | `0x207` | `GPU_DrawingPointY`   | get Y position to draw selected region   |
+| `OUT` | `0x207` | `GPU_DrawingPointY`   | set Y position to draw selected region   |
+| `IN`  | `0x208` | `GPU_DrawingScaleX`   | get X scaling as a float                 |
+| `OUT` | `0x208` | `GPU_DrawingScaleX`   | sets X scaling with a float as input     |
+| `IN`  | `0x209` | `GPU_DrawingScaleY`   | get Y scaling as a float                 |
+| `OUT` | `0x209` | `GPU_DrawingScaleY`   | sets Y scaling with a float as input     |
+| `IN`  | `0x20A` | `GPU_DrawingAngle`    | obtain the sprite rotation as a float    |
+| `OUT` | `0x20A` | `GPU_DrawingAngle`    | sets sprite rotation with float as input |
+| `IN`  | `0x20B` | `GPU_RegionMinX`      | obtain Min X coordinate for region       |
+| `OUT` | `0x20B` | `GPU_RegionMinX`      | set Min X coordinate for region          |
+| `IN`  | `0x20C` | `GPU_RegionMinY`      | obtain Min Y coordinate for region       |
+| `OUT` | `0x20C` | `GPU_RegionMinY`      | set Min Y coordinate for region          |
+| `IN`  | `0x20D` | `GPU_RegionMaxX`      | obtain Max X coordinate for region       |
+| `OUT` | `0x20D` | `GPU_RegionMaxX`      | set Max X coordinate for region          |
+| `IN`  | `0x20E` | `GPU_RegionMaxY`      | obtain Max Y coordinate for region       |
+| `OUT` | `0x20E` | `GPU_RegionMaxY`      | set Max Y coordinate for region          |
+| `IN`  | `0x20F` | `GPU_RegionHotspotX`  | obtain region Hotspot X coordinate       |
+| `OUT` | `0x20F` | `GPU_RegionHotspotX`  | set region Hotspot X coordinate          |
+| `IN`  | `0x210` | `GPU_RegionHotspotY`  | obtain region Hotspot Y coordinate       |
+| `OUT` | `0x210` | `GPU_RegionHotspotY`  | set region Hotspot Y coordinate          |
 
-More information can be found in the Part 4: The Graphics Chip (GPU) Specifications document.
+More information  can be  found in  the Part 4:  The Graphics  Chip (GPU)
+Specifications document.
 
 ### GPU Commands
 
 Commands that can be issued to the GPU:
 
-| Value | Name                            | Description                                       |
-| ----- | ------------------------------- | ------------------------------------------------- |
-| 0x10  | GPUCommand_ClearScreen          | clears the screen using current clear color       |
-| 0x11  | GPUCommand_DrawRegion           | draws the selected region: rotation off, zoom off |
-| 0x12  | GPUCommand_DrawRegionZoomed     | draws the selected region: rotation off, zoom on  |
-| 0x13  | GPUCommand_DrawRegionRotated    | draws the selected region: rotation on , zoom off |
-| 0x14  | GPUCommand_DrawRegionRotozoomed | draws the selected region: rotation on , zoom on  |
+| Value  | Name                              | Description                         |
+| ------ | --------------------------------- | ----------------------------------- |
+| `0x10` | `GPUCommand_ClearScreen`          | clear screen using current color    |
+| `0x11` | `GPUCommand_DrawRegion`           | draw region: rotation off, zoom off |
+| `0x12` | `GPUCommand_DrawRegionZoomed`     | draw region: rotation off, zoom on  |
+| `0x13` | `GPUCommand_DrawRegionRotated`    | draw region: rotation on , zoom off |
+| `0x14` | `GPUCommand_DrawRegionRotozoomed` | draw region: rotation on , zoom on  |
 
 ### GPU Active Blending Port Commands
 
 Active blending:
 
-| Value | Name                     | Description                                             |
-| ----- | ------------------------ | ------------------------------------------------------- |
-| 0x20  | GPUBlendingMode_Alpha    | default rendering, uses alpha channel as transparency   |
-| 0x21  | GPUBlendingMode_Add      | colors are added (light effect): aka "linear dodge"     |
-| 0x22  | GPUBlendingMode_Subtract | colors are subtracted (shadow effect): aka "difference" |
+| Value  | Name                       | Description                                   |
+| ------ | -------------------------- | --------------------------------------------- |
+| `0x20` | `GPUBlendingMode_Alpha`    | default render, alpha channel as transparency |
+| `0x21` | `GPUBlendingMode_Add`      | add colors (light effect), "linear dodge"     |
+| `0x22` | `GPUBlendingMode_Subtract` | subtract colors (shadow effect), "difference" |
 
 ### GPU Color binary format
 
@@ -460,47 +463,48 @@ Active blending:
 
 ## SPU
 
-| Type | Port  | Name                     | Description                                    |
-| ---- | ----- | ------------------------ | ---------------------------------------------- |
-| OUT  | 0x300 | SPU_Command              | perform SPU operation                          |
-| ???  | 0x301 | SPU_GlobalVolume         | ???  |
-| OUT  | 0x302 | SPU_SelectedSound        | ???  |
-| OUT  | 0x303 | SPU_SelectedChannel      | ???  |
-| ???  | 0x304 | SPU_SoundLength          | ???  |
-| ???  | 0x305 | SPU_SoundPlayWithLoop    | ???  |
-| ???  | 0x306 | SPU_SoundLoopStart       | ???  |
-| ???  | 0x307 | SPU_SoundLoopEnd         | ???  |
-| ???  | 0x308 | SPU_ChannelState         | ???  |
-| ???  | 0x309 | SPU_ChannelAssignedSound | ???  |
-| ???  | 0x30A | SPU_ChannelVolume        | ???  |
-| ???  | 0x30B | SPU_ChannelSpeed         | ???  |
-| ???  | 0x30C | SPU_ChannelLoopEnabled   | ???  |
-| ???  | 0x30D | SPU_ChannelPosition      | ???  |
+| Type  | Port    | Name                       | Description                         |
+| ----- | ------- | -------------------------- | ----------------------------------- |
+| `OUT` | `0x300` | `SPU_Command`              | perform SPU operation               |
+| `???` | `0x301` | `SPU_GlobalVolume`         | ???                                 |
+| `OUT` | `0x302` | `SPU_SelectedSound`        | ???                                 |
+| `OUT` | `0x303` | `SPU_SelectedChannel`      | ???                                 |
+| `???` | `0x304` | `SPU_SoundLength`          | ???                                 |
+| `???` | `0x305` | `SPU_SoundPlayWithLoop`    | ???                                 |
+| `???` | `0x306` | `SPU_SoundLoopStart`       | ???                                 |
+| `???` | `0x307` | `SPU_SoundLoopEnd`         | ???                                 |
+| `???` | `0x308` | `SPU_ChannelState`         | ???                                 |
+| `???` | `0x309` | `SPU_ChannelAssignedSound` | ???                                 |
+| `???` | `0x30A` | `SPU_ChannelVolume`        | ???                                 |
+| `???` | `0x30B` | `SPU_ChannelSpeed`         | ???                                 |
+| `???` | `0x30C` | `SPU_ChannelLoopEnabled`   | ???                                 |
+| `???` | `0x30D` | `SPU_ChannelPosition`      | ???                                 |
 
-More information can be found in the Part 5: The Sound Chip (SPU) Specifications document.
+More  information can  be  found in  the  Part 5:  The  Sound Chip  (SPU)
+Specifications document.
 
 ### SPU Commands
 
 Commands for the SPU:
 
-| Value | Name                            | Description                                         |
-| ----- | ------------------------------- | --------------------------------------------------- |
-| 0x30  | SPUCommand_PlaySelectedChannel  | if paused, resume; if playing, retriggered          |
-| 0x31  | SPUCommand_PauseSelectedChannel | pause; no effect if the channel was not playing     |
-| 0x32  | SPUCommand_StopSelectedChannel  | position is rewinded to sound start                 |
-| 0x33  | SPUCommand_PauseAllChannels     | same as applying PauseChannel to all channels       |
-| 0x34  | SPUCommand_ResumeAllChannels    | same as applying PlayChannel to all paused channels |
-| 0x35  | SPUCommand_StopAllChannels      | same as applying StopChannel to all channels        |
+| Value  | Name                              | Description                              |
+| ------ | --------------------------------- | ---------------------------------------- |
+| `0x30` | `SPUCommand_PlaySelectedChannel`  | if paused, resume; if playing, retrigger |
+| `0x31` | `SPUCommand_PauseSelectedChannel` | pause; no effect if the channel idle     |
+| `0x32` | `SPUCommand_StopSelectedChannel`  | position is rewinded to sound start      |
+| `0x33` | `SPUCommand_PauseAllChannels`     | apply PauseChannel to all channels       |
+| `0x34` | `SPUCommand_ResumeAllChannels`    | apply PlayChannel to all paused channels |
+| `0x35` | `SPUCommand_StopAllChannels`      | apply StopChannel to all channels        |
 
 ### SPU Channel States
 
 States of the sound channels:
 
-| Value | Name                    | Description                                                     |
-| ----- | ----------------------- | --------------------------------------------------------------- |
-| 0x40  | SPUChannelState_Stopped | channel is not playing, and will begin new reproduction on play |
-| 0x41  | SPUChannelState_Paused  | channel is paused, and will resume reproduction on play         |
-| 0x42  | SPUChannelState_Playing | channel is currently playing, until its assigned sound ends     |
+| Value  | Name                      | Description                                     |
+| ------ | ------------------------- | ----------------------------------------------- |
+| `0x40` | `SPUChannelState_Stopped` | channel not playing, to begin anew on play      |
+| `0x41` | `SPUChannelState_Paused`  | channel paused, to resume reproduction on play  |
+| `0x42` | `SPUChannelState_Playing` | channel currently playing, until its sound ends |
 
 ### SPU binary format
 
@@ -508,37 +512,37 @@ States of the sound channels:
 
 ## INPUT
 
-| Type | Port  | Name                   | Description                            |
-| ---- | ----- | ---------------------- | -------------------------------------- |
-| IN   | 0x400 | INP_SelectedGamepad    | read which gamepad is selected (0-3)   |
-| OUT  | 0x400 | INP_SelectedGamepad    | select indicated gamepad (0-3)         |
-| IN   | 0x401 | INP_GamepadConnected   | status of gamepad being connected      |
-| IN   | 0x402 | INP_GamepadLeft        | Left button input                      |
-| IN   | 0x403 | INP_GamepadRight       | Right button input                     |
-| IN   | 0x404 | INP_GamepadUp          | Up button input                        |
-| IN   | 0x405 | INP_GamepadDown        | Down button input                      |
-| IN   | 0x406 | INP_GamepadButtonStart | Start button input (Enter on keyboard) |
-| IN   | 0x407 | INP_GamepadButtonA     | A button input (X on keyboard)         |
-| IN   | 0x408 | INP_GamepadButtonB     | B button input (Z on keyboard)         |
-| IN   | 0x409 | INP_GamepadButtonX     | X key input (S on keyboard)            |
-| IN   | 0x40A | INP_GamepadButtonY     | Y key input (A on keyboard)            |
-| IN   | 0x40B | INP_GamepadButtonL     | L key input (Q on keyboard)            |
-| IN   | 0x40C | INP_GamepadButtonR     | R key input (W on keyboard)            |
+| Type  | Port    | Name                     | Description                          |
+| ----- | ------- | ------------------------ | ------------------------------------ |
+| `IN`  | `0x400` | `INP_SelectedGamepad`    | read which gamepad is selected (0-3) |
+| `OUT` | `0x400` | `INP_SelectedGamepad`    | select indicated gamepad (0-3)       |
+| `IN`  | `0x401` | `INP_GamepadConnected`   | status of gamepad being connected    |
+| `IN`  | `0x402` | `INP_GamepadLeft`        | `Left` button input                  |
+| `IN`  | `0x403` | `INP_GamepadRight`       | `Right` button input                 |
+| `IN`  | `0x404` | `INP_GamepadUp`          | `Up` button input                    |
+| `IN`  | `0x405` | `INP_GamepadDown`        | `Down` button input                  |
+| `IN`  | `0x406` | `INP_GamepadButtonStart` | `Start` button input (ENTER)         |
+| `IN`  | `0x407` | `INP_GamepadButtonA`     | `A` button input (X on keyboard)     |
+| `IN`  | `0x408` | `INP_GamepadButtonB`     | `B` button input (Z on keyboard)     |
+| `IN`  | `0x409` | `INP_GamepadButtonX`     | `X` key input (S on keyboard)        |
+| `IN`  | `0x40A` | `INP_GamepadButtonY`     | `Y` key input (A on keyboard)        |
+| `IN`  | `0x40B` | `INP_GamepadButtonL`     | `L` key input (Q on keyboard)        |
+| `IN`  | `0x40C` | `INP_GamepadButtonR`     | `R` key input (W on keyboard)        |
 
 ## CARTRIDGE
 
-| Type | Port  | Name                 | Description                         |
-| ---- | ----- | -------------------- | ----------------------------------- |
-| IN   | 0x500 | CAR_Connected        | status of cartridge being connected |
-| IN   | 0x501 | CAR_ProgramROMSize   | size of program ROM                 |
-| IN   | 0x502 | CAR_NumberOfTextures | number of cartridge textures        |
-| IN   | 0x503 | CAR_NumberOfSounds   | number of cartridge sounds          |
+| Type | Port    | Name                   | Description                         |
+| ---- | ------- | ---------------------- | ----------------------------------- |
+| `IN` | `0x500` | `CAR_Connected`        | status of cartridge being connected |
+| `IN` | `0x501` | `CAR_ProgramROMSize`   | size of program ROM                 |
+| `IN` | `0x502` | `CAR_NumberOfTextures` | number of cartridge textures        |
+| `IN` | `0x503` | `CAR_NumberOfSounds`   | number of cartridge sounds          |
 
 ## MEMCARD
 
-| Type | Port  | Name          | Description                           |
-| ---- | ----- | ------------- | ------------------------------------- |
-| IN?  | 0x600 | MEM_Connected | status of memory card being connected |
+| Type  | Port    | Name            | Description                           |
+| ----- | ------- | --------------- | ------------------------------------- |
+| `IN?` | `0x600` | `MEM_Connected` | status of memory card being connected |
 
 # Vircon32 Instructions
 
@@ -556,9 +560,9 @@ SPU was playing music it will continue to do so.
 
 ### Variants and Actions
 
-| Form      | Processing Action   |
-| --------- | ------------------- |
-| ```HLT``` | ```HaltFlag = 1;``` |
+| Form  | Processing Action   |
+| ----- | ------------------- |
+| `HLT` | `HaltFlag = 1;`     |
 
 ## WAIT
 
@@ -566,10 +570,10 @@ Pause execution until the next frame starts
 
 ### Description
 
-WAIT activates  the CPU’s Wait flag.  This will cause the  CPU to pause
+`WAIT` activates the CPU’s Wait flag.  This will cause the  CPU to  pause
 execution until the  flag is cleared when the timer  signals the start of
 the next frame. Reset or power-on actions will also resume CPU execution,
-since they also  cause a new frame  to begin.
+since they also cause a new frame to begin.
 
 When the  new frame begins, the  CPU will resume execution  following the
 usual order,  i.e. processing the  instruction directly after  WAIT. Note
@@ -587,7 +591,7 @@ Unconditional jump.
 
 ### Description
 
-**JMP**  performs  an unconditional  jump  to  the address  specified  by
+`JMP`  performs  an  unconditional  jump  to  the  address  specified  by
 its  operand. After  processing this  instruction the  CPU will  continue
 execution at the new address.
 
@@ -617,16 +621,10 @@ address.
 
 ### Variants and Actions
 
-| Form                 | Processing Action                                                     |
-| -------------------- | --------------------------------------------------------------------- |
-| ```CALL Immediate``` | ```Stack.Push(InstructionPointer); InstructionPointer = Immediate;``` |
-| ```CALL SRCREG```    | ```Stack.Push(InstructionPointer); InstructionPointer = SRCREG;```    |
-
-04 Instruction RET (Return)
-Structure and variants:
-RET
-Processing actions:
-InstructionPointer = Stack.Pop( )
+| Form             | Processing Action                                                 |
+| ---------------- | ----------------------------------------------------------------- |
+| `CALL Immediate` | `Stack.Push(InstructionPointer); InstructionPointer = Immediate;` |
+| `CALL SRCREG`    | `Stack.Push(InstructionPointer); InstructionPointer = SRCREG;`    |
 
 ## RET
 
@@ -634,7 +632,7 @@ Return from subroutine
 
 ### Description
 
-RET returns  from a  previously called  subroutine. When  processing this
+`RET` returns from  a previously called subroutine.  When processing this
 instruction, the current Instruction Pointer will be overwritten with the
 topmost  value  in  the  stack.  Execution will  then  continue  at  that
 previously saved address.
@@ -653,8 +651,8 @@ to indicated address.
 
 ### Description
 
-JT performs a jump only if its  first operand is true, i.e. non zero when
-taken  as an  integer.  In that  case  its  behavior is  the  same as  an
+`JT` performs  a jump only  if its first operand  is true, i.e.  non zero
+when taken  as an integer. In  that case its  behavior is the same  as an
 unconditional jump. Otherwise it has no effect.
 
 ### NOTE
@@ -679,7 +677,7 @@ to indicated address.
 
 ### Description
 
-JF performs  a jump only  if its first operand  is false, i.e.  zero when
+`JF` performs a jump  only if its first operand is  false, i.e. zero when
 taken  as an  integer.  In that  case  its  behavior is  the  same as  an
 unconditional jump. Otherwise it has no effect.
 
@@ -939,16 +937,16 @@ follows:
 
 ### Variants and Actions
 
-| Type              | Binary | Form                           | Processing Action               |
-| ----------------- | ------ | ------------------------------ | ------------------------------- |
-| RegFromImm        | 000    | ```MOV DSTREG, Imm```          | ```DSTREG = Imm;```             |
-| RegFromReg        | 001    | ```MOV DSTREG, SRCREG```       | ```DSTREG = SRCREG;```          |
-| RegFromImmAddr    | 010    | ```MOV DSTREG, [Imm]```        | ```DSTREG = MEM[Imm];```        |
-| RegFromRegAddr    | 011    | ```MOV DSTREG, [SRCREG]```     | ```DSTREG = MEM[SRCREG];```     |
-| RegFromAddrOffset | 100    | ```MOV DSTREG, [SRCREG+Imm]``` | ```DSTREG = MEM[SRCREG+Imm];``` |
-| ImmAddrFromReg    | 101    | ```MOV [Imm], SRCREG```        | ```MEM[Imm] = SRCREG;```        |
-| RegAddrFromReg    | 110    | ```MOV [DSTREG], SRCREG```     | ```MEM[DSTREG] = SRCREG;```     |
-| AddrOffsetFromReg | 111    | ```MOV [DSTREG+Imm], SRCREG``` | ```MEM[DSTREG+Imm] = SRCREG;``` |
+| Type                | Binary | Form                       | Processing Action           |
+| ------------------- | ------ | -------------------------- | --------------------------- |
+| `RegFromImm`        | `000`  | `MOV DSTREG, Imm`          | `DSTREG = Imm;`             |
+| `RegFromReg`        | `001`  | `MOV DSTREG, SRCREG`       | `DSTREG = SRCREG;`          |
+| `RegFromImmAddr`    | `010`  | `MOV DSTREG, [Imm]`        | `DSTREG = MEM[Imm];`        |
+| `RegFromRegAddr`    | `011`  | `MOV DSTREG, [SRCREG]`     | `DSTREG = MEM[SRCREG];`     |
+| `RegFromAddrOffset` | `100`  | `MOV DSTREG, [SRCREG+Imm]` | `DSTREG = MEM[SRCREG+Imm];` |
+| `ImmAddrFromReg`    | `101`  | `MOV [Imm], SRCREG`        | `MEM[Imm] = SRCREG;`        |
+| `RegAddrFromReg`    | `110`  | `MOV [DSTREG], SRCREG`     | `MEM[DSTREG] = SRCREG;`     |
+| `AddrOffsetFromReg` | `111`  | `MOV [DSTREG+Imm], SRCREG` | `MEM[DSTREG+Imm] = SRCREG;` |
 
 | KEY          | Description                          |
 | ------------ | ------------------------------------ |
