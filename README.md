@@ -111,19 +111,19 @@ versions will contain inconsistencies.
 
 Runtime errors that Vircon32 generates:
 
-| Value | Type               | Description                             |
-| ----- | ------------------ | --------------------------------------- |
-| 0     | InvalidMemoryRead  | read from invalid memory location       |
-| 1     | InvalidMemoryWrite | write to invalid memory location        |
-| 2     | InvalidPortRead    | invalid read from write-only port       |
-| 3     | InvalidPortWrite   | invalid write to read-only port         |
-| 4     | StackOverflow      | push would exceed lower bound of memory |
-| 5     | StackUnderflow     | pop would exceed upper bound of memory  |
-| 6     | DivisionError      | division by zero                        |
-| 7     | ArcCosineError     | undefined value                         |
-| 8     | ArcTangent2Error   | undefined value                         |
-| 9     | LogarithmError     | undefined value                         |
-| 10    | PowerError         | undefined value                         |
+| Value | Type                 | Description                             |
+| ----- | -------------------- | --------------------------------------- |
+| `0`   | `InvalidMemoryRead`  | read from invalid memory location       |
+| `1`   | `InvalidMemoryWrite` | write to invalid memory location        |
+| `2`   | `InvalidPortRead`    | invalid read from write-only port       |
+| `3`   | `InvalidPortWrite`   | invalid write to read-only port         |
+| `4`   | `StackOverflow`      | push would exceed lower bound of memory |
+| `5`   | `StackUnderflow`     | pop would exceed upper bound of memory  |
+| `6`   | `DivisionError`      | division by zero                        |
+| `7`   | `ArcCosineError`     | undefined value                         |
+| `8`   | `ArcTangent2Error`   | undefined value                         |
+| `9`   | `LogarithmError`     | undefined value                         |
+| `10`  | `PowerError`         | undefined value                         |
 
 ## Assembler Data Directives
 
@@ -139,28 +139,30 @@ Use commas to separate values (create "array" of values)
 
 ## Vircon32 Instruction Set Category Overview
 
-| branch/control | compare     | data          | logic         | arithmetic    | float math      |
-| -------------- | ----------- | ------------- | ------------- | ------------- | --------------- |
-| [HLT](#HLT)    | [IEQ](#IEQ) | [MOV](#MOV)   | [NOT](#NOT)   | [IADD](#IADD) | [FLR](#FLR)     |
-| [WAIT](#WAIT)  | [INE](#INE) | [LEA](#LEA)   | [AND](#AND)   | [ISUB](#ISUB) | [CEIL](#CEIL)   |
-| [JMP](#JMP)    | [IGT](#IGT) | [PUSH](#PUSH) | [OR](#OR)     | [IMUL](#IMUL) | [ROUND](#ROUND) |
-| [CALL](#CALL)  | [IGE](#IGE) | [POP](#POP)   | [XOR](#XOR)   | [IDIV](#IDIV) | [SIN](#SIN)     |
-| [RET](#RET)    | [ILT](#ILT) | [IN](#IN)     | [BNOT](#BNOT) | [IMOD](#IMOD) | [ACOS](#ACOS)   |
-| [JT](#JT)      | [ILE](#ILE) | [OUT](#OUT)   | [SHL](#SHL)   | [ISGN](#ISGN) | [ATAN2](#ATAN2) |
-| [JF](#JF)      | [FEQ](#FEQ) | [MOVS](#MOVS) |               | [IMIN](#IMIN) | [LOG](#LOG)     |
-|                | [FNE](#FNE) | [SETS](#SETS) |               | [IMAX](#IMAX) | [POW](#POW)     |
-|                | [FGT](#FGT) | [CMPS](#CMPS) |               | [IABS](#IABS) |                 |
-|                | [FGE](#FGE) | [CIF](#CIF)   |               | [FADD](#FADD) |                 |
-|                | [FLT](#FLT) | [CFI](#CFI)   |               | [FSUB](#FSUB) |                 |
-|                | [FLE](#FLE) | [CIB](#CIB)   |               | [FMUL](#FMUL) |                 |
-|                |             | [CFB](#CFB)   |               | [FDIV](#FDIV) |                 |
-|                |             |               |               | [FMOD](#FMOD) |                 |
-|                |             |               |               | [FSGN](#FSGN) |                 |
-|                |             |               |               | [FMIN](#FMIN) |                 |
-|                |             |               |               | [FMAX](#FMAX) |                 |
-|                |             |               |               | [FABS](#FABS) |                 |
+| branch /      | compare     | data          | logic         | arithmetic    | float math      |
+| control       |             |               |               |               |                 |
+| ------------- | ----------- | ------------- | ------------- | ------------- | --------------- |
+| [HLT](#HLT)   | [IEQ](#IEQ) | [MOV](#MOV)   | [NOT](#NOT)   | [IADD](#IADD) | [FLR](#FLR)     |
+| [WAIT](#WAIT) | [INE](#INE) | [LEA](#LEA)   | [AND](#AND)   | [ISUB](#ISUB) | [CEIL](#CEIL)   |
+| [JMP](#JMP)   | [IGT](#IGT) | [PUSH](#PUSH) | [OR](#OR)     | [IMUL](#IMUL) | [ROUND](#ROUND) |
+| [CALL](#CALL) | [IGE](#IGE) | [POP](#POP)   | [XOR](#XOR)   | [IDIV](#IDIV) | [SIN](#SIN)     |
+| [RET](#RET)   | [ILT](#ILT) | [IN](#IN)     | [BNOT](#BNOT) | [IMOD](#IMOD) | [ACOS](#ACOS)   |
+| [JT](#JT)     | [ILE](#ILE) | [OUT](#OUT)   | [SHL](#SHL)   | [ISGN](#ISGN) | [ATAN2](#ATAN2) |
+| [JF](#JF)     | [FEQ](#FEQ) | [MOVS](#MOVS) |               | [IMIN](#IMIN) | [LOG](#LOG)     |
+|               | [FNE](#FNE) | [SETS](#SETS) |               | [IMAX](#IMAX) | [POW](#POW)     |
+|               | [FGT](#FGT) | [CMPS](#CMPS) |               | [IABS](#IABS) |                 |
+|               | [FGE](#FGE) | [CIF](#CIF)   |               | [FADD](#FADD) |                 |
+|               | [FLT](#FLT) | [CFI](#CFI)   |               | [FSUB](#FSUB) |                 |
+|               | [FLE](#FLE) | [CIB](#CIB)   |               | [FMUL](#FMUL) |                 |
+|               |             | [CFB](#CFB)   |               | [FDIV](#FDIV) |                 |
+|               |             |               |               | [FMOD](#FMOD) |                 |
+|               |             |               |               | [FSGN](#FSGN) |                 |
+|               |             |               |               | [FMIN](#FMIN) |                 |
+|               |             |               |               | [FMAX](#FMAX) |                 |
+|               |             |               |               | [FABS](#FABS) |                 |
 
-More information can be found in the Section 3: The Processor (CPU) Specifications document.
+More  information can  be found  in the  Section 3:  The Processor  (CPU)
+Specifications document.
 
 ## Vircon32 Instruction Set Detailed View
 
@@ -371,7 +373,8 @@ Flag values are 0 when reset, 1 when set.
 | `IN` | `0x002` | `TIM_FrameCounter` | retrieve current frame count |
 | `IN` | `0x003` | `TIM_CycleCounter` | retrieve current cycle count |
 
-More information can be found in the Section 7: Other Console Components Specifications document.
+More information can be found in  the Section 7: Other Console Components
+Specifications document.
 
 ### binary format
 
