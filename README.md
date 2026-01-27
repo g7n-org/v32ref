@@ -139,8 +139,7 @@ Use commas to separate values (create "array" of values)
 
 ## Vircon32 Instruction Set Category Overview
 
-| branch /      | compare     | data          | logic         | arithmetic    | float math      |
-| control       |             |               |               |               |                 |
+| branch / ctrl | compare     | data          | logic         | arithmetic    | float math      |
 | ------------- | ----------- | ------------- | ------------- | ------------- | --------------- |
 | [HLT](#HLT)   | [IEQ](#IEQ) | [MOV](#MOV)   | [NOT](#NOT)   | [IADD](#IADD) | [FLR](#FLR)     |
 | [WAIT](#WAIT) | [INE](#INE) | [LEA](#LEA)   | [AND](#AND)   | [ISUB](#ISUB) | [CEIL](#CEIL)   |
