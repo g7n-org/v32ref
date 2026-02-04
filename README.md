@@ -400,7 +400,7 @@ Specifications document.
 | Type  | Port    | Name                  | Description                              |
 | ----- | ------- | --------------------- | ---------------------------------------- |
 | `OUT` | `0x200` | `GPU_Command`         | perform GPU operation                    |
-| `IN`  | `0x201` | `GPU_RemainingPixels` | ???                                      |
+| `IN`  | `0x201` | `GPU_RemainingPixels` | how many pixels left in frame            |
 | `IN`  | `0x202` | `GPU_ClearColor`      | obtain current clear color               |
 | `OUT` | `0x202` | `GPU_ClearColor`      | color to clear the screen with           |
 | `IN`  | `0x203` | `GPU_MultiplyColor`   | obtain current color multiplier          |
