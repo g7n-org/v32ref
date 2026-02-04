@@ -407,32 +407,32 @@ Specifications document.
 | `OUT` | `0x203` | `GPU_MultiplyColor`   | color multiplier to draw sprites with    |
 | `IN`  | `0x204` | `GPU_ActiveBlending`  | obtain current blending mode             |
 | `OUT` | `0x204` | `GPU_ActiveBlending`  | blending method to draw sprites with     |
-| `IN`  | `0x204` | `GPU_SelectedTexture` | obtain current selected texture          |
-| `OUT` | `0x204` | `GPU_SelectedTexture` | texture ID to select (-1 for BIOS)       |
-| `IN`  | `0x205` | `GPU_SelectedRegion`  | obtain current selected region           |
-| `OUT` | `0x205` | `GPU_SelectedRegion`  | region ID to select                      |
-| `IN`  | `0x206` | `GPU_DrawingPointX`   | get X position to draw selected region   |
-| `OUT` | `0x206` | `GPU_DrawingPointX`   | set X position to draw selected region   |
-| `IN`  | `0x207` | `GPU_DrawingPointY`   | get Y position to draw selected region   |
-| `OUT` | `0x207` | `GPU_DrawingPointY`   | set Y position to draw selected region   |
-| `IN`  | `0x208` | `GPU_DrawingScaleX`   | get X scaling as a float                 |
-| `OUT` | `0x208` | `GPU_DrawingScaleX`   | sets X scaling with a float as input     |
-| `IN`  | `0x209` | `GPU_DrawingScaleY`   | get Y scaling as a float                 |
-| `OUT` | `0x209` | `GPU_DrawingScaleY`   | sets Y scaling with a float as input     |
-| `IN`  | `0x20A` | `GPU_DrawingAngle`    | obtain the sprite rotation as a float    |
-| `OUT` | `0x20A` | `GPU_DrawingAngle`    | sets sprite rotation with float as input |
-| `IN`  | `0x20B` | `GPU_RegionMinX`      | obtain Min X coordinate for region       |
-| `OUT` | `0x20B` | `GPU_RegionMinX`      | set Min X coordinate for region          |
-| `IN`  | `0x20C` | `GPU_RegionMinY`      | obtain Min Y coordinate for region       |
-| `OUT` | `0x20C` | `GPU_RegionMinY`      | set Min Y coordinate for region          |
-| `IN`  | `0x20D` | `GPU_RegionMaxX`      | obtain Max X coordinate for region       |
-| `OUT` | `0x20D` | `GPU_RegionMaxX`      | set Max X coordinate for region          |
-| `IN`  | `0x20E` | `GPU_RegionMaxY`      | obtain Max Y coordinate for region       |
-| `OUT` | `0x20E` | `GPU_RegionMaxY`      | set Max Y coordinate for region          |
-| `IN`  | `0x20F` | `GPU_RegionHotspotX`  | obtain region Hotspot X coordinate       |
-| `OUT` | `0x20F` | `GPU_RegionHotspotX`  | set region Hotspot X coordinate          |
-| `IN`  | `0x210` | `GPU_RegionHotspotY`  | obtain region Hotspot Y coordinate       |
-| `OUT` | `0x210` | `GPU_RegionHotspotY`  | set region Hotspot Y coordinate          |
+| `IN`  | `0x205` | `GPU_SelectedTexture` | obtain current selected texture          |
+| `OUT` | `0x205` | `GPU_SelectedTexture` | texture ID to select (-1 for BIOS)       |
+| `IN`  | `0x206` | `GPU_SelectedRegion`  | obtain current selected region           |
+| `OUT` | `0x206` | `GPU_SelectedRegion`  | region ID to select                      |
+| `IN`  | `0x207` | `GPU_DrawingPointX`   | get X position to draw selected region   |
+| `OUT` | `0x207` | `GPU_DrawingPointX`   | set X position to draw selected region   |
+| `IN`  | `0x208` | `GPU_DrawingPointY`   | get Y position to draw selected region   |
+| `OUT` | `0x208` | `GPU_DrawingPointY`   | set Y position to draw selected region   |
+| `IN`  | `0x209` | `GPU_DrawingScaleX`   | get X scaling as a float                 |
+| `OUT` | `0x209` | `GPU_DrawingScaleX`   | sets X scaling with a float as input     |
+| `IN`  | `0x20A` | `GPU_DrawingScaleY`   | get Y scaling as a float                 |
+| `OUT` | `0x20A` | `GPU_DrawingScaleY`   | sets Y scaling with a float as input     |
+| `IN`  | `0x20B` | `GPU_DrawingAngle`    | obtain the sprite rotation as a float    |
+| `OUT` | `0x20B` | `GPU_DrawingAngle`    | sets sprite rotation with float as input |
+| `IN`  | `0x20C` | `GPU_RegionMinX`      | obtain Min X coordinate for region       |
+| `OUT` | `0x20C` | `GPU_RegionMinX`      | set Min X coordinate for region          |
+| `IN`  | `0x20D` | `GPU_RegionMinY`      | obtain Min Y coordinate for region       |
+| `OUT` | `0x20D` | `GPU_RegionMinY`      | set Min Y coordinate for region          |
+| `IN`  | `0x20E` | `GPU_RegionMaxX`      | obtain Max X coordinate for region       |
+| `OUT` | `0x20E` | `GPU_RegionMaxX`      | set Max X coordinate for region          |
+| `IN`  | `0x20F` | `GPU_RegionMaxY`      | obtain Max Y coordinate for region       |
+| `OUT` | `0x20F` | `GPU_RegionMaxY`      | set Max Y coordinate for region          |
+| `IN`  | `0x210` | `GPU_RegionHotspotX`  | obtain region Hotspot X coordinate       |
+| `OUT` | `0x210` | `GPU_RegionHotspotX`  | set region Hotspot X coordinate          |
+| `IN`  | `0x211` | `GPU_RegionHotspotY`  | obtain region Hotspot Y coordinate       |
+| `OUT` | `0x211` | `GPU_RegionHotspotY`  | set region Hotspot Y coordinate          |
 
 More information  can be  found in  the Part 4:  The Graphics  Chip (GPU)
 Specifications document.
