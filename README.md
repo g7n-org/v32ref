@@ -341,13 +341,17 @@ Flag values are 0 when reset, 1 when set.
 
 | Name                            | Address    | Description                           |
 | ------------------------------- | ---------- | ------------------------------------- |
-| RAMFirstAddress                 | 0x00000000 | read/write memory (16MB)              |
-| stack init address              | 0x003FFFFF | SP default address (last RAM address) |
-| BiosProgramROMFirstAddress      | 0x10000000 | Vircon32 BIOS                         |
+| RAMFirstAddress                 | 0x00000000 | read/write memory (16MB, 4MW)         |
+| stack init address              | 0x003FFFFF | SP default address                    |
+| RAM last address                | 0x003FFFFF | last addressable offset in RAM        |
+| BiosProgramROMFirstAddress      | 0x10000000 | Vircon32 BIOS (4MB, 1MW)              |
 | BIOS error handler address      | 0x10000000 | start of error handler logic          |
 | BIOS program start address      | 0x10000004 | start of BIOS main logic              |
-| CartridgeProgramROMFirstAddress | 0x20000000 | Cartridge Data                        |
-| MemoryCardRAMFirstAddress       | 0x30000000 | Memory Card Data                      |
+| BIOS last address               | 0x100FFFFF | last addressable offset in BIOS       |
+| CartridgeProgramROMFirstAddress | 0x20000000 | first offset in CART (512MB, 128MW)   |
+| CART last address               | 0x27FFFFFF | last addressable offset in CART       |
+| MemoryCardRAMFirstAddress       | 0x30000000 | first offset in MEMCARD (1MB, 256kW)  |
+| MEMCARD last address            | 0x3003FFFF | last addressable offset in MEMCARD    |
 
 # IOPorts
 
