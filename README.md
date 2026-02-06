@@ -1848,6 +1848,24 @@ audio assets, we have this final ROM. The general layout is as follows:
 
 ![V32 ROM layout](images/V32_ROM_layout.png)
 
+| words | description                  |
+| ----- | ---------------------------- |
+| 1-2   | "V32-CART"                   |
+| 3     | Vircon32 version             |
+| 4     | Vircon32 revision            |
+| 5-20  | CART title (byte 63 is 0x00) |
+| 21    | ROM version                  |
+| 22    | ROM revision                 |
+| 23    | number of textures           |
+| 24    | number of sounds             |
+| 25    | program ROM offset (VBIN)    |
+| 26    | program ROM size             |
+| 27    | video ROM offset (VTEX)      |
+| 28    | video ROM size               |
+| 29    | audio ROM offset (VSND)      |
+| 30    | audio ROM size               |
+| 31-32 | reserved                     |
+
 ### Assembled VBIN
 
 Once code  is assembled,  we have  the Vircon32  equivalent of  an object
