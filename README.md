@@ -192,8 +192,8 @@ instruction is found, the CPU will stop execution.
 | 0x12   | 010010 | [FLE](#FLE)     | compare    | 2        | FP less than or equal  |
 | 0x13   | 010011 | [MOV](#MOV)     | data       | 2        | copy data              |
 | 0x14   | 010100 | [LEA](#LEA)     | data       | 2        | load effective address |
-| 0x15   | 010101 | [PUSH](#PUSH)   | data       | 2        | push data to stack     |
-| 0x16   | 010110 | [POP](#POP)     | data       | 2        | pop data from stack    |
+| 0x15   | 010101 | [PUSH](#PUSH)   | data       | 1        | push data to stack     |
+| 0x16   | 010110 | [POP](#POP)     | data       | 1        | pop data from stack    |
 | 0x17   | 010111 | [IN](#IN)       | data       | 2        | read data in from port |
 | 0x18   | 011000 | [OUT](#OUT)     | data       | 2        | write data out to port |
 | 0x19   | 011001 | [MOVS](#MOVS)   | data       | 0        | move string            |
@@ -611,7 +611,7 @@ identified by some set label.
 | Form                | Processing Action                     |
 | ------------------- | ------------------------------------- |
 | ```JMP Immediate``` | ```InstructionPointer = Immediate;``` |
-| ```JMP SRCREG```    | ```InstructionPointer = SRCREG;```    |
+| ```JMP DSTREG```    | ```InstructionPointer = DSTREG;```    |
 
 ## CALL
 
@@ -630,7 +630,7 @@ address.
 | Form             | Processing Action                                                 |
 | ---------------- | ----------------------------------------------------------------- |
 | `CALL Immediate` | `Stack.Push(InstructionPointer); InstructionPointer = Immediate;` |
-| `CALL SRCREG`    | `Stack.Push(InstructionPointer); InstructionPointer = SRCREG;`    |
+| `CALL DSTREG`    | `Stack.Push(InstructionPointer); InstructionPointer = DSTREG;`    |
 
 ## RET
 
@@ -998,7 +998,7 @@ grows down).
 
 | Form              | Processing Action         |
 | ----------------- | ------------------------- |
-| ```PUSH SRCREG``` | ```Stack.Push(SRCREG);``` |
+| ```PUSH DSTREG``` | ```Stack.Push(DSTREG);``` |
 
 ## POP
 
@@ -1136,9 +1136,9 @@ always perform the described loop at least once.
 
 ### Variants and Actions
 
-| Form           | Processing Action                            |
-| -------------- | -------------------------------------------- |
-| ```CMPS REG``` | see below                                    |
+| Form              | Processing Action |
+| ----------------- | ----------------- |
+| ```CMPS DSTREG``` | see below         |
 
 ### Processing actions
 
@@ -1173,9 +1173,9 @@ represented as a float.
 
 ### Variants and Actions
 
-| Form          | Processing Action                            |
-| ------------- | -------------------------------------------- |
-| ```CIF REG``` | ```REG = (float) REG;```                     |
+| Form             | Processing Action              |
+| ---------------- | ------------------------------ |
+| ```CIF DSTREG``` | ```DSTREG = (float) DSTREG;``` |
 
 ## CFI
 
@@ -1194,9 +1194,9 @@ represented as a 32-bit integer.
 
 ### Variants and Actions
 
-| Form          | Processing Action                            |
-| ------------- | -------------------------------------------- |
-| ```CFI REG``` | ```REG = (int) REG;```                       |
+| Form             | Processing Action            |
+| ---------------- | ---------------------------- |
+| ```CFI DSTREG``` | ```DSTREG = (int) DSTREG;``` |
 
 ## CIB
 
@@ -1211,9 +1211,9 @@ converted to 1.
 
 ### Variants and Actions
 
-| Form          | Processing Action               |
-| ------------- | ------------------------------- |
-| ```CIB REG``` | ```REG = (REG != 0) ? 1 : 0;``` |
+| Form             | Processing Action                     |
+| ---------------- | ------------------------------------- |
+| ```CIB DSTREG``` | ```DSTREG = (DSTREG != 0) ? 1 : 0;``` |
 
 ## CFB
 
@@ -1227,9 +1227,9 @@ and stores it back in that register.
 
 ### Variants and Actions
 
-| Form          | Processing Action                 |
-| ------------- | --------------------------------- |
-| ```CFB REG``` | ```REG = (REG != 0.0) ? 1 : 0;``` |
+| Form             | Processing Action                       |
+| ---------------- | --------------------------------------- |
+| ```CFB DSTREG``` | ```DSTREG = (DSTREG != 0.0) ? 1 : 0;``` |
 
 ## NOT
 
@@ -1242,9 +1242,9 @@ specified register.
 
 ### Variants and Actions
 
-| Form          | Processing Action |
-| ------------- | ----------------- |
-| ```NOT REG``` | ```REG = ~REG;``` |
+| Form             | Processing Action       |
+| ---------------- | ----------------------- |
+| ```NOT DSTREG``` | ```DSTREG = ~DSTREG;``` |
 
 ## AND
 
@@ -1336,9 +1336,9 @@ then inverting bit number 0.
 
 ### Variants and Actions
 
-| Form           | Processing Action               |
-| -------------- | ------------------------------- |
-| ```BNOT REG``` | ```REG = (REG == 0) ? 1 : 0;``` |
+| Form              | Processing Action                     |
+| ----------------- | ------------------------------------- |
+| ```BNOT DSTREG``` | ```DSTREG = (DSTREG == 0) ? 1 : 0;``` |
 
 ### Errata
 
@@ -1466,9 +1466,9 @@ ISGN interprets the operand register as an integer and inverts its sign.
 
 ### Variants and Actions
 
-| Form           | Processing Action |
-| -------------- | ----------------- |
-| ```ISGN REG``` | ```REG = -REG```  |
+| Form              | Processing Action      |
+| ----------------- | ---------------------- |
+| ```ISGN DSTREG``` | ```DSTREG = -DSTREG``` |
 
 ## IMIN
 
@@ -1514,9 +1514,9 @@ IABS interprets the operand register as an integer and takes its absolute value.
 
 ### Variants and Actions
 
-| Form           | Processing Action     |
-| -------------- | --------------------- |
-| ```IABS REG``` | ```REG = abs(REG)```  |
+| Form              | Processing Action          |
+| ----------------- | -------------------------- |
+| ```IABS DSTREG``` | ```DSTREG = abs(DSTREG)``` |
 
 ## FADD
 
@@ -1614,9 +1614,9 @@ FSGN interprets the operand register as a float and inverts its sign.
 
 ### Variants and Actions
 
-| Form           | Processing Action |
-| -------------- | ----------------- |
-| ```FSGN REG``` | ```REG = -REG```  |
+| Form              | Processing Action      |
+| ----------------- | ---------------------- |
+| ```FSGN DSTREG``` | ```DSTREG = -DSTREG``` |
 
 ## FMIN
 
@@ -1663,9 +1663,9 @@ value.
 
 ### Variants and Actions
 
-| Form           | Processing Action     |
-| -------------- | --------------------- |
-| ```FABS REG``` | ```REG = abs(REG)```  |
+| Form              | Processing Action          |
+| ----------------- | -------------------------- |
+| ```FABS DSTREG``` | ```DSTREG = abs(DSTREG)``` |
 
 ## FLR
 
@@ -1679,9 +1679,9 @@ but is still a float.
 
 ### Variants and Actions
 
-| Form          | Processing Action       |
-| ------------- | ----------------------- |
-| ```FLR REG``` | ```REG = floor(REG)```  |
+| Form             | Processing Action            |
+| ---------------- | ---------------------------- |
+| ```FLR DSTREG``` | ```DSTREG = floor(DSTREG)``` |
 
 ## CEIL
 
@@ -1695,9 +1695,9 @@ but is still a float.
 
 ### Variants and Actions
 
-| Form           | Processing Action      |
-| -------------- | ---------------------- |
-| ```CEIL REG``` | ```REG = ceil(REG)```  |
+| Form              | Processing Action           |
+| ----------------- | --------------------------- |
+| ```CEIL DSTREG``` | ```DSTREG = ceil(DSTREG)``` |
 
 ## ROUND
 
@@ -1711,9 +1711,9 @@ integer, but is still a float.
 
 ### Variants and Actions
 
-| Form            | Processing Action       |
-| --------------- | ----------------------- |
-| ```ROUND REG``` | ```REG = round(REG)```  |
+| Form               | Processing Action            |
+| ------------------ | ---------------------------- |
+| ```ROUND DSTREG``` | ```DSTREG = round(DSTREG)``` |
 
 ## SIN
 
@@ -1726,9 +1726,9 @@ that value. The sine function will interpret its argument in radians.
 
 ### Variants and Actions
 
-| Form          | Processing Action     |
-| ------------- | --------------------- |
-| ```SIN REG``` | ```REG = sin(REG)```  |
+| Form             | Processing Action          |
+| ---------------- | -------------------------- |
+| ```SIN DSTREG``` | ```DSTREG = sin(DSTREG)``` |
 
 ## ACOS
 Arc cosine
@@ -1741,9 +1741,9 @@ PI.
 
 ### Variants and Actions
 
-| Form           | Processing Action      |
-| -------------- | ---------------------- |
-| ```ACOS REG``` | ```REG = acos(REG);``` |
+| Form              | Processing Action            |
+| ----------------- | ---------------------------- |
+| ```ACOS DSTREG``` | ```DSTREG = acos(DSTREG);``` |
 
 ## ATAN2
 
@@ -1759,9 +1759,9 @@ and angles grow when rotating towards (Vx = 0, Vy > 0).
 
 ### Variants and Actions
 
-| Form                       | Processing Action                  |
-| -------------------------- | ---------------------------------- |
-| ```ATAN2 DSTREG, SRCREG``` | ```REG = atan2(DSTREG, SRCREG);``` |
+| Form                       | Processing Action                     |
+| -------------------------- | ------------------------------------- |
+| ```ATAN2 DSTREG, SRCREG``` | ```DSTREG = atan2(DSTREG, SRCREG);``` |
 
 ## LOG
 
@@ -1774,9 +1774,9 @@ logarithm base e of that value.
 
 ### Variants and Actions
 
-| Form          | Processing Action     |
-| ------------- | --------------------- |
-| ```LOG REG``` | ```REG = log(REG);``` |
+| Form             | Processing Action           |
+| ---------------- | --------------------------- |
+| ```LOG DSTREG``` | ```DSTREG = log(DSTREG);``` |
 
 ## POW
 
@@ -1790,9 +1790,9 @@ result is stored in the first operand register.
 
 ### Variants and Actions
 
-| Form                     | Processing Action                |
-| ------------------------ | -------------------------------- |
-| ```POW DSTREG, SRCREG``` | ```REG = pow(DSTREG, SRCREG);``` |
+| Form                     | Processing Action                   |
+| ------------------------ | ----------------------------------- |
+| ```POW DSTREG, SRCREG``` | ```DSTREG = pow(DSTREG, SRCREG);``` |
 
 ## Vircon32 BIOS
 
