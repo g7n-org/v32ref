@@ -1383,10 +1383,10 @@ register. Overflow bits are discarded.
 
 ### Variants and Actions
 
-| Form                         | Processing Action                 |
-| ---------------------------- | --------------------------------- |
-| ```IADD DSTREG, Immediate``` | ```DSTREG = DSTREG + Immediate``` |
-| ```IADD DSTREG, SRCREG```    | ```DSTREG = DSTREG + SRCREG```    |
+| Form                     | Processing Action             |
+| ------------------------ | ----------------------------- |
+| `IADD DSTREG, Immediate` | `DSTREG = DSTREG + Immediate` |
+| `IADD DSTREG, SRCREG`    | `DSTREG = DSTREG + SRCREG`    |
 
 ## ISUB
 
@@ -1400,10 +1400,10 @@ register. Overflow bits are discarded.
 
 ### Variants and Actions
 
-| Form                         | Processing Action                 |
-| ---------------------------- | --------------------------------- |
-| ```ISUB DSTREG, Immediate``` | ```DSTREG = DSTREG - Immediate``` |
-| ```ISUB DSTREG, SRCREG```    | ```DSTREG = DSTREG - SRCREG```    |
+| Form                     | Processing Action             |
+| ------------------------ | ----------------------------- |
+| `ISUB DSTREG, Immediate` | `DSTREG = DSTREG - Immediate` |
+| `ISUB DSTREG, SRCREG`    | `DSTREG = DSTREG - SRCREG`    |
 
 ## IMUL
 
@@ -1417,10 +1417,10 @@ always a register. Overflow bits are discarded.
 
 ### Variants and Actions
 
-| Form                         | Processing Action                 |
-| ---------------------------- | --------------------------------- |
-| ```IMUL DSTREG, Immediate``` | ```DSTREG = DSTREG * Immediate``` |
-| ```IMUL DSTREG, SRCREG```    | ```DSTREG = DSTREG * SRCREG```    |
+| Form                     | Processing Action             |
+| ------------------------ | ----------------------------- |
+| `IMUL DSTREG, Immediate` | `DSTREG = DSTREG * Immediate` |
+| `IMUL DSTREG, SRCREG`    | `DSTREG = DSTREG * SRCREG`    |
 
 ## IDIV
 
@@ -1434,10 +1434,10 @@ register.
 
 ### Variants and Actions
 
-| Form                         | Processing Action                 |
-| ---------------------------- | --------------------------------- |
-| ```IDIV DSTREG, Immediate``` | ```DSTREG = DSTREG / Immediate``` |
-| ```IDIV DSTREG, SRCREG```    | ```DSTREG = DSTREG / SRCREG```    |
+| Form                     | Processing Action             |
+| ------------------------ | ----------------------------- |
+| `IDIV DSTREG, Immediate` | `DSTREG = DSTREG / Immediate` |
+| `IDIV DSTREG, SRCREG`    | `DSTREG = DSTREG / SRCREG`    |
 
 ## IMOD
 
@@ -1451,10 +1451,10 @@ always a register.
 
 ### Variants and Actions
 
-| Form                         | Processing Action                 |
-| ---------------------------- | --------------------------------- |
-| ```IMOD DSTREG, Immediate``` | ```DSTREG = DSTREG % Immediate``` |
-| ```IMOD DSTREG, SRCREG```    | ```DSTREG = DSTREG % SRCREG```    |
+| Form                     | Processing Action             |
+| ------------------------ | ----------------------------- |
+| `IMOD DSTREG, Immediate` | `DSTREG = DSTREG % Immediate` |
+| `IMOD DSTREG, SRCREG`    | `DSTREG = DSTREG % SRCREG`    |
 
 ## ISGN
 
@@ -1466,9 +1466,9 @@ ISGN interprets the operand register as an integer and inverts its sign.
 
 ### Variants and Actions
 
-| Form              | Processing Action      |
-| ----------------- | ---------------------- |
-| ```ISGN DSTREG``` | ```DSTREG = -DSTREG``` |
+| Form          | Processing Action  |
+| ------------- | ------------------ |
+| `ISGN DSTREG` | `DSTREG = -DSTREG` |
 
 ## IMIN
 
@@ -1482,10 +1482,10 @@ which is always a register.
 
 ### Variants and Actions
 
-| Form                         | Processing Action                    |
-| ---------------------------- | ------------------------------------ |
-| ```IMIN DSTREG, Immediate``` | ```DSTREG = min(DSTREG, Immediate``` |
-| ```IMIN DSTREG, SRCREG```    | ```DSTREG = min(DSTREG, SRCREG)``    |
+| Form                     | Processing Action                |
+| ------------------------ | -------------------------------- |
+| `IMIN DSTREG, Immediate` | `DSTREG = min(DSTREG, Immediate` |
+| `IMIN DSTREG, SRCREG`    | `DSTREG = min(DSTREG, SRCREG)`   |
 
 ## IMAX
 
@@ -1499,10 +1499,10 @@ is always a register.
 
 ### Variants and Actions
 
-| Form                         | Processing Action                    |
-| ---------------------------- | ------------------------------------ |
-| ```IMAX DSTREG, Immediate``` | ```DSTREG = max(DSTREG, Immediate``` |
-| ```IMAX DSTREG, SRCREG```    | ```DSTREG = max(DSTREG, SRCREG)``    |
+| Form                     | Processing Action                |
+| ------------------------ | -------------------------------- |
+| `IMAX DSTREG, Immediate` | `DSTREG = max(DSTREG, Immediate` |
+| `IMAX DSTREG, SRCREG`    | `DSTREG = max(DSTREG, SRCREG)`   |
 
 ## IABS
 
@@ -1514,9 +1514,9 @@ IABS interprets the operand register as an integer and takes its absolute value.
 
 ### Variants and Actions
 
-| Form              | Processing Action          |
-| ----------------- | -------------------------- |
-| ```IABS DSTREG``` | ```DSTREG = abs(DSTREG)``` |
+| Form          | Processing Action      |
+| ------------- | ---------------------- |
+| `IABS DSTREG` | `DSTREG = abs(DSTREG)` |
 
 ## FADD
 
@@ -1530,10 +1530,10 @@ Overflow bits are discarded.
 
 ### Variants and Actions
 
-| Form                         | Processing Action                 |
-| ---------------------------- | --------------------------------- |
-| ```FADD DSTREG, Immediate``` | ```DSTREG = DSTREG + Immediate``` |
-| ```FADD DSTREG, SRCREG```    | ```DSTREG = DSTREG + SRCREG```    |
+| Form                     | Processing Action             |
+| ------------------------ | ----------------------------- |
+| `FADD DSTREG, Immediate` | `DSTREG = DSTREG + Immediate` |
+| `FADD DSTREG, SRCREG`    | `DSTREG = DSTREG + SRCREG`    |
 
 ## FSUB
 
@@ -1547,10 +1547,10 @@ register. Overflow bits are discarded.
 
 ### Variants and Actions
 
-| Form                         | Processing Action                 |
-| ---------------------------- | --------------------------------- |
-| ```FSUB DSTREG, Immediate``` | ```DSTREG = DSTREG - Immediate``` |
-| ```FSUB DSTREG, SRCREG```    | ```DSTREG = DSTREG - SRCREG```    |
+| Form                     | Processing Action             |
+| ------------------------ | ----------------------------- |
+| `FSUB DSTREG, Immediate` | `DSTREG = DSTREG - Immediate` |
+| `FSUB DSTREG, SRCREG`    | `DSTREG = DSTREG - SRCREG`    |
 
 ## FMUL
 
@@ -1564,10 +1564,10 @@ always a register. Overflow bits are discarded.
 
 ### Variants and Actions
 
-| Form                         | Processing Action                 |
-| ---------------------------- | --------------------------------- |
-| ```FMUL DSTREG, Immediate``` | ```DSTREG = DSTREG * Immediate``` |
-| ```FMUL DSTREG, SRCREG```    | ```DSTREG = DSTREG * SRCREG```    |
+| Form                     | Processing Action             |
+| ------------------------ | ----------------------------- |
+| `FMUL DSTREG, Immediate` | `DSTREG = DSTREG * Immediate` |
+| `FMUL DSTREG, SRCREG`    | `DSTREG = DSTREG * SRCREG`    |
 
 ## FDIV
 
@@ -1581,10 +1581,10 @@ register.
 
 ### Variants and Actions
 
-| Form                         | Processing Action                 |
-| ---------------------------- | --------------------------------- |
-| ```FDIV DSTREG, Immediate``` | ```DSTREG = DSTREG / Immediate``` |
-| ```FDIV DSTREG, SRCREG```    | ```DSTREG = DSTREG / SRCREG```    |
+| Form                     | Processing Action             |
+| ------------------------ | ----------------------------- |
+| `FDIV DSTREG, Immediate` | `DSTREG = DSTREG / Immediate` |
+| `FDIV DSTREG, SRCREG`    | `DSTREG = DSTREG / SRCREG`    |
 
 ## FMOD
 
@@ -1599,10 +1599,10 @@ operand, which is always a register.
 
 ### Variants and Actions
 
-| Form                         | Processing Action                 |
-| ---------------------------- | --------------------------------- |
-| ```FMOD DSTREG, Immediate``` | ```DSTREG = DSTREG % Immediate``` |
-| ```FMOD DSTREG, SRCREG```    | ```DSTREG = DSTREG % SRCREG```    |
+| Form                     | Processing Action             |
+| ------------------------ | ----------------------------- |
+| `FMOD DSTREG, Immediate` | `DSTREG = DSTREG % Immediate` |
+| `FMOD DSTREG, SRCREG`    | `DSTREG = DSTREG % SRCREG`    |
 
 ## FSGN
 
@@ -1614,9 +1614,9 @@ FSGN interprets the operand register as a float and inverts its sign.
 
 ### Variants and Actions
 
-| Form              | Processing Action      |
-| ----------------- | ---------------------- |
-| ```FSGN DSTREG``` | ```DSTREG = -DSTREG``` |
+| Form          | Processing Action  |
+| ------------- | ------------------ |
+| `FSGN DSTREG` | `DSTREG = -DSTREG` |
 
 ## FMIN
 
@@ -1630,10 +1630,10 @@ always a register.
 
 ### Variants and Actions
 
-| Form                         | Processing Action                    |
-| ---------------------------- | ------------------------------------ |
-| ```FMIN DSTREG, Immediate``` | ```DSTREG = min(DSTREG, Immediate``` |
-| ```FMIN DSTREG, SRCREG```    | ```DSTREG = min(DSTREG, SRCREG)``    |
+| Form                     | Processing Action                |
+| ------------------------ | -------------------------------- |
+| `FMIN DSTREG, Immediate` | `DSTREG = min(DSTREG, Immediate` |
+| `FMIN DSTREG, SRCREG`    | `DSTREG = min(DSTREG, SRCREG)`   |
 
 ## FMAX
 
@@ -1647,10 +1647,10 @@ always a register.
 
 ### Variants and Actions
 
-| Form                         | Processing Action                    |
-| ---------------------------- | ------------------------------------ |
-| ```FMAX DSTREG, Immediate``` | ```DSTREG = max(DSTREG, Immediate``` |
-| ```FMAX DSTREG, SRCREG```    | ```DSTREG = max(DSTREG, SRCREG)``    |
+| Form                     | Processing Action                |
+| ------------------------ | -------------------------------- |
+| `FMAX DSTREG, Immediate` | `DSTREG = max(DSTREG, Immediate` |
+| `FMAX DSTREG, SRCREG`    | `DSTREG = max(DSTREG, SRCREG)`   |
 
 ## FABS
 
@@ -1663,9 +1663,9 @@ value.
 
 ### Variants and Actions
 
-| Form              | Processing Action          |
-| ----------------- | -------------------------- |
-| ```FABS DSTREG``` | ```DSTREG = abs(DSTREG)``` |
+| Form          | Processing Action      |
+| ------------- | ---------------------- |
+| `FABS DSTREG` | `DSTREG = abs(DSTREG)` |
 
 ## FLR
 
@@ -1679,9 +1679,9 @@ but is still a float.
 
 ### Variants and Actions
 
-| Form             | Processing Action            |
-| ---------------- | ---------------------------- |
-| ```FLR DSTREG``` | ```DSTREG = floor(DSTREG)``` |
+| Form         | Processing Action        |
+| ------------ | ------------------------ |
+| `FLR DSTREG` | `DSTREG = floor(DSTREG)` |
 
 ## CEIL
 
@@ -1695,9 +1695,9 @@ but is still a float.
 
 ### Variants and Actions
 
-| Form              | Processing Action           |
-| ----------------- | --------------------------- |
-| ```CEIL DSTREG``` | ```DSTREG = ceil(DSTREG)``` |
+| Form          | Processing Action       |
+| ------------- | ----------------------- |
+| `CEIL DSTREG` | `DSTREG = ceil(DSTREG)` |
 
 ## ROUND
 
@@ -1711,9 +1711,9 @@ integer, but is still a float.
 
 ### Variants and Actions
 
-| Form               | Processing Action            |
-| ------------------ | ---------------------------- |
-| ```ROUND DSTREG``` | ```DSTREG = round(DSTREG)``` |
+| Form           | Processing Action        |
+| -------------- | ------------------------ |
+| `ROUND DSTREG` | `DSTREG = round(DSTREG)` |
 
 ## SIN
 
@@ -1726,9 +1726,9 @@ that value. The sine function will interpret its argument in radians.
 
 ### Variants and Actions
 
-| Form             | Processing Action          |
-| ---------------- | -------------------------- |
-| ```SIN DSTREG``` | ```DSTREG = sin(DSTREG)``` |
+| Form         | Processing Action      |
+| ------------ | ---------------------- |
+| `SIN DSTREG` | `DSTREG = sin(DSTREG)` |
 
 ## ACOS
 Arc cosine
@@ -1741,9 +1741,9 @@ PI.
 
 ### Variants and Actions
 
-| Form              | Processing Action            |
-| ----------------- | ---------------------------- |
-| ```ACOS DSTREG``` | ```DSTREG = acos(DSTREG);``` |
+| Form          | Processing Action        |
+| ------------- | ------------------------ |
+| `ACOS DSTREG` | `DSTREG = acos(DSTREG);` |
 
 ## ATAN2
 
@@ -1759,9 +1759,9 @@ and angles grow when rotating towards (Vx = 0, Vy > 0).
 
 ### Variants and Actions
 
-| Form                       | Processing Action                     |
-| -------------------------- | ------------------------------------- |
-| ```ATAN2 DSTREG, SRCREG``` | ```DSTREG = atan2(DSTREG, SRCREG);``` |
+| Form                   | Processing Action                 |
+| ---------------------- | --------------------------------- |
+| `ATAN2 DSTREG, SRCREG` | `DSTREG = atan2(DSTREG, SRCREG);` |
 
 ## LOG
 
@@ -1774,9 +1774,9 @@ logarithm base e of that value.
 
 ### Variants and Actions
 
-| Form             | Processing Action           |
-| ---------------- | --------------------------- |
-| ```LOG DSTREG``` | ```DSTREG = log(DSTREG);``` |
+| Form         | Processing Action       |
+| ------------ | ----------------------- |
+| `LOG DSTREG` | `DSTREG = log(DSTREG);` |
 
 ## POW
 
@@ -1790,9 +1790,9 @@ result is stored in the first operand register.
 
 ### Variants and Actions
 
-| Form                     | Processing Action                   |
-| ------------------------ | ----------------------------------- |
-| ```POW DSTREG, SRCREG``` | ```DSTREG = pow(DSTREG, SRCREG);``` |
+| Form                 | Processing Action               |
+| -------------------- | ------------------------------- |
+| `POW DSTREG, SRCREG` | `DSTREG = pow(DSTREG, SRCREG);` |
 
 ## Vircon32 BIOS
 
