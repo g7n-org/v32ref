@@ -1873,6 +1873,11 @@ file, known as a **VBIN** file. Its header is as follows:
 
 ![V32 VBIN header](images/V32_VBIN_header.png)
 
+| words | description                  |
+| ----- | ---------------------------- |
+| 1-2   | "V32-VBIN"                   |
+| 3     | number of data words         |
+
 Note the word offsets (and how a word is 4 bytes). This will be useful to
 calculate any offsets when debugging.
 
