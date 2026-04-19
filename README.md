@@ -367,14 +367,17 @@ Flag values are 0 when reset, 1 when set.
 | `0x500` | [CAR_FirstPort](#CARTRIDGE) | cartridge interface        |
 | `0x600` | [MEM_FirstPort](#MEMCARD)   | memory card                |
 
+NOTE: The `Mode` of access is one  of `R`ead, `W`rite, or `R/W` (Read and
+Write)
+
 ## TIME
 
-| Type | Port    | Name               | Description                  |
+| Mode | Port    | Name               | Description                  |
 | ---- | ------- | ------------------ | ---------------------------- |
-| `IN` | `0x000` | `TIM_CurrentDate`  | retrieve current date        |
-| `IN` | `0x001` | `TIM_CurrentTime`  | retrieve current time        |
-| `IN` | `0x002` | `TIM_FrameCounter` | retrieve current frame count |
-| `IN` | `0x003` | `TIM_CycleCounter` | retrieve current cycle count |
+| `R`  | `0x000` | `TIM_CurrentDate`  | retrieve current date        |
+| `R`  | `0x001` | `TIM_CurrentTime`  | retrieve current time        |
+| `R`  | `0x002` | `TIM_FrameCounter` | retrieve current frame count |
+| `R`  | `0x003` | `TIM_CycleCounter` | retrieve current cycle count |
 
 More information can be found in  the Section 7: Other Console Components
 Specifications document.
@@ -391,52 +394,36 @@ Specifications document.
 
 ## RNG
 
-| Type  | Port    | Name               | Description                  |
-| ----- | ------- | ------------------ | ---------------------------- |
-| `IN`  | `0x100` | `RNG_CurrentValue` | obtain pseudorandom value    |
-| `OUT` | `0x100` | `RNG_CurrentValue` | seed random number generator |
+| Mode  | Port    | Name               | Description                     |
+| ----- | ------- | ------------------ | ------------------------------- |
+| `R`   | `0x100` | `RNG_CurrentValue` | get pseudorandom value from RNG |
+| `W`   | `0x100` | `RNG_CurrentValue` | seed random number generator    |
 
 More information can be found in  the Section 7: Other Console Components
 Specifications document.
 
 ## GPU
 
-| Type  | Port    | Name                  | Description                              |
-| ----- | ------- | --------------------- | ---------------------------------------- |
-| `OUT` | `0x200` | `GPU_Command`         | perform GPU operation                    |
-| `IN`  | `0x201` | `GPU_RemainingPixels` | how many pixels left in frame            |
-| `IN`  | `0x202` | `GPU_ClearColor`      | obtain current clear color               |
-| `OUT` | `0x202` | `GPU_ClearColor`      | color to clear the screen with           |
-| `IN`  | `0x203` | `GPU_MultiplyColor`   | obtain current color multiplier          |
-| `OUT` | `0x203` | `GPU_MultiplyColor`   | color multiplier to draw sprites with    |
-| `IN`  | `0x204` | `GPU_ActiveBlending`  | obtain current blending mode             |
-| `OUT` | `0x204` | `GPU_ActiveBlending`  | blending method to draw sprites with     |
-| `IN`  | `0x205` | `GPU_SelectedTexture` | obtain current selected texture          |
-| `OUT` | `0x205` | `GPU_SelectedTexture` | texture ID to select (-1 for BIOS)       |
-| `IN`  | `0x206` | `GPU_SelectedRegion`  | obtain current selected region           |
-| `OUT` | `0x206` | `GPU_SelectedRegion`  | region ID to select                      |
-| `IN`  | `0x207` | `GPU_DrawingPointX`   | get X position to draw selected region   |
-| `OUT` | `0x207` | `GPU_DrawingPointX`   | set X position to draw selected region   |
-| `IN`  | `0x208` | `GPU_DrawingPointY`   | get Y position to draw selected region   |
-| `OUT` | `0x208` | `GPU_DrawingPointY`   | set Y position to draw selected region   |
-| `IN`  | `0x209` | `GPU_DrawingScaleX`   | get X scaling as a float                 |
-| `OUT` | `0x209` | `GPU_DrawingScaleX`   | sets X scaling with a float as input     |
-| `IN`  | `0x20A` | `GPU_DrawingScaleY`   | get Y scaling as a float                 |
-| `OUT` | `0x20A` | `GPU_DrawingScaleY`   | sets Y scaling with a float as input     |
-| `IN`  | `0x20B` | `GPU_DrawingAngle`    | obtain the sprite rotation as a float    |
-| `OUT` | `0x20B` | `GPU_DrawingAngle`    | sets sprite rotation with float as input |
-| `IN`  | `0x20C` | `GPU_RegionMinX`      | obtain Min X coordinate for region       |
-| `OUT` | `0x20C` | `GPU_RegionMinX`      | set Min X coordinate for region          |
-| `IN`  | `0x20D` | `GPU_RegionMinY`      | obtain Min Y coordinate for region       |
-| `OUT` | `0x20D` | `GPU_RegionMinY`      | set Min Y coordinate for region          |
-| `IN`  | `0x20E` | `GPU_RegionMaxX`      | obtain Max X coordinate for region       |
-| `OUT` | `0x20E` | `GPU_RegionMaxX`      | set Max X coordinate for region          |
-| `IN`  | `0x20F` | `GPU_RegionMaxY`      | obtain Max Y coordinate for region       |
-| `OUT` | `0x20F` | `GPU_RegionMaxY`      | set Max Y coordinate for region          |
-| `IN`  | `0x210` | `GPU_RegionHotspotX`  | obtain region Hotspot X coordinate       |
-| `OUT` | `0x210` | `GPU_RegionHotspotX`  | set region Hotspot X coordinate          |
-| `IN`  | `0x211` | `GPU_RegionHotspotY`  | obtain region Hotspot Y coordinate       |
-| `OUT` | `0x211` | `GPU_RegionHotspotY`  | set region Hotspot Y coordinate          |
+| Mode  | Port    | Name                  | Description                             |
+| ----- | ------- | --------------------- | --------------------------------------- |
+| `W`   | `0x200` | `GPU_Command`         | perform GPU operation                   |
+| `R`   | `0x201` | `GPU_RemainingPixels` | how many pixels left in frame           |
+| `R/W` | `0x202` | `GPU_ClearColor`      | get/set current clear color             |
+| `R/W` | `0x203` | `GPU_MultiplyColor`   | get/set color multiplier                |
+| `R/W` | `0x204` | `GPU_ActiveBlending`  | get/set blending method                 |
+| `R/W` | `0x205` | `GPU_SelectedTexture` | get/set texture ID (-1 is BIOS texture) |
+| `R/W` | `0x206` | `GPU_SelectedRegion`  | get/set region ID                       |
+| `R/W` | `0x207` | `GPU_DrawingPointX`   | get/set X position for drawing          |
+| `R/W` | `0x208` | `GPU_DrawingPointY`   | get/set Y position for drawing          |
+| `R/W` | `0x209` | `GPU_DrawingScaleX`   | get/set X scaling factor (a float)      |
+| `R/W` | `0x20A` | `GPU_DrawingScaleY`   | get/set Y scaling factor (a float)      |
+| `R/W` | `0x20B` | `GPU_DrawingAngle`    | get/set sprite rotation angle (a float) |
+| `R/W` | `0x20C` | `GPU_RegionMinX`      | get/set Min X coordinate for region     |
+| `R/W` | `0x20D` | `GPU_RegionMinY`      | get/set Min Y coordinate for region     |
+| `R/W` | `0x20E` | `GPU_RegionMaxX`      | get/set Max X coordinate for region     |
+| `R/W` | `0x20F` | `GPU_RegionMaxY`      | get/set Max Y coordinate for region     |
+| `R/W` | `0x210` | `GPU_RegionHotspotX`  | get/set region Hotspot X coordinate     |
+| `R/W` | `0x211` | `GPU_RegionHotspotY`  | get/set region Hotspot Y coordinate     |
 
 More information  can be  found in  the Part 4:  The Graphics  Chip (GPU)
 Specifications document.
@@ -469,22 +456,22 @@ Active blending:
 
 ## SPU
 
-| Type  | Port    | Name                       | Description                         |
+| Mode  | Port    | Name                       | Description                         |
 | ----- | ------- | -------------------------- | ----------------------------------- |
-| `OUT` | `0x300` | `SPU_Command`              | perform SPU operation               |
-| `???` | `0x301` | `SPU_GlobalVolume`         | ???                                 |
-| `OUT` | `0x302` | `SPU_SelectedSound`        | ???                                 |
-| `OUT` | `0x303` | `SPU_SelectedChannel`      | ???                                 |
-| `???` | `0x304` | `SPU_SoundLength`          | ???                                 |
-| `???` | `0x305` | `SPU_SoundPlayWithLoop`    | ???                                 |
-| `???` | `0x306` | `SPU_SoundLoopStart`       | ???                                 |
-| `???` | `0x307` | `SPU_SoundLoopEnd`         | ???                                 |
-| `???` | `0x308` | `SPU_ChannelState`         | ???                                 |
-| `???` | `0x309` | `SPU_ChannelAssignedSound` | ???                                 |
-| `???` | `0x30A` | `SPU_ChannelVolume`        | ???                                 |
-| `???` | `0x30B` | `SPU_ChannelSpeed`         | ???                                 |
-| `???` | `0x30C` | `SPU_ChannelLoopEnabled`   | ???                                 |
-| `???` | `0x30D` | `SPU_ChannelPosition`      | ???                                 |
+| `W`   | `0x300` | `SPU_Command`              | perform SPU operation               |
+| `R/W` | `0x301` | `SPU_GlobalVolume`         | get/set global volume               |
+| `R/W` | `0x302` | `SPU_SelectedSound`        | get/set VSND                        |
+| `R/W` | `0x303` | `SPU_SelectedChannel`      | get/set channel                     |
+| `R`   | `0x304` | `SPU_SoundLength`          | get VSND length                     |
+| `R/W` | `0x305` | `SPU_SoundPlayWithLoop`    | ???                                 |
+| `R/W` | `0x306` | `SPU_SoundLoopStart`       | ???                                 |
+| `R/W` | `0x307` | `SPU_SoundLoopEnd`         | ???                                 |
+| `R`   | `0x308` | `SPU_ChannelState`         | ???                                 |
+| `R/W` | `0x309` | `SPU_ChannelAssignedSound` | ???                                 |
+| `R/W` | `0x30A` | `SPU_ChannelVolume`        | ???                                 |
+| `R/W` | `0x30B` | `SPU_ChannelSpeed`         | ???                                 |
+| `R/W` | `0x30C` | `SPU_ChannelLoopEnabled`   | ???                                 |
+| `R/W` | `0x30D` | `SPU_ChannelPosition`      | ???                                 |
 
 More  information can  be  found in  the  Part 5:  The  Sound Chip  (SPU)
 Specifications document.
@@ -518,37 +505,36 @@ States of the sound channels:
 
 ## INPUT
 
-| Type  | Port    | Name                     | Description                          |
-| ----- | ------- | ------------------------ | ------------------------------------ |
-| `IN`  | `0x400` | `INP_SelectedGamepad`    | read which gamepad is selected (0-3) |
-| `OUT` | `0x400` | `INP_SelectedGamepad`    | select indicated gamepad (0-3)       |
-| `IN`  | `0x401` | `INP_GamepadConnected`   | status of gamepad being connected    |
-| `IN`  | `0x402` | `INP_GamepadLeft`        | `Left` button input                  |
-| `IN`  | `0x403` | `INP_GamepadRight`       | `Right` button input                 |
-| `IN`  | `0x404` | `INP_GamepadUp`          | `Up` button input                    |
-| `IN`  | `0x405` | `INP_GamepadDown`        | `Down` button input                  |
-| `IN`  | `0x406` | `INP_GamepadButtonStart` | `Start` button input (ENTER)         |
-| `IN`  | `0x407` | `INP_GamepadButtonA`     | `A` button input (X on keyboard)     |
-| `IN`  | `0x408` | `INP_GamepadButtonB`     | `B` button input (Z on keyboard)     |
-| `IN`  | `0x409` | `INP_GamepadButtonX`     | `X` key input (S on keyboard)        |
-| `IN`  | `0x40A` | `INP_GamepadButtonY`     | `Y` key input (A on keyboard)        |
-| `IN`  | `0x40B` | `INP_GamepadButtonL`     | `L` key input (Q on keyboard)        |
-| `IN`  | `0x40C` | `INP_GamepadButtonR`     | `R` key input (W on keyboard)        |
+| Mode  | Port    | Name                     | Description                       |
+| ----- | ------- | ------------------------ | --------------------------------- |
+| `R/W` | `0x400` | `INP_SelectedGamepad`    | get/set selected gamepad (0-3)    |
+| `R`   | `0x401` | `INP_GamepadConnected`   | status of gamepad being connected |
+| `R`   | `0x402` | `INP_GamepadLeft`        | `Left` button input               |
+| `R`   | `0x403` | `INP_GamepadRight`       | `Right` button input              |
+| `R`   | `0x404` | `INP_GamepadUp`          | `Up` button input                 |
+| `R`   | `0x405` | `INP_GamepadDown`        | `Down` button input               |
+| `R`   | `0x406` | `INP_GamepadButtonStart` | `Start` button input (ENTER)      |
+| `R`   | `0x407` | `INP_GamepadButtonA`     | `A` button input (X on keyboard)  |
+| `R`   | `0x408` | `INP_GamepadButtonB`     | `B` button input (Z on keyboard)  |
+| `R`   | `0x409` | `INP_GamepadButtonX`     | `X` key input (S on keyboard)     |
+| `R`   | `0x40A` | `INP_GamepadButtonY`     | `Y` key input (A on keyboard)     |
+| `R`   | `0x40B` | `INP_GamepadButtonL`     | `L` key input (Q on keyboard)     |
+| `R`   | `0x40C` | `INP_GamepadButtonR`     | `R` key input (W on keyboard)     |
 
 ## CARTRIDGE
 
-| Type | Port    | Name                   | Description                         |
+| Mode | Port    | Name                   | Description                         |
 | ---- | ------- | ---------------------- | ----------------------------------- |
-| `IN` | `0x500` | `CAR_Connected`        | status of cartridge being connected |
-| `IN` | `0x501` | `CAR_ProgramROMSize`   | size of program ROM                 |
-| `IN` | `0x502` | `CAR_NumberOfTextures` | number of cartridge textures        |
-| `IN` | `0x503` | `CAR_NumberOfSounds`   | number of cartridge sounds          |
+| `R`  | `0x500` | `CAR_Connected`        | status of cartridge being connected |
+| `R`  | `0x501` | `CAR_ProgramROMSize`   | get size of program ROM             |
+| `R`  | `0x502` | `CAR_NumberOfTextures` | get number of cartridge textures    |
+| `R`  | `0x503` | `CAR_NumberOfSounds`   | get number of cartridge sounds      |
 
 ## MEMCARD
 
-| Type  | Port    | Name            | Description                           |
+| Mode  | Port    | Name            | Description                           |
 | ----- | ------- | --------------- | ------------------------------------- |
-| `IN?` | `0x600` | `MEM_Connected` | status of memory card being connected |
+| `R`   | `0x600` | `MEM_Connected` | status of memory card being connected |
 
 # Vircon32 Instructions
 
@@ -587,9 +573,9 @@ that other components will keep functioning.
 
 ### Variants and Actions
 
-| Form       | Processing Action   |
-| ---------- | ------------------- |
-| ```WAIT``` | ```WaitFlag = 1;``` |
+| Form   | Processing Action  |
+| ------ | ------------------ |
+| `WAIT` | `WaitFlag = 1;`    |
 
 ## JMP
 
@@ -608,10 +594,10 @@ identified by some set label.
 
 ### Variants and Actions
 
-| Form                | Processing Action                     |
-| ------------------- | ------------------------------------- |
-| ```JMP Immediate``` | ```InstructionPointer = Immediate;``` |
-| ```JMP DSTREG```    | ```InstructionPointer = DSTREG;```    |
+| Form            | Processing Action                 |
+| --------------- | --------------------------------- |
+| `JMP Immediate` | `InstructionPointer = Immediate;` |
+| `JMP DSTREG`    | `InstructionPointer = DSTREG;`    |
 
 ## CALL
 
@@ -645,9 +631,9 @@ previously saved address.
 
 ### Variants and Actions
 
-| Form      | Processing Action                        |
-| --------- | ---------------------------------------- |
-| ```RET``` | ```InstructionPointer  = Stack.Pop();``` |
+| Form  | Processing Action                    |
+| ----- | ------------------------------------ |
+| `RET` | `InstructionPointer  = Stack.Pop();` |
 
 ## JT
 
@@ -670,10 +656,10 @@ For the purposes of comparisons and conditional jumps on Vircon32:
 
 ### Variants and Actions
 
-| Form                        | Processing Action                                     |
-| --------------------------- | ----------------------------------------------------- |
-| ```JT  DSTREG, Immediate``` | ```InstructionPointer = (DSTREG != 0) ? Immediate;``` |
-| ```JT  DSTREG, SRCREG```    | ```InstructionPointer = (DSTREG != 0) ? SRCREG;```    |
+| Form                    | Processing Action                                 |
+| ----------------------- | ------------------------------------------------- |
+| `JT  DSTREG, Immediate` | `InstructionPointer = (DSTREG != 0) ? Immediate;` |
+| `JT  DSTREG, SRCREG`    | `InstructionPointer = (DSTREG != 0) ? SRCREG;`    |
 
 ## JF
 
@@ -696,10 +682,10 @@ For the purposes of comparisons and conditional jumps on Vircon32:
 
 ### Variants and Actions
 
-| Form                        | Processing Action                                     |
-| --------------------------- | ----------------------------------------------------- |
-| ```JF  DSTREG, Immediate``` | ```InstructionPointer = (DSTREG == 0) ? Immediate;``` |
-| ```JF  DSTREG, SRCREG```    | ```InstructionPointer = (DSTREG == 0) ? SRCREG;```    |
+| Form                    | Processing Action                                 |
+| ----------------------- | ------------------------------------------------- |
+| `JF  DSTREG, Immediate` | `InstructionPointer = (DSTREG == 0) ? Immediate;` |
+| `JF  DSTREG, SRCREG`    | `InstructionPointer = (DSTREG == 0) ? SRCREG;`    |
 
 ## Comparisons
 
@@ -729,10 +715,10 @@ always a register.
 
 ### Variants and Actions
 
-| Form                        | Processing Action                             |
-| --------------------------- | --------------------------------------------- |
-| ```IEQ DSTREG, Immediate``` | ```DSTREG = (DSTREG == Immediate) ? 1 : 0;``` |
-| ```IEQ DSTREG, SRCREG```    | ```DSTREG = (DSTREG == SRCREG) ? 1 : 0;```    |
+| Form                    | Processing Action                         |
+| ----------------------- | ----------------------------------------- |
+| `IEQ DSTREG, Immediate` | `DSTREG = (DSTREG == Immediate) ? 1 : 0;` |
+| `IEQ DSTREG, SRCREG`    | `DSTREG = (DSTREG == SRCREG)    ? 1 : 0;` |
 
 ## INE
 
@@ -746,10 +732,10 @@ is always a register.
 
 ### Variants and Actions
 
-| Form                        | Processing Action                             |
-| --------------------------- | --------------------------------------------- |
-| ```INE DSTREG, Immediate``` | ```DSTREG = (DSTREG != Immediate) ? 1 : 0;``` |
-| ```INE DSTREG, SRCREG```    | ```DSTREG = (DSTREG != SRCREG) ? 1 : 0;```    |
+| Form                    | Processing Action                         |
+| ----------------------- | ----------------------------------------- |
+| `INE DSTREG, Immediate` | `DSTREG = (DSTREG != Immediate) ? 1 : 0;` |
+| `INE DSTREG, SRCREG`    | `DSTREG = (DSTREG != SRCREG)    ? 1 : 0;` |
 
 ## IGT
 
@@ -763,10 +749,10 @@ first operand, which is always a register.
 
 ### Variants and Actions
 
-| Form                        | Processing Action                             |
-| --------------------------- | --------------------------------------------- |
-| ```IGT DSTREG, Immediate``` | ```DSTREG = (DSTREG >  Immediate) ? 1 : 0;``` |
-| ```IGT DSTREG, SRCREG```    | ```DSTREG = (DSTREG >  SRCREG) ? 1 : 0;```    |
+| Form                    | Processing Action                         |
+| ----------------------- | ----------------------------------------- |
+| `IGT DSTREG, Immediate` | `DSTREG = (DSTREG >  Immediate) ? 1 : 0;` |
+| `IGT DSTREG, SRCREG`    | `DSTREG = (DSTREG >  SRCREG)    ? 1 : 0;` |
 
 ## IGE
 
@@ -780,10 +766,10 @@ in the first operand, which is always a register.
 
 ### Variants and Actions
 
-| Form                        | Processing Action                             |
-| --------------------------- | --------------------------------------------- |
-| ```IGE DSTREG, Immediate``` | ```DSTREG = (DSTREG >= Immediate) ? 1 : 0;``` |
-| ```IGE DSTREG, SRCREG```    | ```DSTREG = (DSTREG >= SRCREG) ? 1 : 0;```    |
+| Form                    | Processing Action                         |
+| ----------------------- | ----------------------------------------- |
+| `IGE DSTREG, Immediate` | `DSTREG = (DSTREG >= Immediate) ? 1 : 0;` |
+| `IGE DSTREG, SRCREG`    | `DSTREG = (DSTREG >= SRCREG)    ? 1 : 0;` |
 
 ## ILT
 
@@ -797,10 +783,10 @@ first operand, which is always a register.
 
 ### Variants and Actions
 
-| Form                        | Processing Action                             |
-| --------------------------- | --------------------------------------------- |
-| ```ILT DSTREG, Immediate``` | ```DSTREG = (DSTREG <  Immediate) ? 1 : 0;``` |
-| ```ILT DSTREG, SRCREG```    | ```DSTREG = (DSTREG <  SRCREG) ? 1 : 0;```    |
+| Form                    | Processing Action                         |
+| ----------------------- | ----------------------------------------- |
+| `ILT DSTREG, Immediate` | `DSTREG = (DSTREG <  Immediate) ? 1 : 0;` |
+| `ILT DSTREG, SRCREG`    | `DSTREG = (DSTREG <  SRCREG)    ? 1 : 0;` |
 
 ## ILE
 
@@ -814,10 +800,10 @@ the first operand, which is always a register.
 
 ### Variants and Actions
 
-| Form                        | Processing Action                             |
-| --------------------------- | --------------------------------------------- |
-| ```ILE DSTREG, Immediate``` | ```DSTREG = (DSTREG <= Immediate) ? 1 : 0;``` |
-| ```ILE DSTREG, SRCREG```    | ```DSTREG = (DSTREG <= SRCREG) ? 1 : 0;```    |
+| Form                    | Processing Action                         |
+| ----------------------- | ----------------------------------------- |
+| `ILE DSTREG, Immediate` | `DSTREG = (DSTREG <= Immediate) ? 1 : 0;` |
+| `ILE DSTREG, SRCREG`    | `DSTREG = (DSTREG <= SRCREG)    ? 1 : 0;` |
 
 ## FEQ
 
@@ -831,10 +817,10 @@ always a register.
 
 ### Variants and Actions
 
-| Form                        | Processing Action                             |
-| --------------------------- | --------------------------------------------- |
-| ```FEQ DSTREG, Immediate``` | ```DSTREG = (DSTREG == Immediate) ? 1 : 0;``` |
-| ```FEQ DSTREG, SRCREG```    | ```DSTREG = (DSTREG == SRCREG) ? 1 : 0;```    |
+| Form                    | Processing Action                         |
+| ----------------------- | ----------------------------------------- |
+| `FEQ DSTREG, Immediate` | `DSTREG = (DSTREG == Immediate) ? 1 : 0;` |
+| `FEQ DSTREG, SRCREG`    | `DSTREG = (DSTREG == SRCREG)    ? 1 : 0;` |
 
 ## FNE
 
@@ -848,10 +834,10 @@ is always a register.
 
 ### Variants and Actions
 
-| Form                        | Processing Action                             |
-| --------------------------- | --------------------------------------------- |
-| ```FNE DSTREG, Immediate``` | ```DSTREG = (DSTREG != Immediate) ? 1 : 0;``` |
-| ```FNE DSTREG, SRCREG```    | ```DSTREG = (DSTREG != SRCREG) ? 1 : 0;```    |
+| Form                    | Processing Action                         |
+| ----------------------- | ----------------------------------------- |
+| `FNE DSTREG, Immediate` | `DSTREG = (DSTREG != Immediate) ? 1 : 0;` |
+| `FNE DSTREG, SRCREG`    | `DSTREG = (DSTREG != SRCREG)    ? 1 : 0;` |
 
 ## FGT
 
@@ -865,10 +851,10 @@ operand, which is always a register.
 
 ### Variants and Actions
 
-| Form                        | Processing Action                             |
-| --------------------------- | --------------------------------------------- |
-| ```FGT DSTREG, Immediate``` | ```DSTREG = (DSTREG >  Immediate) ? 1 : 0;``` |
-| ```FGT DSTREG, SRCREG```    | ```DSTREG = (DSTREG >  SRCREG) ? 1 : 0;```    |
+| Form                    | Processing Action                         |
+| ----------------------- | ----------------------------------------- |
+| `FGT DSTREG, Immediate` | `DSTREG = (DSTREG >  Immediate) ? 1 : 0;` |
+| `FGT DSTREG, SRCREG`    | `DSTREG = (DSTREG >  SRCREG)    ? 1 : 0;` |
 
 ## FGE
 
@@ -882,10 +868,10 @@ in the first operand, which is always a register.
 
 ### Variants and Actions
 
-| Form                        | Processing Action                             |
-| --------------------------- | --------------------------------------------- |
-| ```FGE DSTREG, Immediate``` | ```DSTREG = (DSTREG >= Immediate) ? 1 : 0;``` |
-| ```FGE DSTREG, SRCREG```    | ```DSTREG = (DSTREG >= SRCREG) ? 1 : 0;```    |
+| Form                    | Processing Action                         |
+| ----------------------- | ----------------------------------------- |
+| `FGE DSTREG, Immediate` | `DSTREG = (DSTREG >= Immediate) ? 1 : 0;` |
+| `FGE DSTREG, SRCREG`    | `DSTREG = (DSTREG >= SRCREG)    ? 1 : 0;` |
 
 ## FLT
 
@@ -899,10 +885,10 @@ operand, which is always a register.
 
 ### Variants and Actions
 
-| Form                        | Processing Action                             |
-| --------------------------- | --------------------------------------------- |
-| ```FLT DSTREG, Immediate``` | ```DSTREG = (DSTREG <  Immediate) ? 1 : 0;``` |
-| ```FLT DSTREG, SRCREG```    | ```DSTREG = (DSTREG <  SRCREG) ? 1 : 0;```    |
+| Form                    | Processing Action                         |
+| ----------------------- | ----------------------------------------- |
+| `FLT DSTREG, Immediate` | `DSTREG = (DSTREG <  Immediate) ? 1 : 0;` |
+| `FLT DSTREG, SRCREG`    | `DSTREG = (DSTREG <  SRCREG)    ? 1 : 0;` |
 
 ## FLE
 
@@ -916,16 +902,16 @@ first operand, which is always a register.
 
 ### Variants and Actions
 
-| Form                        | Processing Action                             |
-| --------------------------- | --------------------------------------------- |
-| ```FLE DSTREG, Immediate``` | ```DSTREG = (DSTREG <= Immediate) ? 1 : 0;``` |
-| ```FLE DSTREG, SRCREG```    | ```DSTREG = (DSTREG <= SRCREG) ? 1 : 0;```    |
+| Form                    | Processing Action                         |
+| ----------------------- | ----------------------------------------- |
+| `FLE DSTREG, Immediate` | `DSTREG = (DSTREG <= Immediate) ? 1 : 0;` |
+| `FLE DSTREG, SRCREG`    | `DSTREG = (DSTREG <= SRCREG)    ? 1 : 0;` |
 
 ## MOV
 
 MOVE: general purpose data-copying instruction.
 
-Indirect  processing  is  accomplished  with the  **```[  ]```**  (square
+Indirect  processing  is  accomplished  with the  **`[  ]`**  (square
 brackets)  surrounding  the  value  we wish  to  dereference  (we're  not
 interested in  the direct  thing: the memory  address, but  indirectly in
 what that memory address contains).
@@ -954,16 +940,16 @@ follows:
 | `RegAddrFromReg`    | `110`  | `MOV [DSTREG], SRCREG`     | `MEM[DSTREG] = SRCREG;`     |
 | `AddrOffsetFromReg` | `111`  | `MOV [DSTREG+Imm], SRCREG` | `MEM[DSTREG+Imm] = SRCREG;` |
 
-| KEY          | Description                          |
-| ------------ | ------------------------------------ |
-| Imm          | Immediate Value: ```0xAF```          |
-| Reg          | Register: ```R7```                   |
-| ImmAddr      | ImmediateAddress: ```[0x00004FFF]``` |
-| RegAddr      | RegisterAddress: ```[R3]```          |
-| AddrOffset   | AddressOffset: ```[R1+73]```         |
-| ```MEM[]```  | Memory access                        |
-| ```DSTREG``` | Destination Register (first operand) |
-| ```SRCREG``` | Source Register (second operand)     |
+| KEY        | Description                          |
+| ---------- | ------------------------------------ |
+| Imm        | Immediate Value: `0xAF`              |
+| Reg        | Register: `R7`                       |
+| ImmAddr    | ImmediateAddress: `[0x00004FFF]`     |
+| RegAddr    | RegisterAddress: `[R3]`              |
+| AddrOffset | AddressOffset: `[R1+73]`             |
+| `MEM[]`    | Memory access                        |
+| `DSTREG`   | Destination Register (first operand) |
+| `SRCREG`   | Source Register (second operand)     |
 
 ## LEA
 
@@ -978,10 +964,10 @@ addition is automatically performed.
 
 ### Variants and Actions
 
-| Form                                 | Processing Action                  |
-| ------------------------------------ | ---------------------------------- |
-| ```LEA DSTREG, [SRCREG]```           | ```DSTREG = SRCREG;```             |
-| ```LEA DSTREG, [SRCREG+Immediate]``` | ```DSTREG = SRCREG + Immediate;``` |
+| Form                             | Processing Action              |
+| -------------------------------- | ------------------------------ |
+| `LEA DSTREG, [SRCREG]`           | `DSTREG = SRCREG;`             |
+| `LEA DSTREG, [SRCREG+Immediate]` | `DSTREG = SRCREG + Immediate;` |
 
 ## PUSH
 
@@ -996,9 +982,9 @@ grows down).
 
 ### Variants and Actions
 
-| Form              | Processing Action         |
-| ----------------- | ------------------------- |
-| ```PUSH DSTREG``` | ```Stack.Push(DSTREG);``` |
+| Form          | Processing Action     |
+| ------------- | --------------------- |
+| `PUSH DSTREG` | `Stack.Push(DSTREG);` |
 
 ## POP
 
@@ -1013,9 +999,9 @@ stack, the  STACK POINTER (SP) is  adjusted upward by one  address offset
 
 ### Variants and Actions
 
-| Form             | Processing Action           |
-| ---------------- | --------------------------- |
-| ```POP DSTREG``` | ```DSTREG = Stack.Pop();``` |
+| Form         | Processing Action       |
+| ------------ | ----------------------- |
+| `POP DSTREG` | `DSTREG = Stack.Pop();` |
 
 ## IN
 
@@ -1029,9 +1015,9 @@ may lead to side effects depending on the specified port.
 
 ### Variants and Actions
 
-| Form                        | Processing Action                |
-| --------------------------- | -------------------------------- |
-| ```IN DSTREG, PortNumber``` | ```DSTREG = Port[PortNumber];``` |
+| Form                    | Processing Action            |
+| ----------------------- | ---------------------------- |
+| `IN DSTREG, PortNumber` | `DSTREG = Port[PortNumber];` |
 
 ## OUT
 
@@ -1045,10 +1031,10 @@ the specified port.
 
 ### Variants and Actions
 
-| Form                            | Processing Action                   |
-| ------------------------------- | ----------------------------------- |
-| ```OUT PortNumber, Immediate``` | ```Port[PortNumber] = Immediate;``` |
-| ```OUT PortNumber, SRCREG```    | ```Port[PortNumber] = SRCREG;```    |
+| Form                        | Processing Action               |
+| --------------------------- | ------------------------------- |
+| `OUT PortNumber, Immediate` | `Port[PortNumber] = Immediate;` |
+| `OUT PortNumber, SRCREG`    | `Port[PortNumber] = SRCREG;`    |
 
 ## MOVS
 
@@ -1069,9 +1055,9 @@ from 2 places in memory without going through a register.
 
 ### Variants and Actions
 
-| Form       | Processing Action                            |
-| ---------- | -------------------------------------------- |
-| ```MOVS``` | see below                                    |
+| Form   | Processing Action                    |
+| ------ | ------------------------------------ |
+| `MOVS` | see below                            |
 
 ### Processing actions
 
@@ -1101,9 +1087,9 @@ always perform the described loop at least once.
 
 ### Variants and Actions
 
-| Form       | Processing Action                            |
-| ---------- | -------------------------------------------- |
-| ```SETS``` | see below                                    |
+| Form   | Processing Action                |
+| ------ | -------------------------------- |
+| `SETS` | see below                        |
 
 ### Processing actions
 
@@ -1136,9 +1122,9 @@ always perform the described loop at least once.
 
 ### Variants and Actions
 
-| Form              | Processing Action |
-| ----------------- | ----------------- |
-| ```CMPS DSTREG``` | see below         |
+| Form          | Processing Action |
+| ------------- | ----------------- |
+| `CMPS DSTREG` | see below         |
 
 ### Processing actions
 
@@ -1173,9 +1159,9 @@ represented as a float.
 
 ### Variants and Actions
 
-| Form             | Processing Action              |
-| ---------------- | ------------------------------ |
-| ```CIF DSTREG``` | ```DSTREG = (float) DSTREG;``` |
+| Form         | Processing Action          |
+| ------------ | -------------------------- |
+| `CIF DSTREG` | `DSTREG = (float) DSTREG;` |
 
 ## CFI
 
@@ -1194,9 +1180,9 @@ represented as a 32-bit integer.
 
 ### Variants and Actions
 
-| Form             | Processing Action            |
-| ---------------- | ---------------------------- |
-| ```CFI DSTREG``` | ```DSTREG = (int) DSTREG;``` |
+| Form         | Processing Action        |
+| ------------ | ------------------------ |
+| `CFI DSTREG` | `DSTREG = (int) DSTREG;` |
 
 ## CIB
 
@@ -1211,9 +1197,9 @@ converted to 1.
 
 ### Variants and Actions
 
-| Form             | Processing Action                     |
-| ---------------- | ------------------------------------- |
-| ```CIB DSTREG``` | ```DSTREG = (DSTREG != 0) ? 1 : 0;``` |
+| Form         | Processing Action                 |
+| ------------ | --------------------------------- |
+| `CIB DSTREG` | `DSTREG = (DSTREG != 0) ? 1 : 0;` |
 
 ## CFB
 
@@ -1227,9 +1213,9 @@ and stores it back in that register.
 
 ### Variants and Actions
 
-| Form             | Processing Action                       |
-| ---------------- | --------------------------------------- |
-| ```CFB DSTREG``` | ```DSTREG = (DSTREG != 0.0) ? 1 : 0;``` |
+| Form         | Processing Action                   |
+| ------------ | ----------------------------------- |
+| `CFB DSTREG` | `DSTREG = (DSTREG != 0.0) ? 1 : 0;` |
 
 ## NOT
 
@@ -1242,9 +1228,9 @@ specified register.
 
 ### Variants and Actions
 
-| Form             | Processing Action       |
-| ---------------- | ----------------------- |
-| ```NOT DSTREG``` | ```DSTREG = ~DSTREG;``` |
+| Form         | Processing Action   |
+| ------------ | ------------------- |
+| `NOT DSTREG` | `DSTREG = ~DSTREG;` |
 
 ## AND
 
@@ -1267,10 +1253,10 @@ which is always a register.
 
 ### Variants and Actions
 
-| Form                        | Processing Action                  |
-| --------------------------- | ---------------------------------- |
-| ```AND DSTREG, Immediate``` | ```DSTREG = DSTREG & Immediate;``` |
-| ```AND DSTREG, SRCREG```    | ```DSTREG = DSTREG & SRCREG;```    |
+| Form                    | Processing Action              |
+| ----------------------- | ------------------------------ |
+| `AND DSTREG, Immediate` | `DSTREG = DSTREG & Immediate;` |
+| `AND DSTREG, SRCREG`    | `DSTREG = DSTREG & SRCREG;`    |
 
 ## OR
 
@@ -1293,10 +1279,10 @@ them, which is always a register.
 
 ### Variants and Actions
 
-| Form                       | Processing Action                   |
-| -------------------------- | ----------------------------------- |
-| ```OR DSTREG, Immediate``` | ```DSTREG = DSTREG \| Immediate;``` |
-| ```OR DSTREG, SRCREG```    | ```DSTREG = DSTREG \| SRCREG;```    |
+| Form                   | Processing Action               |
+| ---------------------- | ------------------------------- |
+| `OR DSTREG, Immediate` | `DSTREG = DSTREG \| Immediate;` |
+| `OR DSTREG, SRCREG`    | `DSTREG = DSTREG \| SRCREG;`    |
 
 ## XOR
 
@@ -1319,10 +1305,10 @@ them, which is always a register.
 
 ### Variants and Actions
 
-| Form                        | Processing Action                  |
-| --------------------------- | ---------------------------------- |
-| ```XOR DSTREG, Immediate``` | ```DSTREG = DSTREG ^ Immediate;``` |
-| ```XOR DSTREG, SRCREG```    | ```DSTREG = DSTREG ^ SRCREG;```    |
+| Form                    | Processing Action              |
+| ----------------------- | ------------------------------ |
+| `XOR DSTREG, Immediate` | `DSTREG = DSTREG ^ Immediate;` |
+| `XOR DSTREG, SRCREG`    | `DSTREG = DSTREG ^ SRCREG;`    |
 
 ## BNOT
 
@@ -1336,9 +1322,9 @@ then inverting bit number 0.
 
 ### Variants and Actions
 
-| Form              | Processing Action                     |
-| ----------------- | ------------------------------------- |
-| ```BNOT DSTREG``` | ```DSTREG = (DSTREG == 0) ? 1 : 0;``` |
+| Form          | Processing Action                 |
+| ------------- | --------------------------------- |
+| `BNOT DSTREG` | `DSTREG = (DSTREG == 0) ? 1 : 0;` |
 
 ### Errata
 
@@ -1366,10 +1352,23 @@ significant bits.
 
 ### Variants and Actions
 
-| Form                        | Processing Action                   |
-| --------------------------- | ----------------------------------- |
-| ```SHL DSTREG, Immediate``` | ```DSTREG = DSTREG << Immediate;``` |
-| ```SHL DSTREG, SRCREG```    | ```DSTREG = DSTREG << SRCREG;```    |
+| Form                    | Processing Action               |
+| ----------------------- | ------------------------------- |
+| `SHL DSTREG, Immediate` | `DSTREG = DSTREG << Immediate;` |
+| `SHL DSTREG, SRCREG`    | `DSTREG = DSTREG << SRCREG;`    |
+
+### NOTE
+
+Due to Vircon32 being a natively signed integer machine, a peculiar issue
+arises  when right  shifting  (`SHL`  by any  negative  value) against  a
+negative value (one whose sign bit/most  significant bit is 1) will cause
+a "copying" of the sign bit,  which will deviate from expectations as one
+would expect 0s to cycle in from the left, but instead we get a stream of
+1s.
+
+This had lead  to many issues, one  of which was an older  version of the
+Vircon32 standard library  string function `itoa()` failing  to work with
+negative values for any base other than base 10.
 
 ## IADD
 
@@ -1827,14 +1826,14 @@ The binary formats of Vircon32 are as follows:
 
 ![V32 instruction format](images/V32_instruction_format.png)
 
-| bits  | description            |
-| ----- | ---------------------- |
-| 31-26 | opcode                 |
-| 25    | immediate value flag   |
-| 24-21 | destination register   |
-| 20-17 | source register        |
-| 16-14 | address mode (for MOV) |
-| 13-0  | port number            |
+| bits    | description                               |
+| ------- | ----------------------------------------- |
+| `31-26` | opcode                                    |
+| `25`    | immediate value flag                      |
+| `24-21` | destination register                      |
+| `20-17` | source register                           |
+| `16-14` | address mode (used only by `MOV`)         |
+| `13-0`  | port number (used only by `IN` and `OUT`) |
 
 If the **immediate value**  bit is set, an additional word  is read to be
 used as an operand to the instruction.
