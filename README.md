@@ -404,26 +404,33 @@ Specifications document.
 
 ## GPU
 
-| Mode  | Port    | Name                  | Description                             |
-| ----- | ------- | --------------------- | --------------------------------------- |
-| `W`   | `0x200` | `GPU_Command`         | perform GPU operation                   |
-| `R`   | `0x201` | `GPU_RemainingPixels` | how many pixels left in frame           |
-| `R/W` | `0x202` | `GPU_ClearColor`      | get/set current clear color             |
-| `R/W` | `0x203` | `GPU_MultiplyColor`   | get/set color multiplier                |
-| `R/W` | `0x204` | `GPU_ActiveBlending`  | get/set blending method                 |
-| `R/W` | `0x205` | `GPU_SelectedTexture` | get/set texture ID (-1 is BIOS texture) |
-| `R/W` | `0x206` | `GPU_SelectedRegion`  | get/set region ID                       |
-| `R/W` | `0x207` | `GPU_DrawingPointX`   | get/set X position for drawing          |
-| `R/W` | `0x208` | `GPU_DrawingPointY`   | get/set Y position for drawing          |
-| `R/W` | `0x209` | `GPU_DrawingScaleX`   | get/set X scaling factor (a float)      |
-| `R/W` | `0x20A` | `GPU_DrawingScaleY`   | get/set Y scaling factor (a float)      |
-| `R/W` | `0x20B` | `GPU_DrawingAngle`    | get/set sprite rotation angle (a float) |
-| `R/W` | `0x20C` | `GPU_RegionMinX`      | get/set Min X coordinate for region     |
-| `R/W` | `0x20D` | `GPU_RegionMinY`      | get/set Min Y coordinate for region     |
-| `R/W` | `0x20E` | `GPU_RegionMaxX`      | get/set Max X coordinate for region     |
-| `R/W` | `0x20F` | `GPU_RegionMaxY`      | get/set Max Y coordinate for region     |
-| `R/W` | `0x210` | `GPU_RegionHotspotX`  | get/set region Hotspot X coordinate     |
-| `R/W` | `0x211` | `GPU_RegionHotspotY`  | get/set region Hotspot Y coordinate     |
+| Mode  | Port    | Name                  | initial value  | lower     | upper     |
+| ----- | ------- | --------------------- | -------------- | --------- | --------- |
+| `W`   | `0x200` | `GPU_Command`         | `n/a`          | `0x10`    | `0x14`    |
+| `R`   | `0x201` | `GPU_RemainingPixels` | `2073600`      | `-1`      | `2073600` |
+| `R/W` | `0x202` | `GPU_ClearColor`      | `0x000000FF`   | `range`   | `range`   |
+| `R/W` | `0x203` | `GPU_MultiplyColor`   | `0xFFFFFFFF`   | `range`   | `range`   |
+| `R/W` | `0x204` | `GPU_ActiveBlending`  | `0x20 (alpha)` | `0x20`    | `0x22`    |
+| `R/W` | `0x205` | `GPU_SelectedTexture` | `-1 (BIOS)`    | `-1`      | `255*`    |
+| `R/W` | `0x206` | `GPU_SelectedRegion`  | `0`            | `0`       | `4095`    |
+| `R/W` | `0x207` | `GPU_DrawingPointX`   | `0`            | `-1000`   | `1639`    |
+| `R/W` | `0x208` | `GPU_DrawingPointY`   | `0`            | `-1000`   | `1359`    |
+| `R/W` | `0x209` | `GPU_DrawingScaleX`   | `1.0`          | `-1024.0` | `1024.0`  |
+| `R/W` | `0x20A` | `GPU_DrawingScaleY`   | `1.0`          | `-1024.0` | `1024.0`  |
+| `R/W` | `0x20B` | `GPU_DrawingAngle`    | `0.0`          | `-1024.0` | `1024.0`  |
+| `R/W` | `0x20C` | `GPU_RegionMinX`      | `0`            | `0`       | `1023`    |
+| `R/W` | `0x20D` | `GPU_RegionMinY`      | `0`            | `0`       | `1023`    |
+| `R/W` | `0x20E` | `GPU_RegionMaxX`      | `0`            | `0`       | `1023`    |
+| `R/W` | `0x20F` | `GPU_RegionMaxY`      | `0`            | `0`       | `1023`    |
+| `R/W` | `0x210` | `GPU_RegionHotspotX`  | `0`            | `-1024`   | `2047`    |
+| `R/W` | `0x211` | `GPU_RegionHotspotY`  | `0`            | `-1024`   | `2047`    |
+
+NOTE: `range` refers to the full RGBA range possible.
+
+NOTE: for some resources, like `textures`, the upper bound is governed by
+how many textures were configured for the cartridge. This value indicates
+the  technical maximum  possible. No  CART textures,  or no  CART loaded,
+limited to BIOS.
 
 More information  can be  found in  the Part 4:  The Graphics  Chip (GPU)
 Specifications document.
@@ -454,24 +461,34 @@ Active blending:
 
 ![V32 GPU color binary representation](images/V32_GPU_color.png)
 
+| 31-24 | 23-16 | 15-8  | 7-0   |
+| ----- | ----- | ----- | ----- |
+| red   | green | blue  | alpha |
+
+Each component can range in value from 0x00 through 0xFF (0-255).
+
 ## SPU
 
-| Mode  | Port    | Name                       | Description                         |
-| ----- | ------- | -------------------------- | ----------------------------------- |
-| `W`   | `0x300` | `SPU_Command`              | perform SPU operation               |
-| `R/W` | `0x301` | `SPU_GlobalVolume`         | get/set global volume               |
-| `R/W` | `0x302` | `SPU_SelectedSound`        | get/set VSND                        |
-| `R/W` | `0x303` | `SPU_SelectedChannel`      | get/set channel                     |
-| `R`   | `0x304` | `SPU_SoundLength`          | get VSND length                     |
-| `R/W` | `0x305` | `SPU_SoundPlayWithLoop`    | ???                                 |
-| `R/W` | `0x306` | `SPU_SoundLoopStart`       | ???                                 |
-| `R/W` | `0x307` | `SPU_SoundLoopEnd`         | ???                                 |
-| `R`   | `0x308` | `SPU_ChannelState`         | ???                                 |
-| `R/W` | `0x309` | `SPU_ChannelAssignedSound` | ???                                 |
-| `R/W` | `0x30A` | `SPU_ChannelVolume`        | ???                                 |
-| `R/W` | `0x30B` | `SPU_ChannelSpeed`         | ???                                 |
-| `R/W` | `0x30C` | `SPU_ChannelLoopEnabled`   | ???                                 |
-| `R/W` | `0x30D` | `SPU_ChannelPosition`      | ???                                 |
+| Mode  | Port    | Name                       | initial value  | lower  | upper        |
+| ----- | ------- | -------------------------- | -------------- | ------ | ------------ |
+| `W`   | `0x300` | `SPU_Command`              | `n/a`          | `0x30` | `0x35`       |
+| `R/W` | `0x301` | `SPU_GlobalVolume`         | `1.0`          | `0.0`  | `2.0`        |
+| `R/W` | `0x302` | `SPU_SelectedSound`        | `-1 (BIOS)`    | `-1`   | `1023*`      |
+| `R/W` | `0x303` | `SPU_SelectedChannel`      | `0`            | `0`    | `15`         |
+| `R`   | `0x304` | `SPU_SoundLength`          | `sound length` | `1`    | `268435455*` |
+| `R/W` | `0x305` | `SPU_SoundPlayWithLoop`    | `false`        | `bool` | `bool`       |
+| `R/W` | `0x306` | `SPU_SoundLoopStart`       | `0`            | `0`    | `268435455*` |
+| `R/W` | `0x307` | `SPU_SoundLoopEnd`         | `snd length-1` | `0`    | `268435455*` |
+| `R`   | `0x308` | `SPU_ChannelState`         | `0x40`         | `0x40` | `0x42`       |
+| `R/W` | `0x309` | `SPU_ChannelAssignedSound` | `-1`           | `-1`   | `last sound` |
+| `R/W` | `0x30A` | `SPU_ChannelVolume`        | `0.5`          | `0.0`  | `8.0`        |
+| `R/W` | `0x30B` | `SPU_ChannelSpeed`         | `1.0`          | `0.0`  | `128.0`      |
+| `R/W` | `0x30C` | `SPU_ChannelLoopEnabled`   | `false`        | `bool` | `bool`       |
+| `R/W` | `0x30D` | `SPU_ChannelPosition`      | `0.0`          | `0.0`  | `snd len-1`  |
+
+NOTE: some  resource upper bounds,  such as for  `SPU_SelectedSound`, are
+governed  by configured  sounds in  the  CART. This  value indicates  the
+technical maximum possible.
 
 More  information can  be  found in  the  Part 5:  The  Sound Chip  (SPU)
 Specifications document.
@@ -502,6 +519,12 @@ States of the sound channels:
 ### SPU binary format
 
 ![V32 SPU sample binary representation](images/V32_SPU_sample.png)
+
+| 31-24  | 23-16  | 15-8   | 7-0    |
+| ------ | ------ | ------ | ------ |
+| upper  | lower  | upper  | lower  |
+| right  | right  | left   | left   |
+| sample | sample | sample | sample |
 
 ## INPUT
 
