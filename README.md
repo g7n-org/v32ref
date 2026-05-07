@@ -451,11 +451,11 @@ Commands that can be issued to the GPU:
 
 Active blending:
 
-| Value  | Name                       | Description                                   |
-| ------ | -------------------------- | --------------------------------------------- |
-| `0x20` | `GPUBlendingMode_Alpha`    | default render, alpha channel as transparency |
-| `0x21` | `GPUBlendingMode_Add`      | add colors (light effect), "linear dodge"     |
-| `0x22` | `GPUBlendingMode_Subtract` | subtract colors (shadow effect), "difference" |
+| Value  | Name                       | Description                                  |
+| ------ | -------------------------- | -------------------------------------------- |
+| `0x20` | `GPUBlendingMode_Alpha`    | the defaults:, alpha channel as transparency |
+| `0x21` | `GPUBlendingMode_Add`      | add colors: light effect, "linear dodge"     |
+| `0x22` | `GPUBlendingMode_Subtract` | subtract colors: shadow effect, "difference" |
 
 ### GPU Color binary format
 
@@ -469,22 +469,22 @@ Each component can range in value from 0x00 through 0xFF (0-255).
 
 ## SPU
 
-| Mode  | Port    | Name                       | initial value  | lower  | upper        |
-| ----- | ------- | -------------------------- | -------------- | ------ | ------------ |
-| `W`   | `0x300` | `SPU_Command`              | `n/a`          | `0x30` | `0x35`       |
-| `R/W` | `0x301` | `SPU_GlobalVolume`         | `1.0`          | `0.0`  | `2.0`        |
-| `R/W` | `0x302` | `SPU_SelectedSound`        | `-1 (BIOS)`    | `-1`   | `1023*`      |
-| `R/W` | `0x303` | `SPU_SelectedChannel`      | `0`            | `0`    | `15`         |
-| `R`   | `0x304` | `SPU_SoundLength`          | `sound length` | `1`    | `268435455*` |
-| `R/W` | `0x305` | `SPU_SoundPlayWithLoop`    | `false`        | `bool` | `bool`       |
-| `R/W` | `0x306` | `SPU_SoundLoopStart`       | `0`            | `0`    | `268435455*` |
-| `R/W` | `0x307` | `SPU_SoundLoopEnd`         | `snd length-1` | `0`    | `268435455*` |
-| `R`   | `0x308` | `SPU_ChannelState`         | `0x40`         | `0x40` | `0x42`       |
-| `R/W` | `0x309` | `SPU_ChannelAssignedSound` | `-1`           | `-1`   | `last sound` |
-| `R/W` | `0x30A` | `SPU_ChannelVolume`        | `0.5`          | `0.0`  | `8.0`        |
-| `R/W` | `0x30B` | `SPU_ChannelSpeed`         | `1.0`          | `0.0`  | `128.0`      |
-| `R/W` | `0x30C` | `SPU_ChannelLoopEnabled`   | `false`        | `bool` | `bool`       |
-| `R/W` | `0x30D` | `SPU_ChannelPosition`      | `0.0`          | `0.0`  | `snd len-1`  |
+| Mode  | Port    | Name                       | initial value | lower  | upper        |
+| ----- | ------- | -------------------------- | ------------- | ------ | ------------ |
+| `W`   | `0x300` | `SPU_Command`              | `n/a`         | `0x30` | `0x35`       |
+| `R/W` | `0x301` | `SPU_GlobalVolume`         | `1.0`         | `0.0`  | `2.0`        |
+| `R/W` | `0x302` | `SPU_SelectedSound`        | `-1 (BIOS)`   | `-1`   | `1023*`      |
+| `R/W` | `0x303` | `SPU_SelectedChannel`      | `0`           | `0`    | `15`         |
+| `R`   | `0x304` | `SPU_SoundLength`          | `sndlength`   | `1`    | `268435455*` |
+| `R/W` | `0x305` | `SPU_SoundPlayWithLoop`    | `false`       | `bool` | `bool`       |
+| `R/W` | `0x306` | `SPU_SoundLoopStart`       | `0`           | `0`    | `268435455*` |
+| `R/W` | `0x307` | `SPU_SoundLoopEnd`         | `sndlength-1` | `0`    | `268435455*` |
+| `R`   | `0x308` | `SPU_ChannelState`         | `0x40`        | `0x40` | `0x42`       |
+| `R/W` | `0x309` | `SPU_ChannelAssignedSound` | `-1`          | `-1`   | `last sound` |
+| `R/W` | `0x30A` | `SPU_ChannelVolume`        | `0.5`         | `0.0`  | `8.0`        |
+| `R/W` | `0x30B` | `SPU_ChannelSpeed`         | `1.0`         | `0.0`  | `128.0`      |
+| `R/W` | `0x30C` | `SPU_ChannelLoopEnabled`   | `false`       | `bool` | `bool`       |
+| `R/W` | `0x30D` | `SPU_ChannelPosition`      | `0.0`         | `0.0`  | `snd len-1`  |
 
 NOTE: some  resource upper bounds,  such as for  `SPU_SelectedSound`, are
 governed  by configured  sounds in  the  CART. This  value indicates  the
