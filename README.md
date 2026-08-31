@@ -484,7 +484,7 @@ Each component can range in value from 0x00 through 0xFF (0-255).
 | `R/W` | `0x30A` | `SPU_ChannelVolume`        | `0.5`         | `0.0`  | `8.0`        |
 | `R/W` | `0x30B` | `SPU_ChannelSpeed`         | `1.0`         | `0.0`  | `128.0`      |
 | `R/W` | `0x30C` | `SPU_ChannelLoopEnabled`   | `false`       | `bool` | `bool`       |
-| `R/W` | `0x30D` | `SPU_ChannelPosition`      | `0.0`         | `0.0`  | `snd len-1`  |
+| `R/W` | `0x30D` | `SPU_ChannelPosition`      | `0`           | `0`    | `snd len-1`  |
 
 NOTE: some  resource upper bounds,  such as for  `SPU_SelectedSound`, are
 governed  by configured  sounds in  the  CART. This  value indicates  the
