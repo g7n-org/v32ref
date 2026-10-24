@@ -6,8 +6,9 @@ development.
 
 Information  in  this   document  is  based  on   the  official  Vircon32
 Specification documents,  and the Vircon32  source code, and has been
-cross-checked against the behavior of the community tools ([v32as], [v32cc],
-[v32sim], [v32opt]; see [Toolchain](#toolchain)). Most  images are  from the
+cross-checked against the stock DesktopEmulator and DevelopmentTools sources
+(`ComputerSoftware`) and the community tools ([v32as], [v32cc], [v32sim],
+[v32opt]; see [Toolchain](#toolchain)). Most  images are  from the
 specification documents.
 
 This document is based on  Vircon32 DevTools **v25.1.19** or later; older
@@ -50,6 +51,7 @@ Conventions used throughout:
     * [Calling Convention](#calling-convention)
   * [Control Flags](#control-flags)
   * [Control Signals](#control-signals)
+    * [How a frame runs](#how-a-frame-runs)
   * [Vircon32 Memory Map](#vircon32-memory-map)
   * [IOPorts](#ioports)
     * [Vircon32 IOPorts Layout](#vircon32-ioports-layout)
@@ -174,27 +176,27 @@ _label:                         ; labels start with '_' and end with ':'
 
   * **Labels** begin with an underscore (`_start`, `_draw_loop`), are
     case-sensitive, and stand for a *word address*. They can be used before
-    they are defined. For portability put each label on a line of its own
-    ([v32as] also accepts a statement after the label).
-  * **Mnemonics** and **register names** are written `mov R0, R1`. The
-    stock headers use lowercase mnemonics and uppercase registers; [v32as] reads
-    either case. IOPort names and constants (`GPU_Command`,
+    they are defined. A label may share a line with the statement after it.
+  * **Mnemonics**, **register names**, IOPort names, constants and `true`/`false`
+    are case-insensitive (`mov R0, R1`). The stock headers use lowercase mnemonics
+    and uppercase registers. IOPort names and constants (`GPU_Command`,
     `GPUCommand_ClearScreen`, ...) are listed in the [IOPorts](#ioports) section.
   * **Registers**: `R0`-`R15`; `R11`-`R15` may also be written `CR`, `SR`, `DR`,
     `BP`, `SP`. `IP`, `IR`, `IV` are *not* CPU registers (see [Internal
     Registers](#internal-registers)).
   * **Numbers**: decimal (`42`, `-7`), hexadecimal (`0x2A`) and floating point
     (`3.14`, `-0.25`). An integer must fit in 32 bits (`0xFFFFFFFF` is -1).
-    [v32as] adds `0b1010`, `2Ah`, `#42`, character literals (`'A'`) and `label +/-
-    integer` operands, unless run with `--standard`.
+    Character literals (`'A'`, an integer) and `true`/`false` (1/0) work too.
+    [v32as] adds `0b1010`, `2Ah`, `#42` and `label +/- integer` operands,
+    unless run with `--standard`.
   * **Leading zeros are a trap**: the official assembler reads `0100` as the
     *decimal* number 100, while [v32as] (without `--standard`) reads it as
     *octal*. Do not write leading zeros.
-  * **Strings** are written in double quotes with the escapes `\n`, `\t`, `\"`
-    and `\\` (and `\xHH` in [v32as]).
+  * **Strings** are written in double quotes with the escapes `\n`, `\r`,
+    `\t`, `\\`, `\'`, `\"` and `\xHH` (an unknown escape is a warning).
   * **Preprocessor** (official): `%define NAME tokens`, `%undef`, `%ifdef`,
     `%ifndef`, `%else`, `%endif`, `%include "file"`, `%error "msg"`,
-    `%warning "msg"`. [v32as] adds function-like macros, `%if`/`%elif`,
+    `%warning "msg"` (directive names are lowercase). [v32as] adds function-like macros, `%if`/`%elif`,
     `%assign`, `%macro`/`%rep`, `.local` labels and more (see its README).
     `%define` is how compiled code names RAM variables (`%define global_x
     0x00000010`): a `%define` can stand for any constant, not just a number.
@@ -349,8 +351,8 @@ When does each one occur?
 | `InvalidMemoryWrite` | write outside the pages, or to BIOS or CART (both read-only)     |
 | `InvalidPortRead`    | `IN` from a write-only port (`GPU_Command`, `SPU_Command`, ...)  |
 | `InvalidPortWrite`   | `OUT` to a read-only port (`GPU_RemainingPixels`, `INP_*`, ...)  |
-| `StackOverflow`      | `PUSH` whose write location is not valid memory                  |
-| `StackUnderflow`     | `POP` that reads invalid memory or goes past the end of RAM      |
+| `StackOverflow`      | `PUSH`/`CALL` that would decrement `SP` below 0 (RAM start)      |
+| `StackUnderflow`     | `POP`/`RET` after which `SP` is beyond the end of RAM            |
 | `DivisionError`      | `IDIV`, `IMOD`, `FDIV` or `FMOD` with a divisor of zero          |
 | `ArcCosineError`     | `ACOS` of a value outside -1.0 to 1.0                            |
 | `ArcTangent2Error`   | `ATAN2` with both operands zero                                  |
@@ -377,10 +379,24 @@ displays the failure on screen and halts.
 
 A faulting instruction does not complete: its destination is left unchanged.
 
-NOTE: as modeled by [v32sim], only `PUSH`/`POP` report the stack errors; a
-`CALL` or `RET` through a bad stack pointer reports `InvalidMemoryWrite` /
-`InvalidMemoryRead`, and a jump to an unreadable address reports
-`InvalidMemoryRead`.
+Stack details (`CALL` is a push and `RET` a pop):
+
+  * `PUSH`/`CALL` decrement `SP` first; only if that goes below 0 is it a
+    `StackOverflow`. If `SP` points elsewhere (e.g. into ROM) the write simply
+    fails as `InvalidMemoryWrite`.
+  * `POP`/`RET` read first (a bad address is an `InvalidMemoryRead`), then
+    increment `SP`; an `SP` past the last word of RAM is a `StackUnderflow`.
+    Since `SP` starts at the last word, a `RET` or `POP` with nothing pushed
+    reads that word and then fails with `StackUnderflow`.
+  * `PUSH SP` pushes the value `SP` had *before* the decrement.
+
+Bad jumps are detected late: `JMP`/`CALL`/`JT`/`JF`/`RET` to an unreadable
+address succeed, and the error is raised by the *next instruction fetch*. In
+that case `R1` holds the bad address plus one, and `R2`/`R3` still hold the
+`JMP`'s (previous instruction's) word and immediate.
+
+After an error the console abandons the rest of the current frame: the BIOS
+error handler starts running at the next frame.
 
 ## Assembler Data Directives
 
@@ -681,6 +697,31 @@ Flag values are 0 when reset, 1 when set.
 | `Frame`  | Wait flag is reset                                                |
 | `Cycle`  | if control flags set, do nothing; otherwise, do instruction cycle |
 
+A reset (and power-on) sets `R0`-`R15` to zero (except `SP`/`BP`), **clears
+all of RAM to zero**, resets the RNG, timer counters, GPU and SPU to the
+defaults in their port tables, and selects gamepad 0. It does not touch the
+cartridge, the memory card or which gamepads are connected.
+
+### How a frame runs
+
+The console is run one frame at a time (60 per second):
+
+  1. **Frame start**: the timer counters advance (`TIM_FrameCounter`
+     incremented, `TIM_CycleCounter` = 0, the clock ticks every 60 frames), the
+     CPU's wait flag is cleared, the GPU's `GPU_RemainingPixels` is refilled,
+     the SPU produces this frame's audio and advances its channels, and the
+     gamepad states for this frame are latched.
+  2. **Run the CPU**: instructions run, one per cycle (the cycle counter is
+     incremented *before* each), until `CyclesPerFrame` = 250,000 cycles have
+     passed, or the CPU executes [WAIT](#WAIT) or [HLT](#HLT), or a CPU error
+     occurs. A frame that ends early does not make the next one longer.
+  3. **Frame end**: a modified memory card is written back to its file.
+
+Two consequences: a program that spends more than 250,000 cycles between
+`WAIT`s misses the 60 FPS cadence (the work carries over into the next frame),
+and everything a program does in a frame (drawing, sound commands) is seen as
+one batch.
+
 ## Vircon32 Memory Map
 
 | Name                            | Address    | Description                           |
@@ -697,9 +738,13 @@ Flag values are 0 when reset, 1 when set.
 | MemoryCardRAMFirstAddress       | 0x30000000 | first offset in MEMCARD (1MB, 256kW)  |
 | MEMCARD last address            | 0x3003FFFF | last addressable offset in MEMCARD    |
 
-The page is selected by the top hex digit of the address (`0` RAM, `1` BIOS,
-`2` CART, `3` MEMCARD); any other address is invalid. RAM and the memory card
-are read/write; **BIOS and CART are read-only** (a write raises
+The page is selected by **address bits 28-29** (`0` RAM, `1` BIOS, `2` CART,
+`3` MEMCARD); bits 30-31 are ignored, so `0x40000000` reads as `0x00000000`,
+`0x90000000` as `0x10000000` and so on. The remaining 28 bits are the offset
+within the page; one past the end of the page's contents is an invalid access.
+The BIOS and CART pages are only as big as the loaded program ROM (a program
+reading past its own last word gets `InvalidMemoryRead`). RAM and the memory
+card are read/write; **BIOS and CART are read-only** (a write raises
 `InvalidMemoryWrite`). Without a cartridge or memory card inserted, that page
 is not accessible, see `CAR_Connected` and `MEM_Connected`. The program runs
 directly from the CART page, so `LEA`/`MOV` of a code or data label yields an
@@ -734,13 +779,18 @@ Write)
 More information can be found in  the Section 7: Other Console Components
 Specifications document.
 
-  * `TIM_CurrentDate`: year in the upper 16 bits, **day of the year** (1 = January
-    1st) in the lower 16 bits. Leap years are accounted for.
+  * `TIM_CurrentDate`: year in the upper 16 bits, **days elapsed in the year**
+    in the lower 16 bits: **0 is January 1st**, 31 is February 1st. It advances
+    at midnight, wrapping to day 0 of the next year.
   * `TIM_CurrentTime`: seconds elapsed since 00:00 of the current day (0-86399).
-  * `TIM_FrameCounter`: frames since power-on or reset (60 per second).
-  * `TIM_CycleCounter`: cycles elapsed **within the current frame**, from 0 up
-    to `CyclesPerFrame - 1` (it restarts every frame). A [WAIT](#WAIT)
-    consumes the rest of the frame.
+  * `TIM_FrameCounter`: frames since power-on or reset (60 per second). The
+    counter is incremented *as a frame begins*, so it reads **1** throughout the
+    first frame of execution.
+  * `TIM_CycleCounter`: cycles elapsed **within the current frame**. It is
+    incremented before each instruction runs (every instruction, and each word
+    of a [MOVS](#MOVS)/[SETS](#SETS)/[CMPS](#CMPS), is one cycle), so the first
+    instruction of a frame reads **1**. It restarts at 0 each frame. A
+    [WAIT](#WAIT) consumes the rest of the frame.
 
 A program gets `CyclesPerFrame` = 250,000 cycles per frame to do its work;
 use [WAIT](#WAIT) once per frame to pace a game loop to 60 FPS.
@@ -762,13 +812,18 @@ use [WAIT](#WAIT) once per frame to pace a game loop to 60 FPS.
 | `R`   | `0x100` | `RNG_CurrentValue` | get pseudorandom value from RNG |
 | `W`   | `0x100` | `RNG_CurrentValue` | seed random number generator    |
 
-Writing a seed makes the sequence reproducible; reading yields the next
-pseudorandom value. Do not depend on its range or exact sequence (they differ
-between emulators); reduce it yourself, e.g. `IMOD R0, 6` after `IABS R0`, or
-`AND R0, 0xFF`.
+The generator is a linear congruential generator (the C++11 `minstd_rand`
+constants): the value read is the *current* value, after which the generator
+advances with `next = (current * 48271) mod 2147483647`. Consequently:
 
-More information can be found in  the Section 7: Other Console Components
-Specifications document.
+  * after reset the first values read are `1, 48271, 182605794, 1291394886,
+    1914720637, 2078669041, ...` (the initial value is 1);
+  * every value is in the range 1 to 2147483646 (never negative, never 0);
+  * writing a seed sets the current value, with its sign bit cleared; a seed of
+    `0` is ignored (it would lock the generator at 0). Seeding with 12345
+    makes the next reads `12345, 595905495, 1558181227, ...`;
+  * low bits of an LCG are weak: prefer `IMOD` by a small count over `AND`
+    with a mask.
 
 ## GPU
 
@@ -781,8 +836,8 @@ Specifications document.
 | `R/W` | `0x204` | `GPU_ActiveBlending`  | `0x20 (alpha)` | `0x20`    | `0x22`    |
 | `R/W` | `0x205` | `GPU_SelectedTexture` | `-1 (BIOS)`    | `-1`      | `255*`    |
 | `R/W` | `0x206` | `GPU_SelectedRegion`  | `0`            | `0`       | `4095`    |
-| `R/W` | `0x207` | `GPU_DrawingPointX`   | `0`            | `-1000`   | `1639`    |
-| `R/W` | `0x208` | `GPU_DrawingPointY`   | `0`            | `-1000`   | `1359`    |
+| `R/W` | `0x207` | `GPU_DrawingPointX`   | `0`            | `-1000`   | `1640`    |
+| `R/W` | `0x208` | `GPU_DrawingPointY`   | `0`            | `-1000`   | `1360`    |
 | `R/W` | `0x209` | `GPU_DrawingScaleX`   | `1.0`          | `-1024.0` | `1024.0`  |
 | `R/W` | `0x20A` | `GPU_DrawingScaleY`   | `1.0`          | `-1024.0` | `1024.0`  |
 | `R/W` | `0x20B` | `GPU_DrawingAngle`    | `0.0`          | `-1024.0` | `1024.0`  |
@@ -796,6 +851,24 @@ Specifications document.
 NOTE: `range` refers to the full RGBA range possible. Colors are `0xAABBGGRR`
 (see [GPU Color binary format](#gpu-color-binary-format)), so the initial clear
 color `0xFF000000` is opaque black.
+
+NOTE: **writes never raise errors for bad values**: out-of-range values are
+either *clamped* or *ignored* (the port keeps its old value), as follows.
+
+| Port                                  | A bad value is...                                          |
+| ------------------------------------- | ---------------------------------------------------------- |
+| `GPU_Command`                         | ignored if not one of the five commands                    |
+| `GPU_ActiveBlending`                  | ignored if not 0x20-0x22                                   |
+| `GPU_SelectedTexture`                 | ignored if below -1 or not an existing cartridge texture   |
+| `GPU_SelectedRegion`                  | ignored if outside 0-4095                                  |
+| `GPU_DrawingPointX` / `Y`             | clamped to -1000..1640 / -1000..1360                       |
+| `GPU_DrawingScaleX` / `Y`, `GPU_DrawingAngle` | clamped to -1024.0..1024.0; NaN and infinity ignored |
+| `GPU_RegionMinX/Y`, `GPU_RegionMaxX/Y`| clamped to 0..1023                                         |
+| `GPU_RegionHotspotX` / `Y`            | clamped to -1024..2047                                     |
+
+The same ranges are why the table above lists those bounds. (Only
+`GPU_RemainingPixels` rejects a write, with `InvalidPortWrite`, and
+`GPU_Command` a read, with `InvalidPortRead`.)
 
 NOTE: `GPU_DrawingScaleX`, `GPU_DrawingScaleY` and `GPU_DrawingAngle` are
 **floats** (write their bit pattern: `OUT GPU_DrawingScaleX, 2.0`); the angle is
@@ -881,9 +954,14 @@ then select and draw it:
 ```
 
 The `GPU_Region*` ports always refer to the currently selected texture and
-region. Rotation and scaling are applied around the hotspot. Cartridge
-regions have no defined contents at start-up: define them before drawing.
-The BIOS texture's regions (the font) are already defined.
+region. Scaling and then rotation are applied around the hotspot. Region
+bounds are inclusive, so a region is `abs(Max - Min) + 1` pixels wide; giving
+`Min > Max` **mirrors** the image on that axis, and a negative scale also flips
+it. Each texture has its own 4096 regions, and every region keeps its
+settings when you switch away and back. Cartridge regions have no defined
+contents at start-up: define them before drawing. The BIOS font regions
+are defined by the BIOS start-up code itself, so they exist when a cartridge
+starts, but only because the BIOS ran first.
 
 ### GPU pixel budget
 
@@ -895,12 +973,29 @@ value and every command spends from it:
     screen), x(1 + 0.15 if zoomed + 0.25 if rotated), where a zoomed
     region's size is first multiplied by its scale;
   * `GPUCommand_ClearScreen` costs half a screen (the `-0.50` "penalty" is
-    relative to the full-screen cost of 1.0);
+    relative to the full-screen cost of 1.0). Note that a clear is just a
+    full-screen rectangle in the clear color drawn with the **active blending
+    mode**: with a translucent clear color, or with `Add`/`Subtract` blending
+    active, it blends with the previous frame instead of replacing it;
   * once the budget is exhausted `GPU_RemainingPixels` reads **-1** and further
     commands in that frame draw nothing. The budget is refilled at the start
     of the next frame.
 
 Read `GPU_RemainingPixels` to find out whether a frame has drawn too much.
+
+### Blending
+
+For a source pixel `S` (texture color times `GPU_MultiplyColor`, per component) with
+alpha `A` over the existing screen pixel `D`:
+
+| Mode       | Result per color component                                     |
+| ---------- | -------------------------------------------------------------- |
+| `Alpha`    | `S * A + D * (1 - A)`                                          |
+| `Add`      | `D + S * A`                                                    |
+| `Subtract` | `D - S * A`                                                    |
+
+Results are clamped to 0-255. Textures are sampled with nearest-neighbor
+filtering (no smoothing), also when scaled.
 
 ### BIOS text
 
@@ -947,7 +1042,8 @@ To play a sound:
     out   SPU_ChannelAssignedSound, 3       ; it will play sound 3
     out   SPU_ChannelVolume,       1.0      ; float, 0.0 - 8.0
     out   SPU_ChannelSpeed,        1.0      ; float, 1.0 = normal pitch
-    out   SPU_ChannelLoopEnabled,  0
+    out   SPU_SelectedSound,       3        ; looping is a property of the sound...
+    out   SPU_SoundPlayWithLoop,   1        ; ...copied to the channel on play
     out   SPU_Command, SPUCommand_PlaySelectedChannel
 ```
 
@@ -956,8 +1052,30 @@ To play a sound:
     speed ports are floats.
   * Audio is 16-bit stereo at 44,100 samples per second: 735 samples per
     frame (see [SPU binary format](#spu-binary-format)).
-  * `SPU_ChannelState` is read-only; a channel returns to `Stopped` when a
-    non-looping sound reaches its end.
+  * `SPU_ChannelState` is read-only; a channel returns to `Stopped` (position
+    back at 0) when a non-looping sound reaches its end.
+  * **Looping**: on `Play` of a stopped or playing channel, the channel's
+    `SPU_ChannelLoopEnabled` is **overwritten** with the sound's
+    `SPU_SoundPlayWithLoop`, and the position restarts at 0 (a retrigger).
+    Playing a *paused* channel (also what `ResumeAllChannels` does) just resumes it. You may still change
+    `SPU_ChannelLoopEnabled` while it plays. Loop points are inclusive sample
+    indexes, with `LoopStart <= LoopEnd` enforced (a loop needs
+    `LoopEnd > LoopStart` to take effect).
+  * `SPU_ChannelAssignedSound` can only be changed while the channel is
+    **stopped**; otherwise the write is silently ignored.
+  * As with the GPU, bad values do not raise errors: an invalid
+    `SPU_SelectedSound`/`SPU_SelectedChannel`/`SPU_ChannelAssignedSound` is
+    ignored; volume, speed and positions are clamped (`SPU_GlobalVolume`
+    0-2, `SPU_ChannelVolume` 0-8, `SPU_ChannelSpeed` 0-128, positions and loop
+    points to the sound's length); NaN and infinity are ignored. Only
+    `SPU_Command` (read) and the read-only ports (write) fail.
+  * The final volume of a channel is `SPU_GlobalVolume * SPU_ChannelVolume`.
+    A `SPU_ChannelPosition` read gives the integer part of the position (the
+    channel actually advances by `SPU_ChannelSpeed` samples per output sample,
+    a fractional amount).
+  * Sound is produced a frame at a time, as each frame **begins**: commands you
+    issue during a frame are heard from the next one, and a channel's position
+    advances 735 samples' worth at once between frames.
 
 ### SPU Commands
 
@@ -1014,8 +1132,9 @@ lower half-word and the right sample in the upper.
 | `R`   | `0x40C` | `INP_GamepadButtonR`     | `R` key input (W on keyboard)     |
 
 The gamepad ports always reflect the gamepad chosen in `INP_SelectedGamepad`:
-write the number (0-3), then read the controls. The keyboard keys listed are the
-defaults of the desktop emulator and may differ in other emulators.
+write the number (0-3), then read the controls. Writing a number outside 0-3 is ignored. The keyboard keys listed
+are the defaults of the desktop emulator (arrow keys for the d-pad; they can be
+reconfigured).
 
 **What a read returns** is not just 0 or 1. Each direction and button reports
 a signed frame count, clamped to +/-3600:
@@ -1027,7 +1146,10 @@ a signed frame count, clamped to +/-3600:
 
 So test *pressed* with `IGT R0, 0`, and detect a fresh press with `IEQ R0, 1`.
 `INP_GamepadConnected` is a plain 0/1. The d-pad cannot report Left and Right
-(or Up and Down) pressed together: pressing one releases its opposite.
+(or Up and Down) pressed together: pressing one releases its opposite. Host
+input is latched once per frame, as the frame begins: what you read does not
+change during a frame. A gamepad that is not connected (see
+`INP_GamepadConnected`) ignores input and keeps reading -3600.
 
 ```
     out   INP_SelectedGamepad, 0
@@ -1945,13 +2067,15 @@ absolute value and restore the sign, as the compilers do:
     xor   R0, R1                ; ... ^ mask: arithmetic x >> 3
 ```
 
-(Shift by a count larger than 31 is not portable: mask the count.)
+The desktop emulator implements this as an unsigned C++ shift (`>>=` on the
+unsigned bit pattern), and the compilers' signed `>>` is built from logical
+shifts for that reason. A shift count of 32 or more is left undefined by the
+emulator's host language (on x86 hosts the count wraps modulo 32): mask the count
+yourself.
 
 History: earlier revisions of this document claimed that a right shift
-copies the sign bit. The tool audits disagree: v32sim was checked against the
-desktop emulator's sources and uses a logical shift, and v32cc builds its
-signed `>>` out of logical shifts for the same reason. If you can reproduce
-sign copying on an emulator, please report it.
+copies the sign bit. That was incorrect: the emulator source shows a logical
+shift.
 
 ## IADD
 
@@ -2013,7 +2137,9 @@ Integer Division
 IDIV interprets both of its operands as integers and performs a division.
 The result (quotient)  is stored in the first operand,  which is always a
 register. The quotient is truncated toward zero (as in C). A divisor of zero
-raises `DivisionError`.
+raises `DivisionError`. (`-2147483648 / -1` overflows; the emulator performs a
+host `int32` division there, which traps on some hosts. Avoid it; the same
+applies to `IMOD`.)
 
 ### Variants and Actions
 
@@ -2475,12 +2601,25 @@ audio assets, we have this final ROM. The general layout is as follows:
 | 30    | audio ROM size               |
 | 31-32 | reserved                     |
 
-The header is 128 bytes (32 words), and the program ROM normally follows at byte
-offset `0x80`. The offsets and sizes in words 25-30 are in **bytes** from the
+The signature is `V32-CART` for a cartridge and `V32-BIOS` for a BIOS (the
+emulator refuses to load one as the other). The header is 128 bytes (32 words),
+and the program ROM follows at byte offset `0x80`. The offsets and sizes in words 25-30 are in **bytes** from the
 start of the file, so the program ROM's first word (the VBIN signature) is at
 `0x80`, its word count is at `0x88`, and code starts at `0x8C`.
 The program, video (textures) and audio (sounds) areas follow one another:
-`[header][VBIN program][VTEX textures...][VSND sounds...]`.
+`[header][VBIN program][VTEX textures...][VSND sounds...]`, with no gaps, and the
+emulator rejects a file where an offset, a size or the total file size does not
+match exactly. It also enforces these limits:
+
+| item                    | limit                                                  |
+| ----------------------- | ------------------------------------------------------ |
+| file size               | a multiple of 4 bytes                                  |
+| cartridge program ROM   | 1 word up to 128M words                                |
+| BIOS program ROM        | 1 word up to 1M words                                  |
+| cartridge textures      | 0-256, each 1x1 up to 1024x1024                        |
+| cartridge sounds        | 0-1024, each 1 up to 256M samples, 256M samples in total |
+| BIOS                    | exactly 1 texture and exactly 1 sound (up to 1M samples) |
+| Vircon version/revision | must not be newer than the emulator's (1.0)            |
 
 ### Assembled VBIN
 
@@ -2515,8 +2654,9 @@ which has a header as follows:
 
 The pixel data follows: `width x height` words, row by row from the top-left
 pixel, each a color in the [GPU color format](#gpu-color-binary-format)
-(`0xAABBGGRR`). A texture is at most 1024x1024. Pixels with alpha 0 are
-transparent when drawn.
+(`0xAABBGGRR`). A texture is at most 1024x1024. The GPU keeps every texture as
+a full 1024x1024 image: the loaded picture sits in its top-left corner and the
+remaining pixels are `0x00000000` (transparent black).
 
 ### Sound VSND
 
@@ -2527,14 +2667,15 @@ Each audio asset is stored in the Vircon32 VSND format:
 | 1-2   | "V32-VSND"                   |
 | 3     | number of samples            |
 
-followed by that many 32-bit samples, in the [SPU sample
+(a 12-byte header) followed by that many 32-bit samples, in the [SPU sample
 format](#spu-binary-format) (signed 16-bit stereo, 44,100 samples per second). A cartridge carries up to
 1024 sounds, with at most 256M samples in total.
 
 ### Memory Card File
 
 A memory card file begins with the 8-byte signature `V32-MEMC`, followed by
-the card's 256k words (1MB) of data. Its content appears in memory starting at
+the card's 256k words (1MB) of data; the file must be exactly 8 + 1,048,576 bytes
+or the emulator rejects it. Its content appears in memory starting at
 `0x30000000`; the file's signature is not part of the addressable data.
 
 ## Pitfalls and Hardware Details
@@ -2547,6 +2688,11 @@ A checklist of things that are easy to get wrong:
     in the cartridge and cannot be written. Variables go to RAM
     (`0x00000000`...), and the stack uses the top of RAM; keep them apart.
   * **Colors are `0xAABBGGRR`**, not `0xRRGGBBAA`.
+  * **Bad values written to GPU/SPU ports are silently clamped or ignored**, not
+    reported; a drawing that "does nothing" may be a clamped or ignored write.
+  * **Reads of unmapped memory alias**: only address bits 28-29 pick the page.
+  * **`RAM` starts zeroed after every reset**, but nothing else about your
+    variables is initialized for you.
   * **Comparisons overwrite their first operand**, and there are no flags:
     `ILT R1, 5` followed by `JT R1, _label`. Copy the register first if you
     need the original.
