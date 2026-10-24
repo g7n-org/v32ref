@@ -1,22 +1,45 @@
 # v32ref: Vircon32 assembly language reference
 
 An   information-dense,  quick-reference   markdown-formatted  guide   to
-Vircon32  system  details and  assembly  language  mneumonics to  aid  in
+Vircon32  system  details and  assembly  language  mnemonics to  aid  in
 development.
 
 Information  in  this   document  is  based  on   the  official  Vircon32
-Specification documents,  and the Vircon32  source code. Most  images are
-from the specification documents.
+Specification documents,  and the Vircon32  source code, and has been
+cross-checked against the behavior of the community tools ([v32as], [v32cc],
+[v32sim], [v32opt]; see [Toolchain](#toolchain)). Most  images are  from the
+specification documents.
 
 This document is based on  Vircon32 DevTools **v25.1.19** or later; older
 versions will contain inconsistencies.
 
+Conventions used throughout:
+
+  * Vircon32 is a **32-bit, word-addressed** machine: there are no bytes. Every
+    address, pointer, offset, size and count in this document is in **32-bit
+    words** unless it says otherwise (the cartridge/VTEX/VSND *file* offsets in
+    the ROM header are the exception: those are in bytes).
+  * Integers are 32-bit two's complement; floats are IEEE-754 single precision.
+    A register holds either, as a bit pattern: nothing but the instruction you
+    choose says how it is interpreted.
+  * `DSTREG` is the register in the first operand slot (and, for most
+    instructions, also the destination); `SRCREG` is the register in the second
+    slot; `Immediate` is a constant that follows the instruction word.
+
+[v32as]: https://github.com/wedge1020/v32as
+[v32cc]: https://github.com/wedge1020/v32cc
+[v32sim]: https://github.com/g7n-org/v32sim
+[v32opt]: https://github.com/wedge1020/v32opt
+
 ## table of contents
 
   * [Internet Resources](#internet-resources)
+  * [Toolchain](#toolchain)
   * [System Quick Reference](#system-quick-reference)
+  * [Assembly Language Syntax](#assembly-language-syntax)
+  * [Assembler Data Directives](#assembler-data-directives)
+  * [A Minimal Program](#a-minimal-program)
   * [CPU Error Codes](#cpu-error-codes)
-  * [Assembler Data Directives](#assember-data-directives)
   * [Vircon32 Instruction Set Category Overview](#vircon32-instruction-set-category-overview)
   * [Vircon32 Instruction Set Detailed View](#vircon32-instruction-set-detailed-view)
   * [Vircon32 Registers](#vircon32-registers)
@@ -24,6 +47,7 @@ versions will contain inconsistencies.
     * [Internal Registers](#internal-registers)
     * [Stack Operations](#stack-operations)
     * [String Operations](#string-operations)
+    * [Calling Convention](#calling-convention)
   * [Control Flags](#control-flags)
   * [Control Signals](#control-signals)
   * [Vircon32 Memory Map](#vircon32-memory-map)
@@ -42,13 +66,16 @@ versions will contain inconsistencies.
     * [MEMCARD](#memcard)
   * [Vircon32 Instructions](#vircon32-instructions)
   * [Vircon32 BIOS](#vircon32-bios)
-    * [Vircon32 BIOS Texture](#vircon32-bios-texture)
-    * [Vircon32 BIOS Font](#vircon32-bios-font)
+    * [Vircon32 BIOS Texture](#bios-texture)
+    * [Vircon32 BIOS Font](#bios-font)
   * [Vircon32 Binary Specifications](#vircon32-binary-specifications)
     * [Instruction Format](#instruction-format)
     * [Packed V32 ROM](#packed-v32-rom)
     * [Assembled VBIN](#assembled-vbin)
     * [Texture VTEX](#texture-vtex)
+    * [Sound VSND](#sound-vsnd)
+    * [Memory Card File](#memory-card-file)
+  * [Pitfalls and Hardware Details](#pitfalls-and-hardware-details)
 
 ## Internet Resources
 
@@ -74,6 +101,24 @@ versions will contain inconsistencies.
     * [ComputerSoftware.git](https://github.com/vircon32/ComputerSoftware)
     * [ConsoleSoftware.git](https://github.com/vircon32/ConsoleSoftware)
     * [CommunityContent.git](https://github.com/vircon32/CommunityContent)
+
+## Toolchain
+
+| Tool              | Purpose                                                                |
+| ----------------- | ---------------------------------------------------------------------- |
+| `assemble`        | official assembler: `.asm` to `.vbin`                                  |
+| `compile`         | official C compiler: `.c` to `.asm`                                    |
+| `packrom`         | official packer: `.vbin` + textures + sounds to a `.v32` cartridge     |
+| [v32as]           | assembler (C port, drop-in for `assemble`, plus macros and extensions) |
+| `v32ld`           | linker for `v32as -C` relocatable objects (ships with v32as)           |
+| [v32cc]           | C compiler (stock dialect and ISO C, separate compilation, libc)       |
+| [v32opt]          | peephole optimizer for generated assembly                              |
+| [v32sim]          | text-mode debugger/simulator (breakpoints, watchpoints, screenshots)   |
+
+The usual flow is `compile` (or hand-written assembly) to `.asm`, `assemble`
+to `.vbin`, then `packrom` to a `.v32` cartridge (see [Packed V32
+ROM](#packed-v32-rom)). `v32as -g` writes a `.debug` file (address, file, line,
+label) that [v32sim] loads for source-level display.
 
 ## System Quick Reference
 
@@ -107,6 +152,177 @@ versions will contain inconsistencies.
 | ControlBusSlaves            | 8                                 |
 | GamepadPorts                | 4                                 |
 
+NOTE: `RAMSize`, `MemoryCardSize` and the `MaximumProgramROM` values are in
+**words**  (RAM: 4M words = 16MB; memory card: 256k words = 1MB; cartridge ROM:
+128M words = 512MB). `CyclesPerFrame` is 250,000 and `SPUSamplesPerFrame` is
+735.
+
+NOTE: the three GPU "penalty"  values  are not a screen  size:  see [GPU
+pixel budget](#gpu-pixel-budget) for how they are applied.
+
+## Assembly Language Syntax
+
+A source file is a sequence of lines; each line holds an optional label, an
+optional instruction or data directive, and an optional comment.
+
+```
+; a comment runs from ';' to the end of the line
+_label:                         ; labels start with '_' and end with ':'
+    mov   R0, 0x10              ; MNEMONIC  operand, operand
+    out   GPU_Command, GPUCommand_ClearScreen
+```
+
+  * **Labels** begin with an underscore (`_start`, `_draw_loop`), are
+    case-sensitive, and stand for a *word address*. They can be used before
+    they are defined. For portability put each label on a line of its own
+    ([v32as] also accepts a statement after the label).
+  * **Mnemonics** and **register names** are written `mov R0, R1`. The
+    stock headers use lowercase mnemonics and uppercase registers; [v32as] reads
+    either case. IOPort names and constants (`GPU_Command`,
+    `GPUCommand_ClearScreen`, ...) are listed in the [IOPorts](#ioports) section.
+  * **Registers**: `R0`-`R15`; `R11`-`R15` may also be written `CR`, `SR`, `DR`,
+    `BP`, `SP`. `IP`, `IR`, `IV` are *not* CPU registers (see [Internal
+    Registers](#internal-registers)).
+  * **Numbers**: decimal (`42`, `-7`), hexadecimal (`0x2A`) and floating point
+    (`3.14`, `-0.25`). An integer must fit in 32 bits (`0xFFFFFFFF` is -1).
+    [v32as] adds `0b1010`, `2Ah`, `#42`, character literals (`'A'`) and `label +/-
+    integer` operands, unless run with `--standard`.
+  * **Leading zeros are a trap**: the official assembler reads `0100` as the
+    *decimal* number 100, while [v32as] (without `--standard`) reads it as
+    *octal*. Do not write leading zeros.
+  * **Strings** are written in double quotes with the escapes `\n`, `\t`, `\"`
+    and `\\` (and `\xHH` in [v32as]).
+  * **Preprocessor** (official): `%define NAME tokens`, `%undef`, `%ifdef`,
+    `%ifndef`, `%else`, `%endif`, `%include "file"`, `%error "msg"`,
+    `%warning "msg"`. [v32as] adds function-like macros, `%if`/`%elif`,
+    `%assign`, `%macro`/`%rep`, `.local` labels and more (see its README).
+    `%define` is how compiled code names RAM variables (`%define global_x
+    0x00000010`): a `%define` can stand for any constant, not just a number.
+  * There is no relative addressing for jumps: `JMP`/`CALL`/`JT`/`JF` take an
+    absolute address (label, number or register).
+
+### Instruction size and operand forms
+
+An instruction occupies **1 word**, or **2 words** when it has an *Immediate*
+(the second word is the constant, see [Instruction
+Format](#instruction-format)). A label used as an operand is an immediate.
+
+| Mnemonics                                                    | Operand forms                              |
+| ------------------------------------------------------------ | ------------------------------------------ |
+| `HLT` `WAIT` `RET` `MOVS` `SETS`                             | none                                       |
+| `PUSH` `POP` `CMPS` `CIF` `CFI` `CIB` `CFB` `NOT` `BNOT`     | `reg`                                      |
+| `ISGN` `IABS` `FSGN` `FABS` `FLR` `CEIL` `ROUND` `SIN`       | `reg`                                      |
+| `ACOS` `LOG`                                                 | `reg`                                      |
+| `IEQ`..`ILE` `AND` `OR` `XOR` `SHL` `IADD`..`IMOD` `IMIN` `IMAX` | `reg, reg` or `reg, integer`           |
+| `FEQ`..`FLE` `FADD`..`FMOD` `FMIN` `FMAX`                    | `reg, reg` or `reg, number`                |
+| `ATAN2` `POW`                                                | `reg, reg` (**no immediate form**)         |
+| `JMP` `CALL`                                                 | `reg` or `address`                         |
+| `JT` `JF`                                                    | `reg, reg` or `reg, address`               |
+| `LEA`                                                        | `reg, [reg]` or `reg, [reg+integer]`       |
+| `IN`                                                         | `reg, port`                                |
+| `OUT`                                                        | `port, reg` or `port, number`              |
+| `MOV`                                                        | the 8 forms of [MOV](#MOV)                 |
+
+Things the table implies that are easy to forget:
+
+  * `PUSH` takes only a register: to push a constant, `MOV` it to a register
+    first.
+  * `MOV` cannot store an immediate to memory, cannot copy memory to memory
+    (use [MOVS](#MOVS)), and cannot take a label in its `[reg+offset]` forms:
+    the offset is a plain integer. Use `MOV R1, _label` then `[R1+n]`.
+  * `LEA` takes only `[reg]` / `[reg+integer]`: to get a label's address, use
+    `MOV Rn, _label`.
+  * `ATAN2` and `POW` need both values in registers.
+  * `[R+0]` and `[R]` are the same instruction (the assembler encodes
+    `[R+0]` as `[R]`).
+  * **Float immediates**: for the float instructions (`FEQ`..`FLE`, `FADD`..`FMOD`,
+    `FMIN`, `FMAX`) a number given as an immediate is converted to a float
+    bit pattern by the assembler: `FADD R0, 1` adds `1.0`. The *integer*
+    instructions reject a float literal. `MOV R0, 1.5` and `OUT
+    GPU_DrawingScaleX, 2.0` store the bit pattern of the float. Remember that a
+    hex literal is always a raw bit pattern, never converted.
+
+### Internal registers in v32as (extension)
+
+[v32as] lets `MOV` read and write `IP`, `IR`, `IV` by expanding to one real
+instruction: `MOV Rn, IP` (address of the next instruction), `MOV IP, Rn`
+(a jump), `MOV Rn, IR`, and `MOV IR, Rn` / `MOV IV, Rn` (patch the next
+instruction word / immediate: only works in code running from RAM). The
+official assembler does not accept these.
+
+## Assembler Data Directives
+
+| keyword  | form                           | words emitted                                   |
+| -------- | ------------------------------ | ----------------------------------------------- |
+| integer  | `integer 1, -2, 0x10`          | one word per value                              |
+| float    | `float 1.5, -0.25, 3`          | one word per value (`3` becomes `3.0`)          |
+| string   | `string "text\n"`              | one word **per character**, then a `0` word     |
+| pointer  | `pointer _a, _b`               | one word per label: its address                 |
+| datafile | `datafile "path/to/file.bin"`  | the file's contents as little-endian words      |
+
+Use commas to separate values (create "array" of values).
+
+[v32as] extras (not in the official assembler): `zstring "text"` packs four
+characters per word (first character in the low byte, zero terminated, last
+word zero padded),
+`global _name` / `extern _name` for linking `v32as -C` objects.
+
+Things to know:
+
+  * A `string` is **not** a C byte string: each character takes a whole word
+    (this is why C strings are `int*` in the Vircon32 headers).
+  * `datafile` sizes must be a multiple of 4 bytes.
+  * There are no `org`, alignment or "reserve space" directives. Directives
+    emit data **into the program ROM**, so labelled data is read-only
+    (writing to a CART address raises `InvalidMemoryWrite`). Writable variables
+    must live in RAM (`0x00000000`-`0x003FFFFF`) at addresses you assign
+    yourself, typically with `%define`; initialize them at start-up, copying
+    initial values out of ROM with [MOVS](#MOVS). The stack grows down from the
+    top of RAM, so keep variables near the bottom.
+  * Code and data share one stream: the first word of the program is the entry
+    point (execution starts at `0x20000000`), so put your start-up code first,
+    and never let execution run into data.
+
+## A Minimal Program
+
+Clear the screen to dark blue and print a line of text with the BIOS font,
+once per frame:
+
+```
+; hello.asm
+_start:
+    out   GPU_SelectedTexture, -1       ; texture -1 is the BIOS texture (font)
+    out   GPU_ClearColor, 0xFF400000    ; colors are 0xAABBGGRR: opaque, blue 0x40
+
+_frame:
+    out   GPU_Command, GPUCommand_ClearScreen
+    mov   R1, _text                     ; R1 = address of the next character
+    mov   R2, 100                       ; R2 = x of the next character
+    mov   R3, 100                       ; R3 = y
+
+_next_char:
+    mov   R0, [R1]                      ; one word per character
+    jf    R0, _done                     ; the 0 terminator ends the string
+    out   GPU_SelectedRegion, R0        ; BIOS font: region number = character code
+    out   GPU_DrawingPointX, R2
+    out   GPU_DrawingPointY, R3
+    out   GPU_Command, GPUCommand_DrawRegion
+    iadd  R1, 1
+    iadd  R2, 10                        ; each BIOS character is 10 pixels wide
+    jmp   _next_char
+
+_done:
+    wait                                ; stall until the next frame starts
+    jmp   _frame
+
+_text:
+    string "HELLO VIRCON32"
+```
+
+Build: `assemble hello.asm` (or `v32as hello.asm`) writes `hello.vbin`; pack it
+with `packrom` (a cartridge with no textures or sounds needs just the program)
+and run the `.v32` file in an emulator, or in [v32sim].
+
 ## CPU Error Codes
 
 Runtime errors that Vircon32 generates:
@@ -124,6 +340,47 @@ Runtime errors that Vircon32 generates:
 | `8`   | `ArcTangent2Error`   | undefined value                         |
 | `9`   | `LogarithmError`     | undefined value                         |
 | `10`  | `PowerError`         | undefined value                         |
+
+When does each one occur?
+
+| Error                | Raised when                                                      |
+| -------------------- | ---------------------------------------------------------------- |
+| `InvalidMemoryRead`  | read outside the four pages, or past the end of a page           |
+| `InvalidMemoryWrite` | write outside the pages, or to BIOS or CART (both read-only)     |
+| `InvalidPortRead`    | `IN` from a write-only port (`GPU_Command`, `SPU_Command`, ...)  |
+| `InvalidPortWrite`   | `OUT` to a read-only port (`GPU_RemainingPixels`, `INP_*`, ...)  |
+| `StackOverflow`      | `PUSH` whose write location is not valid memory                  |
+| `StackUnderflow`     | `POP` that reads invalid memory or goes past the end of RAM      |
+| `DivisionError`      | `IDIV`, `IMOD`, `FDIV` or `FMOD` with a divisor of zero          |
+| `ArcCosineError`     | `ACOS` of a value outside -1.0 to 1.0                            |
+| `ArcTangent2Error`   | `ATAN2` with both operands zero                                  |
+| `LogarithmError`     | `LOG` of zero or a negative value                                |
+| `PowerError`         | `POW` of a negative base with a non-integer exponent             |
+
+Note that **float division by zero is an error, not infinity**: nothing in
+the system produces an infinity or NaN through arithmetic. Guard divisors.
+
+### What the CPU does on an error
+
+The error is not a trap you can catch: the CPU stores the machine state in
+registers, resets the stack, and jumps to the BIOS error handler, which
+displays the failure on screen and halts.
+
+| Register | Receives                                                                   |
+| -------- | -------------------------------------------------------------------------- |
+| `R0`     | error code (the `Value` above)                                             |
+| `R1`     | address of the instruction *after* the one that failed (including its immediate word) |
+| `R2`     | the failing instruction word (`InstructionRegister`)                       |
+| `R3`     | the failing instruction's immediate (`ImmediateValue`)                     |
+| `SP`/`BP`| reset to `0x003FFFFF`                                                      |
+| `IP`     | set to `0x10000000` (BIOS error handler)                                   |
+
+A faulting instruction does not complete: its destination is left unchanged.
+
+NOTE: as modeled by [v32sim], only `PUSH`/`POP` report the stack errors; a
+`CALL` or `RET` through a bad stack pointer reports `InvalidMemoryWrite` /
+`InvalidMemoryRead`, and a jump to an unreadable address reports
+`InvalidMemoryRead`.
 
 ## Assembler Data Directives
 
@@ -199,13 +456,13 @@ instruction is found, the CPU will stop execution.
 | 0x19   | 011001 | [MOVS](#MOVS)   | data       | 0        | move string            |
 | 0x1A   | 011010 | [SETS](#SETS)   | data       | 0        | set string             |
 | 0x1B   | 011011 | [CMPS](#CMPS)   | data       | 1        | compare string         |
-| 0x1C   | 011100 | [CIF](#CIF)     | convert    | 1        | integer to float       |
-| 0x1D   | 011101 | [CFI](#CFI)     | convert    | 1        | float to integer       |
-| 0x1E   | 011110 | [CIB](#CIB)     | convert    | 1        | integer to boolean     |
-| 0x1F   | 011111 | [CFB](#CFB)     | convert    | 1        | float to boolean       |
+| 0x1C   | 011100 | [CIF](#CIF)     | data       | 1        | integer to float       |
+| 0x1D   | 011101 | [CFI](#CFI)     | data       | 1        | float to integer       |
+| 0x1E   | 011110 | [CIB](#CIB)     | data       | 1        | integer to boolean     |
+| 0x1F   | 011111 | [CFB](#CFB)     | data       | 1        | float to boolean       |
 | 0x20   | 100000 | [NOT](#NOT)     | logic      | 1        | bitwise NOT            |
 | 0x21   | 100001 | [AND](#AND)     | logic      | 2        | bitwise AND            |
-| 0x22   | 100010 | [OR](#OR)       | logic      | 2        | bitwise iOR            |
+| 0x22   | 100010 | [OR](#OR)       | logic      | 2        | bitwise inclusive OR   |
 | 0x23   | 100011 | [XOR](#XOR)     | logic      | 2        | bitwise XOR            |
 | 0x24   | 100100 | [BNOT](#BNOT)   | logic      | 1        | boolean NOT            |
 | 0x25   | 100101 | [SHL](#SHL)     | logic      | 2        | left shift             |
@@ -227,14 +484,14 @@ instruction is found, the CPU will stop execution.
 | 0x35   | 110101 | [FMIN](#FMIN)   | arithmetic | 2        | float minimum          |
 | 0x36   | 110110 | [FMAX](#FMAX)   | arithmetic | 2        | float maximum          |
 | 0x37   | 110111 | [FABS](#FABS)   | arithmetic | 1        | float absolute value   |
-| 0x38   | 111000 | [FLR](#FLR)     | math       | 1        | float floor            |
-| 0x39   | 111001 | [CEIL](#CEIL)   | math       | 1        | float ceiling          |
-| 0x3A   | 111010 | [ROUND](#ROUND) | math       | 1        | float rounding         |
-| 0x3B   | 111011 | [SIN](#SIN)     | math       | 1        | float sine             |
-| 0x3C   | 111100 | [ACOS](#ACOS)   | math       | 1        | float arc cosine       |
-| 0x3D   | 111101 | [ATAN2](#ATAN2) | math       | 2        | float arc tangent      |
-| 0x3E   | 111110 | [LOG](#LOG)     | math       | 1        | float natural log      |
-| 0x3F   | 111111 | [POW](#POW)     | math       | 2        | float power            |
+| 0x38   | 111000 | [FLR](#FLR)     | float math| 1        | float floor            |
+| 0x39   | 111001 | [CEIL](#CEIL)   | float math| 1        | float ceiling          |
+| 0x3A   | 111010 | [ROUND](#ROUND) | float math| 1        | float rounding         |
+| 0x3B   | 111011 | [SIN](#SIN)     | float math| 1        | float sine             |
+| 0x3C   | 111100 | [ACOS](#ACOS)   | float math| 1        | float arc cosine       |
+| 0x3D   | 111101 | [ATAN2](#ATAN2) | float math| 2        | float arc tangent      |
+| 0x3E   | 111110 | [LOG](#LOG)     | float math| 1        | float natural log      |
+| 0x3F   | 111111 | [POW](#POW)     | float math| 2        | float power            |
 
 More  information can  be found  in the  Section 3:  The Processor  (CPU)
 Specifications document.
@@ -243,11 +500,16 @@ Specifications document.
 
 Vircon32 has 16 general purpose registers and 3 internal registers.
 
-The general purpose  registers, which can be used  for either **integer**
-or **floating point** operation (just: only one at any given moment).
+The general purpose registers can hold either an **integer** or a **floating
+point** value; which one is decided by the instruction operating on them (a
+register has no type). All are 32 bits.
 
-Some registers  are used by various  instructions, so if used,  should be
-avoided to prevent data hazards.
+`R11`-`R13` are implicitly used by [MOVS](#MOVS), [SETS](#SETS) and
+[CMPS](#CMPS), and `R14`/`R15` by the stack instructions ([PUSH](#PUSH),
+[POP](#POP), [CALL](#CALL), [RET](#RET)); avoid keeping other values in them
+across those instructions. At reset `SP` and `BP` both hold `0x003FFFFF`, the last
+word of RAM. The assembler accepts `R11`-`R15` or the alias names
+interchangeably.
 
 ### General Purpose Registers
 
@@ -282,13 +544,18 @@ these registers can be influenced based on actions taken.
 | `InstructionRegister` | stores last read instruction (currently run)  |
 | `ImmediateValue`      | if `immflag` is set, place that value here    |
 
-The   **branch**  and   **control**   instructions   can  influence   the
-**InstructionRegister**,  as redirecting  program flow  is the  result of
-altering  the  register contents  (versus  just  proceeding to  the  next
-instruction in sequence).
+The   **branch**  instructions   ([JMP](#JMP), [CALL](#CALL), [RET](#RET),
+[JT](#JT), [JF](#JF)) redirect program flow  by altering  the
+**InstructionPointer**  (versus  just  proceeding to  the  next
+instruction in sequence). By the time an instruction executes, the
+InstructionPointer already points past it (and past its immediate word, if
+any): this is the address [CALL](#CALL) saves.
 
-Any  instruction  that accepts  an  **Immediate**  value influences  this
+Any  instruction  that accepts  an  **Immediate**  value loads it into  this
 internal **ImmediateValue** register.
+
+On a [CPU error](#cpu-error-codes) the three internal registers are what get
+reported in `R1`-`R3`.
 
 ### Stack Operations
 
@@ -307,6 +574,13 @@ current  location  stored  in  the stack  pointer  register  (**SP**)  is
 obtained, then the stack pointer  register (**SP**) is incremented by one
 word.
 
+So **SP always points at the most recently pushed word**. SP starts at
+`0x003FFFFF` (the last word of RAM) and is decremented *before* the store, so
+the first push lands at `0x003FFFFE`. [CALL](#CALL) pushes the address of the
+next instruction, and [RET](#RET) pops it into the InstructionPointer. No
+instruction touches `BP`: it is only a convention for stack frames (see
+[Calling Convention](#calling-convention)).
+
 ### String Operations
 
 For a  small subset of  instructions, typically intended  for string-like
@@ -316,6 +590,76 @@ data.
 
 The three  instructions that utilize  this functionality on  Vircon32 are
 [MOVS](#MOVS), [SETS](#SETS), and [CMPS](#CMPS).
+
+| Register | Role                              | MOVS            | SETS            | CMPS            |
+| -------- | --------------------------------- | --------------- | --------------- | --------------- |
+| `CR`     | count (`R11`)                     | repeat count    | repeat count    | repeat count    |
+| `SR`     | source (`R12`)                    | source address  | **value** to store | address to compare against |
+| `DR`     | destination (`R13`)               | destination address | destination address | address compared |
+
+Typical use (copy 100 words, then clear 50):
+
+```
+    mov   SR, _source            ; address to copy from
+    mov   DR, 0x00000100         ; address to copy to
+    mov   CR, 100                ; number of words
+    movs
+
+    mov   SR, 0                  ; the value to store
+    mov   DR, 0x00000200
+    mov   CR, 50
+    sets
+```
+
+The instructions leave `SR`, `DR` and `CR` modified (advanced and counted
+down), so reload them before each use. A `CR` of 0 (or negative) still moves
+**one** word, not none: guard zero-length operations with a [JF](#JF) first.
+
+### Calling Convention
+
+The assembly language has no notion of functions; [CALL](#CALL) and
+[RET](#RET) only save and restore the return address. The stock C compiler
+(and [v32cc]) follow this convention, which hand-written assembly should
+share so it can call, and be called by, compiled code:
+
+  * `R0`-`R10` are temporaries; the **return value comes back in `R0`**.
+  * **No register survives a call.** The caller saves whatever it still needs
+    (in its own frame); a callee never has to save anything.
+  * Arguments are passed on the stack. The caller reserves space, stores
+    argument *i* at `[SP+i]` and calls. Inside the callee, with the standard
+    prologue, argument *i* is at `[BP+2+i]`, the return address at `[BP+1]`,
+    and locals at `[BP-1]` and below.
+  * Frame: `push BP` / `mov BP, SP` / `isub SP, N`; epilogue: `mov SP, BP` /
+    `pop BP` / `ret`. The caller removes its argument space after the call.
+  * A function returning a struct receives a hidden first argument: a pointer
+    to the caller's buffer.
+  * Everything is a word: `char`, `short`, `int` and pointers all take one
+    word (`sizeof(int) == 1`). In the stock dialect `NULL` is `-1`, so an
+    uninitialized pointer (0) is *not* null.
+
+```
+; int add(int a, int b)
+_add:
+    push  BP
+    mov   BP, SP
+    mov   R0, [BP+2]            ; a
+    mov   R1, [BP+3]            ; b
+    iadd  R0, R1                ; result in R0
+    mov   SP, BP
+    pop   BP
+    ret
+
+; ... caller: add(3, 4)
+    isub  SP, 2                 ; space for two arguments
+    mov   R0, 3
+    mov   [SP], R0
+    mov   R0, 4
+    mov   [SP+1], R0
+    call  _add
+    iadd  SP, 2                 ; result is in R0
+```
+
+[v32cc]'s start-up code is `call main` followed by `hlt`.
 
 ## Control Flags
 
@@ -333,7 +677,7 @@ Flag values are 0 when reset, 1 when set.
 
 | signal   | description                                                       |
 | -------- | ----------------------------------------------------------------- |
-| `Reset`  | Halt/Wait flags, registers reset; BP, SP, IP reset to defaults    |
+| `Reset`  | Halt/Wait flags, registers reset; BP, SP = `0x003FFFFF`, IP = `0x10000004` (BIOS start) |
 | `Frame`  | Wait flag is reset                                                |
 | `Cycle`  | if control flags set, do nothing; otherwise, do instruction cycle |
 
@@ -342,7 +686,7 @@ Flag values are 0 when reset, 1 when set.
 | Name                            | Address    | Description                           |
 | ------------------------------- | ---------- | ------------------------------------- |
 | RAMFirstAddress                 | 0x00000000 | read/write memory (16MB, 4MW)         |
-| stack init address              | 0x003FFFFF | SP default address                    |
+| stack init address              | 0x003FFFFF | SP/BP value at reset (grows downward) |
 | RAM last address                | 0x003FFFFF | last addressable offset in RAM        |
 | BiosProgramROMFirstAddress      | 0x10000000 | Vircon32 BIOS (4MB, 1MW)              |
 | BIOS error handler address      | 0x10000000 | start of error handler logic          |
@@ -352,6 +696,14 @@ Flag values are 0 when reset, 1 when set.
 | CART last address               | 0x27FFFFFF | last addressable offset in CART       |
 | MemoryCardRAMFirstAddress       | 0x30000000 | first offset in MEMCARD (1MB, 256kW)  |
 | MEMCARD last address            | 0x3003FFFF | last addressable offset in MEMCARD    |
+
+The page is selected by the top hex digit of the address (`0` RAM, `1` BIOS,
+`2` CART, `3` MEMCARD); any other address is invalid. RAM and the memory card
+are read/write; **BIOS and CART are read-only** (a write raises
+`InvalidMemoryWrite`). Without a cartridge or memory card inserted, that page
+is not accessible, see `CAR_Connected` and `MEM_Connected`. The program runs
+directly from the CART page, so `LEA`/`MOV` of a code or data label yields an
+address in `0x2xxxxxxx`.
 
 # IOPorts
 
@@ -382,6 +734,17 @@ Write)
 More information can be found in  the Section 7: Other Console Components
 Specifications document.
 
+  * `TIM_CurrentDate`: year in the upper 16 bits, **day of the year** (1 = January
+    1st) in the lower 16 bits. Leap years are accounted for.
+  * `TIM_CurrentTime`: seconds elapsed since 00:00 of the current day (0-86399).
+  * `TIM_FrameCounter`: frames since power-on or reset (60 per second).
+  * `TIM_CycleCounter`: cycles elapsed **within the current frame**, from 0 up
+    to `CyclesPerFrame - 1` (it restarts every frame). A [WAIT](#WAIT)
+    consumes the rest of the frame.
+
+A program gets `CyclesPerFrame` = 250,000 cycles per frame to do its work;
+use [WAIT](#WAIT) once per frame to pace a game loop to 60 FPS.
+
 ### binary format
 
 ![V32 date and time binary representation](images/V32_datetime.png)
@@ -399,6 +762,11 @@ Specifications document.
 | `R`   | `0x100` | `RNG_CurrentValue` | get pseudorandom value from RNG |
 | `W`   | `0x100` | `RNG_CurrentValue` | seed random number generator    |
 
+Writing a seed makes the sequence reproducible; reading yields the next
+pseudorandom value. Do not depend on its range or exact sequence (they differ
+between emulators); reduce it yourself, e.g. `IMOD R0, 6` after `IABS R0`, or
+`AND R0, 0xFF`.
+
 More information can be found in  the Section 7: Other Console Components
 Specifications document.
 
@@ -408,7 +776,7 @@ Specifications document.
 | ----- | ------- | --------------------- | -------------- | --------- | --------- |
 | `W`   | `0x200` | `GPU_Command`         | `n/a`          | `0x10`    | `0x14`    |
 | `R`   | `0x201` | `GPU_RemainingPixels` | `2073600`      | `-1`      | `2073600` |
-| `R/W` | `0x202` | `GPU_ClearColor`      | `0x000000FF`   | `range`   | `range`   |
+| `R/W` | `0x202` | `GPU_ClearColor`      | `0xFF000000`   | `range`   | `range`   |
 | `R/W` | `0x203` | `GPU_MultiplyColor`   | `0xFFFFFFFF`   | `range`   | `range`   |
 | `R/W` | `0x204` | `GPU_ActiveBlending`  | `0x20 (alpha)` | `0x20`    | `0x22`    |
 | `R/W` | `0x205` | `GPU_SelectedTexture` | `-1 (BIOS)`    | `-1`      | `255*`    |
@@ -425,7 +793,16 @@ Specifications document.
 | `R/W` | `0x210` | `GPU_RegionHotspotX`  | `0`            | `-1024`   | `2047`    |
 | `R/W` | `0x211` | `GPU_RegionHotspotY`  | `0`            | `-1024`   | `2047`    |
 
-NOTE: `range` refers to the full RGBA range possible.
+NOTE: `range` refers to the full RGBA range possible. Colors are `0xAABBGGRR`
+(see [GPU Color binary format](#gpu-color-binary-format)), so the initial clear
+color `0xFF000000` is opaque black.
+
+NOTE: `GPU_DrawingScaleX`, `GPU_DrawingScaleY` and `GPU_DrawingAngle` are
+**floats** (write their bit pattern: `OUT GPU_DrawingScaleX, 2.0`); the angle is
+in radians, and because screen Y grows downward, a positive angle rotates
+**clockwise**. A negative scale flips the image. All other GPU ports are
+integers. Coordinates are in pixels from the top-left corner of the 640x360
+screen, and may lie outside it (drawing is clipped).
 
 NOTE: for some resources, like `textures`, the upper bound is governed by
 how many textures were configured for the cartridge. This value indicates
@@ -463,9 +840,75 @@ Active blending:
 
 | 31-24 | 23-16 | 15-8  | 7-0   |
 | ----- | ----- | ----- | ----- |
-| red   | green | blue  | alpha |
+| alpha | blue  | green | red   |
 
-Each component can range in value from 0x00 through 0xFF (0-255).
+Each component can range in value from 0x00 through 0xFF (0-255). The
+colors are conventionally *written* RGBA, but because words are little endian
+the actual value is **`0xAABBGGRR`**: red is the *lowest* byte. For example:
+
+| color       | value        |
+| ----------- | ------------ |
+| black       | `0xFF000000` |
+| white       | `0xFFFFFFFF` |
+| red         | `0xFF0000FF` |
+| green       | `0xFF00FF00` |
+| blue        | `0xFFFF0000` |
+| transparent | alpha `0x00` |
+
+`GPU_MultiplyColor` multiplies each component of every drawn pixel (white,
+`0xFFFFFFFF`, is neutral; use it to tint or fade, e.g. `0x80FFFFFF` draws
+half transparent).
+
+### GPU textures and regions
+
+A texture is a 1024x1024 image held by the GPU (up to 256 come from the
+cartridge; texture **-1** is the BIOS texture). Nothing is drawn directly from a
+texture: you first define a **region** (a rectangle of it, plus a hotspot),
+then select and draw it:
+
+```
+    out   GPU_SelectedTexture, 0       ; texture 0 of the cartridge
+    out   GPU_SelectedRegion,  5       ; region 5 of that texture (0-4095)
+    out   GPU_RegionMinX,      0       ; the rectangle, inclusive
+    out   GPU_RegionMinY,      0
+    out   GPU_RegionMaxX,      31
+    out   GPU_RegionMaxY,      31
+    out   GPU_RegionHotspotX,  16      ; the point of the region placed at the
+    out   GPU_RegionHotspotY,  16      ; drawing point (here: its center)
+    out   GPU_DrawingPointX,   320
+    out   GPU_DrawingPointY,   180
+    out   GPU_Command, GPUCommand_DrawRegion
+```
+
+The `GPU_Region*` ports always refer to the currently selected texture and
+region. Rotation and scaling are applied around the hotspot. Cartridge
+regions have no defined contents at start-up: define them before drawing.
+The BIOS texture's regions (the font) are already defined.
+
+### GPU pixel budget
+
+Each frame the GPU can draw a limited number of pixels: `GPUPixelCapacityPerFrame`
+= 9 x 640 x 360 = 2,073,600. `GPU_RemainingPixels` starts each frame at that
+value and every command spends from it:
+
+  * a draw costs the region's width x height (clipped to the size of the
+    screen), x(1 + 0.15 if zoomed + 0.25 if rotated), where a zoomed
+    region's size is first multiplied by its scale;
+  * `GPUCommand_ClearScreen` costs half a screen (the `-0.50` "penalty" is
+    relative to the full-screen cost of 1.0);
+  * once the budget is exhausted `GPU_RemainingPixels` reads **-1** and further
+    commands in that frame draw nothing. The budget is refilled at the start
+    of the next frame.
+
+Read `GPU_RemainingPixels` to find out whether a frame has drawn too much.
+
+### BIOS text
+
+The BIOS texture holds a font whose region number is the character code (see
+[BIOS Font](#bios-font)), each character being **10 x 20** pixels. Printing
+text is therefore: select texture -1, then for each character select the
+region equal to its code, draw it at x, advance x by 10. The new line and
+carriage return are up to your code (the sample program above shows the loop).
 
 ## SPU
 
@@ -492,6 +935,29 @@ technical maximum possible.
 
 More  information can  be  found in  the  Part 5:  The  Sound Chip  (SPU)
 Specifications document.
+
+How the SPU is organized: **sounds** are the audio assets (up to 1024 from the
+cartridge, plus the BIOS sound, id -1); **channels** (16) play them. The
+`SPU_Sound*` ports configure the *selected sound* (`SPU_SelectedSound`) and the
+`SPU_Channel*` ports configure the *selected channel* (`SPU_SelectedChannel`).
+To play a sound:
+
+```
+    out   SPU_SelectedChannel,     0        ; pick channel 0
+    out   SPU_ChannelAssignedSound, 3       ; it will play sound 3
+    out   SPU_ChannelVolume,       1.0      ; float, 0.0 - 8.0
+    out   SPU_ChannelSpeed,        1.0      ; float, 1.0 = normal pitch
+    out   SPU_ChannelLoopEnabled,  0
+    out   SPU_Command, SPUCommand_PlaySelectedChannel
+```
+
+  * Lengths and positions (`SPU_SoundLength`, `SPU_SoundLoopStart/End`,
+    `SPU_ChannelPosition`) are **integers counted in samples**; the volume and
+    speed ports are floats.
+  * Audio is 16-bit stereo at 44,100 samples per second: 735 samples per
+    frame (see [SPU binary format](#spu-binary-format)).
+  * `SPU_ChannelState` is read-only; a channel returns to `Stopped` when a
+    non-looping sound reaches its end.
 
 ### SPU Commands
 
@@ -526,6 +992,9 @@ States of the sound channels:
 | right  | right  | left   | left   |
 | sample | sample | sample | sample |
 
+Each channel's sample is a **signed 16-bit** value; the left sample is in the
+lower half-word and the right sample in the upper.
+
 ## INPUT
 
 | Mode  | Port    | Name                     | Description                       |
@@ -544,6 +1013,29 @@ States of the sound channels:
 | `R`   | `0x40B` | `INP_GamepadButtonL`     | `L` key input (Q on keyboard)     |
 | `R`   | `0x40C` | `INP_GamepadButtonR`     | `R` key input (W on keyboard)     |
 
+The gamepad ports always reflect the gamepad chosen in `INP_SelectedGamepad`:
+write the number (0-3), then read the controls. The keyboard keys listed are the
+defaults of the desktop emulator and may differ in other emulators.
+
+**What a read returns** is not just 0 or 1. Each direction and button reports
+a signed frame count, clamped to +/-3600:
+
+  * **greater than 0**: pressed, for that many frames (1 = the frame it was
+    pressed);
+  * **0 or less**: not pressed, for that many frames (-1 = the frame it was
+    released; a pad that was never touched reads -3600).
+
+So test *pressed* with `IGT R0, 0`, and detect a fresh press with `IEQ R0, 1`.
+`INP_GamepadConnected` is a plain 0/1. The d-pad cannot report Left and Right
+(or Up and Down) pressed together: pressing one releases its opposite.
+
+```
+    out   INP_SelectedGamepad, 0
+    in    R0, INP_GamepadButtonA
+    igt   R0, 0                     ; R0 = 1 while A is held
+    jf    R0, _not_pressed
+```
+
 ## CARTRIDGE
 
 | Mode | Port    | Name                   | Description                         |
@@ -558,6 +1050,15 @@ States of the sound channels:
 | Mode  | Port    | Name            | Description                           |
 | ----- | ------- | --------------- | ------------------------------------- |
 | `R`   | `0x600` | `MEM_Connected` | status of memory card being connected |
+
+The card contents are not read through a port: they appear in memory at
+`0x30000000` (256k words, see the [Memory Map](#vircon32-memory-map)) and are
+copied with ordinary `MOV` or [MOVS](#MOVS). Check `MEM_Connected` first.
+Writes persist: emulators save the card at the end of each frame. By the stock
+library's convention, the first 20 words of the card are a game **signature**
+(all zero means an empty card); a program should check it before trusting the
+data and write its own when formatting. See [Memory Card
+File](#memory-card-file) for the on-disk format.
 
 # Vircon32 Instructions
 
@@ -622,6 +1123,10 @@ identified by some set label.
 | `JMP Immediate` | `InstructionPointer = Immediate;` |
 | `JMP DSTREG`    | `InstructionPointer = DSTREG;`    |
 
+The target is an absolute address, so `JMP _label` works anywhere in the
+program. `JMP Rn` allows computed jumps (jump tables: load the address of the
+case's label from a table of `pointer` entries).
+
 ## CALL
 
 Call subroutine
@@ -681,8 +1186,8 @@ For the purposes of comparisons and conditional jumps on Vircon32:
 
 | Form                    | Processing Action                                 |
 | ----------------------- | ------------------------------------------------- |
-| `JT  DSTREG, Immediate` | `InstructionPointer = (DSTREG != 0) ? Immediate;` |
-| `JT  DSTREG, SRCREG`    | `InstructionPointer = (DSTREG != 0) ? SRCREG;`    |
+| `JT  DSTREG, Immediate` | `if (DSTREG != 0) InstructionPointer = Immediate;` |
+| `JT  DSTREG, SRCREG`    | `if (DSTREG != 0) InstructionPointer = SRCREG;`    |
 
 ## JF
 
@@ -707,8 +1212,8 @@ For the purposes of comparisons and conditional jumps on Vircon32:
 
 | Form                    | Processing Action                                 |
 | ----------------------- | ------------------------------------------------- |
-| `JF  DSTREG, Immediate` | `InstructionPointer = (DSTREG == 0) ? Immediate;` |
-| `JF  DSTREG, SRCREG`    | `InstructionPointer = (DSTREG == 0) ? SRCREG;`    |
+| `JF  DSTREG, Immediate` | `if (DSTREG == 0) InstructionPointer = Immediate;` |
+| `JF  DSTREG, SRCREG`    | `if (DSTREG == 0) InstructionPointer = SRCREG;`    |
 
 ## Comparisons
 
@@ -717,12 +1222,22 @@ For the purposes of comparisons and conditional jumps on Vircon32:
   * true is 1 (technically non-zero)
   * false is 0
 
+There is no flags register. A comparison writes its 1 or 0 result into its
+**first operand register** (destroying that operand: copy it first if you still
+need it), and a following [JT](#JT) or [JF](#JF) tests that register:
+
+```
+    mov   R1, R0                ; keep R0
+    ilt   R1, 10                ; R1 = (R0 < 10)
+    jt    R1, _small
+```
+
 There are six relational operations (for integers and floats):
 
   * (xEQ) is equal to
   * (xNE) is not equal to
   * (xLT) is less than
-  * (xLE) is than or equal to
+  * (xLE) is less than or equal to
   * (xGT) is greater than
   * (xGE) is greater than or equal to
 
@@ -832,7 +1347,7 @@ the first operand, which is always a register.
 
 Float Compare Equality
 
-### Description:
+### Description
 
 FEQ takes  two operands  interpreted as  floats, and  checks if  they are
 equal. It  will store the boolean  result in the first  operand, which is
@@ -885,7 +1400,7 @@ Float Greater Than or Equal
 
 ### Description
 
-FGE takes two  operands interpreted as integers, and checks  if the first
+FGE takes two  operands interpreted as floats, and checks  if the first
 one is greater or  equal to the second. It will  store the boolean result
 in the first operand, which is always a register.
 
@@ -963,6 +1478,12 @@ follows:
 | `RegAddrFromReg`    | `110`  | `MOV [DSTREG], SRCREG`     | `MEM[DSTREG] = SRCREG;`     |
 | `AddrOffsetFromReg` | `111`  | `MOV [DSTREG+Imm], SRCREG` | `MEM[DSTREG+Imm] = SRCREG;` |
 
+MOV cannot move memory to memory (use [MOVS](#MOVS)), cannot store an
+immediate to memory (load it into a register first), and an `[SRCREG+Imm]`
+offset must be a plain integer, not a label. A label used as `Imm`
+loads its address. Neither operand may be an IOPort (use [IN](#IN) /
+[OUT](#OUT)).
+
 | KEY        | Description                          |
 | ---------- | ------------------------------------ |
 | Imm        | Immediate Value: `0xAF`              |
@@ -970,7 +1491,7 @@ follows:
 | ImmAddr    | ImmediateAddress: `[0x00004FFF]`     |
 | RegAddr    | RegisterAddress: `[R3]`              |
 | AddrOffset | AddressOffset: `[R1+73]`             |
-| `MEM[]`    | Memory access                        |
+| `MEM[]`    | Memory access (one 32-bit word)      |
 | `DSTREG`   | Destination Register (first operand) |
 | `SRCREG`   | Source Register (second operand)     |
 
@@ -983,7 +1504,10 @@ Load Effective Address of a memory position.
 LEA takes a memory address as second operand. It stores that address (not
 its contents) into  the register given as first operand.  The most useful
 case is when the address is given in the form pointer + offset, since the
-addition is automatically performed.
+addition is automatically performed. It touches no memory, so it is
+equivalent to a register copy (`LEA R1, [R2]`) or an add (`LEA R1, [R2+5]`)
+without altering `R2`; typical use is taking the address of a stack local:
+`LEA R0, [BP-3]`.
 
 ### Variants and Actions
 
@@ -1042,6 +1566,10 @@ may lead to side effects depending on the specified port.
 | ----------------------- | ---------------------------- |
 | `IN DSTREG, PortNumber` | `DSTREG = Port[PortNumber];` |
 
+`PortNumber` is a constant (the port names in [IOPorts](#ioports), or a
+number up to 14 bits): it cannot come from a register, so the port is fixed
+in the program. Reading a write-only port raises `InvalidPortRead`.
+
 ## OUT
 
 Write to an I/O port
@@ -1059,6 +1587,11 @@ the specified port.
 | `OUT PortNumber, Immediate` | `Port[PortNumber] = Immediate;` |
 | `OUT PortNumber, SRCREG`    | `Port[PortNumber] = SRCREG;`    |
 
+Writing a read-only port raises `InvalidPortWrite`. Ports that hold floats
+(`GPU_DrawingScaleX/Y`, `GPU_DrawingAngle`, the SPU volume and speed ports)
+take the float's **bit pattern**: `OUT GPU_DrawingAngle, 0.5` is valid when
+assembled, since the assembler turns the literal into its float bits.
+
 ## MOVS
 
 Copy string (HW memcpy)
@@ -1071,7 +1604,8 @@ local loop  to repeat  itself until  the counter in  CR reaches  0, while
 working on consecutive addresses.
 
 Note that even when called with a value  of CR of zero or less, MOVS will
-always perform the described loop at least once.
+always copy at least one word. CR counts down to zero and never goes
+below it.
 
 This instruction is the only way  in Vircon32 CPU to directly copy values
 from 2 places in memory without going through a register.
@@ -1084,14 +1618,19 @@ from 2 places in memory without going through a register.
 
 ### Processing actions
 
+The hardware performs one word per cycle (re-running the instruction); the
+loop below is the net effect.
+
 ```
 do
 {
     MEM[DR]  = MEM[SR];
     DR       = DR + 1; // DR: Destination Register (R13)
     SR       = SR + 1; // SR: Source Register (R12)
-    CR       = CR - 1; // CR: Count Register (R11)
-    IP       = IP - 1; // IP: InstructionPointer internal register
+    if (CR > 0)
+    {
+        CR   = CR - 1; // CR: Count Register (R11), never below 0
+    }
 } while (CR > 0);
 ```
 
@@ -1106,7 +1645,8 @@ SETS copies  the value in SR  to the address pointed  by DR (as in  a MOV
 counter in CR reaches 0, while writing to consecutive addresses.
 
 Note that even when called with a value  of CR of zero or less, SETS will
-always perform the described loop at least once.
+always store at least one word. CR counts down to zero and never goes
+below it.
 
 ### Variants and Actions
 
@@ -1121,8 +1661,10 @@ do
 {
     Memory[DR]  = SR;     // SR: Source Register (R12)
     DR          = DR + 1; // DR: Destination Register (R13)
-    CR          = CR - 1; // CR: Count Register (R11)
-    IP          = IP - 1; // IP: InstructionPointer internal register
+    if (CR > 0)
+    {
+        CR      = CR - 1; // CR: Count Register (R11), never below 0
+    }
 } while (CR > 0);
 ```
 
@@ -1132,16 +1674,20 @@ Compare string (HW memcmp)
 
 ### Description
 
-CMPS takes as  a reference the compares the value  in the address pointed
-by DR and compares it with the one pointed by SR, by subtracting. It then
+CMPS compares the value in the address pointed
+by DR with the one pointed by SR, by subtracting (`[DR] - [SR]`). It then
 implements a local loop to repeat  itself until the counter in CR reaches
-0, while  reading consecutive  addresses. The  comparison result  will be
-stored in the  specified register, and will be zero  when equal, positive
-when some value at [DR] was greater, and negative when some value in [SR]
-was greater.
+0 or a difference is found, while  reading consecutive  addresses. The
+comparison result  is stored in the  specified register: zero  when all
+compared words were equal, positive when the first differing word at [DR]
+was greater, and negative when the one at [SR] was greater. Words are
+compared as integers (the result is a plain subtraction, which can overflow
+for values of very different sign).
 
 Note that even when called with a value  of CR of zero or less, CMPS will
-always perform the described loop at least once.
+always compare at least one word. CR counts down to zero and never goes
+below it. When a difference is found, the comparison stops early: DR, SR and
+CR then still refer to the differing word.
 
 ### Variants and Actions
 
@@ -1154,15 +1700,17 @@ always perform the described loop at least once.
 ```
 do
 {
-    DSTREG      = Memory[DR] – Memory[SR];
+    DSTREG      = Memory[DR] - Memory[SR];
     if (DSTREG != 0)
     {
         break;
     }
     DR          = DR + 1; // DR: Destination Register (R13)
     SR          = SR + 1; // SR: Source Register (R12)
-    CR          = CR - 1; // CR: Count Register (R11)
-    IP          = IP - 1; // IP: InstructionPointer internal register
+    if (CR > 0)
+    {
+        CR      = CR - 1; // CR: Count Register (R11), never below 0
+    }
 } while (CR > 0);
 ```
 
@@ -1198,8 +1746,8 @@ same register.  Conversion is not  done through rounding, but  instead by
 truncating (the fractional part is discarded).
 
 Note that,  due to the  much greater  range of the  float representation,
-high  enough values  of a  float  will result  in a  precision loss  when
-represented as a 32-bit integer.
+high  enough values  of a  float  will not fit in a 32-bit integer: keep
+values within the integer range.
 
 ### Variants and Actions
 
@@ -1382,16 +1930,28 @@ significant bits.
 
 ### NOTE
 
-Due to Vircon32 being a natively signed integer machine, a peculiar issue
-arises  when right  shifting  (`SHL`  by any  negative  value) against  a
-negative value (one whose sign bit/most  significant bit is 1) will cause
-a "copying" of the sign bit,  which will deviate from expectations as one
-would expect 0s to cycle in from the left, but instead we get a stream of
-1s.
+The right shift is **logical**: shifting right (`SHL` by a negative value)
+brings in 0 bits from the left, *even for negative values*. There is no
+arithmetic (sign-preserving) shift instruction. To halve a signed number,
+use [IDIV](#IDIV) (truncates toward zero) or, to keep the sign, shift the
+absolute value and restore the sign, as the compilers do:
 
-This had lead  to many issues, one  of which was an older  version of the
-Vircon32 standard library  string function `itoa()` failing  to work with
-negative values for any base other than base 10.
+```
+    mov   R1, R0
+    ilt   R1, 0                 ; R1 = 1 if negative
+    imul  R1, -1                ; R1 = all ones if negative, else 0
+    xor   R0, R1                ; (x ^ mask) ...
+    shl   R0, -3                ; logical shift of the flipped value
+    xor   R0, R1                ; ... ^ mask: arithmetic x >> 3
+```
+
+(Shift by a count larger than 31 is not portable: mask the count.)
+
+History: earlier revisions of this document claimed that a right shift
+copies the sign bit. The tool audits disagree: v32sim was checked against the
+desktop emulator's sources and uses a logical shift, and v32cc builds its
+signed `>>` out of logical shifts for the same reason. If you can reproduce
+sign copying on an emulator, please report it.
 
 ## IADD
 
@@ -1452,7 +2012,8 @@ Integer Division
 
 IDIV interprets both of its operands as integers and performs a division.
 The result (quotient)  is stored in the first operand,  which is always a
-register.
+register. The quotient is truncated toward zero (as in C). A divisor of zero
+raises `DivisionError`.
 
 ### Variants and Actions
 
@@ -1469,7 +2030,10 @@ Integer Modulus
 
 IMOD interprets both of its operands as integers and performs a division.
 The remainder of  that division is stored in the  first operand, which is
-always a register.
+always a register. The remainder has the sign of the dividend (as in C), so
+`IMOD` of a negative number is negative or zero: use [IABS](#IABS) first or add
+the modulus back for a true mathematical modulo. A divisor of zero raises
+`DivisionError`.
 
 ### Variants and Actions
 
@@ -1506,7 +2070,7 @@ which is always a register.
 
 | Form                     | Processing Action                |
 | ------------------------ | -------------------------------- |
-| `IMIN DSTREG, Immediate` | `DSTREG = min(DSTREG, Immediate` |
+| `IMIN DSTREG, Immediate` | `DSTREG = min(DSTREG, Immediate)` |
 | `IMIN DSTREG, SRCREG`    | `DSTREG = min(DSTREG, SRCREG)`   |
 
 ## IMAX
@@ -1523,7 +2087,7 @@ is always a register.
 
 | Form                     | Processing Action                |
 | ------------------------ | -------------------------------- |
-| `IMAX DSTREG, Immediate` | `DSTREG = max(DSTREG, Immediate` |
+| `IMAX DSTREG, Immediate` | `DSTREG = max(DSTREG, Immediate)` |
 | `IMAX DSTREG, SRCREG`    | `DSTREG = max(DSTREG, SRCREG)`   |
 
 ## IABS
@@ -1548,7 +2112,7 @@ Float Addition
 
 FADD interprets both of its operands  as floats and performs an addition.
 The result  is stored in the  first operand, which is  always a register.
-Overflow bits are discarded.
+Results follow IEEE-754 single precision.
 
 ### Variants and Actions
 
@@ -1565,7 +2129,7 @@ Float Subtraction
 
 FSUB  interprets  both   of  its  operands  as  floats   and  performs  a
 subtraction. The result is stored in the first operand, which is always a
-register. Overflow bits are discarded.
+register. Results follow IEEE-754 single precision.
 
 ### Variants and Actions
 
@@ -1582,7 +2146,7 @@ Float Multiplication
 
 FMUL  interprets  both   of  its  operands  as  floats   and  performs  a
 multiplication.  The result  is stored  in  the first  operand, which  is
-always a register. Overflow bits are discarded.
+always a register. Results follow IEEE-754 single precision.
 
 ### Variants and Actions
 
@@ -1599,7 +2163,7 @@ Float Division
 
 FDIV interprets both  of its operands as floats and  performs a division.
 The result (quotient)  is stored in the first operand,  which is always a
-register.
+register. A divisor of 0.0 raises `DivisionError` (there is no infinity).
 
 ### Variants and Actions
 
@@ -1617,7 +2181,8 @@ Float Modulus (Remainder from Division)
 FMOD interprets  both of its operands  as floats and performs  a floating
 point division.  It then takes  the remainder  of that division  when the
 result’s  fractional part  is  discarded  and stores  it  in the  first
-operand, which is always a register.
+operand, which is always a register. The result keeps the sign of the dividend
+(as C's `fmod`); a divisor of 0.0 raises `DivisionError`.
 
 ### Variants and Actions
 
@@ -1654,7 +2219,7 @@ always a register.
 
 | Form                     | Processing Action                |
 | ------------------------ | -------------------------------- |
-| `FMIN DSTREG, Immediate` | `DSTREG = min(DSTREG, Immediate` |
+| `FMIN DSTREG, Immediate` | `DSTREG = min(DSTREG, Immediate)` |
 | `FMIN DSTREG, SRCREG`    | `DSTREG = min(DSTREG, SRCREG)`   |
 
 ## FMAX
@@ -1671,7 +2236,7 @@ always a register.
 
 | Form                     | Processing Action                |
 | ------------------------ | -------------------------------- |
-| `FMAX DSTREG, Immediate` | `DSTREG = max(DSTREG, Immediate` |
+| `FMAX DSTREG, Immediate` | `DSTREG = max(DSTREG, Immediate)` |
 | `FMAX DSTREG, SRCREG`    | `DSTREG = max(DSTREG, SRCREG)`   |
 
 ## FABS
@@ -1753,13 +2318,14 @@ that value. The sine function will interpret its argument in radians.
 | `SIN DSTREG` | `DSTREG = sin(DSTREG)` |
 
 ## ACOS
+
 Arc cosine
 
 ### Description
 
 ACOS interprets  the operand register as  a float and calculates  the arc
 cosine of that value.  The result is given in radians, in  the range 0 to
-PI.
+PI. A value outside -1.0 to 1.0 raises `ArcCosineError`.
 
 ### Variants and Actions
 
@@ -1777,7 +2343,10 @@ ATAN2  interprets both  operand registers  as floats  and calculates  the
 angle of a  vector such that Vx =  SRCREG and Vy = DSTREG.  The result is
 stored in the first operand register and will be given in radians, in the
 range of -PI to PI.  The origin of angles is located at (Vx  > 0, Vy = 0)
-and angles grow when rotating towards (Vx = 0, Vy > 0).
+and angles grow when rotating towards (Vx = 0, Vy > 0). Note the argument
+order: **y first** (DSTREG), **x second** (SRCREG). `ATAN2` with both zero
+raises `ArcTangent2Error`. There is no `COS`, `TAN` or `ASIN`: derive them
+(`cos(x) = sin(x + PI/2)`, `tan(x) = sin(x) / cos(x)`).
 
 ### Variants and Actions
 
@@ -1792,7 +2361,8 @@ Natural logarithm
 ### Description
 
 LOG  interprets  the operand  register  as  a  float and  calculates  the
-logarithm base e of that value.
+logarithm base e of that value. Zero or negative values raise
+`LogarithmError`.
 
 ### Variants and Actions
 
@@ -1808,7 +2378,8 @@ Raise to a Power
 
 POW interprets both operand registers as floats and calculates the result
 of raising  the first  operand to  the power of  the second  operand. The
-result is stored in the first operand register.
+result is stored in the first operand register. A negative base with a
+non-integer exponent raises `PowerError`.
 
 ### Variants and Actions
 
@@ -1861,6 +2432,22 @@ The binary formats of Vircon32 are as follows:
 If the **immediate value**  bit is set, an additional word  is read to be
 used as an operand to the instruction.
 
+Which fields an instruction uses:
+
+| Instruction            | DSTREG (24-21)  | SRCREG (20-17)  | Address mode | Immediate flag      |
+| ---------------------- | --------------- | --------------- | ------------ | ------------------- |
+| `JMP`, `CALL`          | target (reg form) | -             | -            | target (imm form)   |
+| `JT`, `JF`             | tested register | target (reg form) | -          | target (imm form)   |
+| two-operand ALU/compare| register        | register        | -            | second operand      |
+| one-operand (`NOT` ...) | register       | -               | -            | -                   |
+| `MOV`                  | see [MOV](#MOV) | see [MOV](#MOV) | 0-7          | when `Imm` is used  |
+| `IN`                   | register        | -               | -            | -                   |
+| `OUT`                  | -               | register        | -            | value (imm form)    |
+| `LEA`                  | register        | base register   | -            | offset (if non-zero)|
+
+Every instruction is **1 word**, or **2 words** when the immediate flag is set.
+For example, `JMP _loop` is 2 words (the second is the address), `JMP R3` is 1.
+
 ### Packed V32 ROM
 
 ![V32 ROM header](images/V32_ROM_header.png)
@@ -1888,6 +2475,13 @@ audio assets, we have this final ROM. The general layout is as follows:
 | 30    | audio ROM size               |
 | 31-32 | reserved                     |
 
+The header is 128 bytes (32 words), and the program ROM normally follows at byte
+offset `0x80`. The offsets and sizes in words 25-30 are in **bytes** from the
+start of the file, so the program ROM's first word (the VBIN signature) is at
+`0x80`, its word count is at `0x88`, and code starts at `0x8C`.
+The program, video (textures) and audio (sounds) areas follow one another:
+`[header][VBIN program][VTEX textures...][VSND sounds...]`.
+
 ### Assembled VBIN
 
 Once code  is assembled,  we have  the Vircon32  equivalent of  an object
@@ -1900,8 +2494,11 @@ file, known as a **VBIN** file. Its header is as follows:
 | 1-2   | "V32-VBIN"                   |
 | 3     | number of data words         |
 
-Note the word offsets (and how a word is 4 bytes). This will be useful to
-calculate any offsets when debugging.
+The program words follow the 3-word header (12 bytes). Note the word offsets
+(and how a word is 4 bytes). This will be useful to calculate any offsets when
+debugging. A VBIN has no relocation information: addresses are fixed when it
+is assembled, for the cartridge (`0x20000000`) or the BIOS (`0x10000000`)
+base. Multiple object files need a linker ([v32as]'s `v32ld`, or [v32cc]).
 
 ### Texture VTEX
 
@@ -1909,3 +2506,68 @@ Any image assets, once processed, are stored in the Vircon32 VTEX format,
 which has a header as follows:
 
 ![V32 VTEX header](images/V32_VTEX_header.png)
+
+| words | description                  |
+| ----- | ---------------------------- |
+| 1-2   | "V32-VTEX"                   |
+| 3     | width in pixels              |
+| 4     | height in pixels             |
+
+The pixel data follows: `width x height` words, row by row from the top-left
+pixel, each a color in the [GPU color format](#gpu-color-binary-format)
+(`0xAABBGGRR`). A texture is at most 1024x1024. Pixels with alpha 0 are
+transparent when drawn.
+
+### Sound VSND
+
+Each audio asset is stored in the Vircon32 VSND format:
+
+| words | description                  |
+| ----- | ---------------------------- |
+| 1-2   | "V32-VSND"                   |
+| 3     | number of samples            |
+
+followed by that many 32-bit samples, in the [SPU sample
+format](#spu-binary-format) (signed 16-bit stereo, 44,100 samples per second). A cartridge carries up to
+1024 sounds, with at most 256M samples in total.
+
+### Memory Card File
+
+A memory card file begins with the 8-byte signature `V32-MEMC`, followed by
+the card's 256k words (1MB) of data. Its content appears in memory starting at
+`0x30000000`; the file's signature is not part of the addressable data.
+
+## Pitfalls and Hardware Details
+
+A checklist of things that are easy to get wrong:
+
+  * **Everything is a word.** Addresses increment by 1 per word, not by 4.
+    `string` data uses a whole word per character; there are no byte loads.
+  * **ROM is read-only.** Data you label with `integer`, `string`, ... lives
+    in the cartridge and cannot be written. Variables go to RAM
+    (`0x00000000`...), and the stack uses the top of RAM; keep them apart.
+  * **Colors are `0xAABBGGRR`**, not `0xRRGGBBAA`.
+  * **Comparisons overwrite their first operand**, and there are no flags:
+    `ILT R1, 5` followed by `JT R1, _label`. Copy the register first if you
+    need the original.
+  * **Right shift is logical** (`SHL R0, -n`), even for negative numbers.
+  * **`MOVS`/`SETS`/`CMPS` always process at least one word**; `CR` = 0 is not a
+    no-op.
+  * **Division by zero is a runtime error** for integer *and* float, and
+    `ACOS`, `ATAN2`, `LOG`, `POW` have domain errors; none returns NaN or infinity.
+  * **Float instruction immediates** are converted from decimal (`FADD R0, 1`
+    is `+1.0`); integer instruction immediates are not. `ATAN2` and `POW`
+    have no immediate form.
+  * **Leading zeros** in numbers: decimal for the official assembler, octal for
+    [v32as] (unless `--standard`).
+  * **`PUSH` takes only registers**; `MOV` cannot store an immediate to memory or
+    move memory to memory; `LEA` cannot take a label.
+  * **One frame is 250,000 cycles.** Use `WAIT` once per frame to lock your main
+    loop to 60 FPS; a frame's drawing is limited by the [pixel
+    budget](#gpu-pixel-budget).
+  * **Gamepad reads are frame counts**, not booleans: `IGT R0, 0` for held,
+    `IEQ R0, 1` for just pressed.
+  * **No register survives a call** in the stock calling convention; see
+    [Calling Convention](#calling-convention).
+  * **Self-modifying code** only works from RAM (the program ROM is read-only),
+    and the stock tools do not expose `IR`/`IV` writes.
