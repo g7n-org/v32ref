@@ -1,31 +1,35 @@
 # v32ref: Vircon32 assembly language reference
 
 An   information-dense,  quick-reference   markdown-formatted  guide   to
-Vircon32  system  details and  assembly  language  mnemonics to  aid  in
+Vircon32  system  details  and  assembly language  mnemonics  to  aid  in
 development.
 
 Information  in  this   document  is  based  on   the  official  Vircon32
-Specification documents,  and the Vircon32  source code, and has been
-cross-checked against the stock DesktopEmulator and DevelopmentTools sources
-(`ComputerSoftware`) and the community tools ([v32as], [v32cc], [v32sim],
-[v32opt]; see [Toolchain](#toolchain)). Most  images are  from the
-specification documents.
+Specification  documents, and  the  Vircon32 source  code,  and has  been
+cross-checked  against  the  stock DesktopEmulator  and  DevelopmentTools
+sources (`ComputerSoftware`)  and the community tools  ([v32as], [v32cc],
+[v32sim], [v32opt];  see [Toolchain](#toolchain)).  Most images  are from
+the specification documents.
 
 This document is based on  Vircon32 DevTools **v25.1.19** or later; older
 versions will contain inconsistencies.
 
 Conventions used throughout:
 
-  * Vircon32 is a **32-bit, word-addressed** machine: there are no bytes. Every
-    address, pointer, offset, size and count in this document is in **32-bit
-    words** unless it says otherwise (the cartridge/VTEX/VSND *file* offsets in
-    the ROM header are the exception: those are in bytes).
-  * Integers are 32-bit two's complement; floats are IEEE-754 single precision.
-    A register holds either, as a bit pattern: nothing but the instruction you
-    choose says how it is interpreted.
-  * `DSTREG` is the register in the first operand slot (and, for most
-    instructions, also the destination); `SRCREG` is the register in the second
-    slot; `Immediate` is a constant that follows the instruction word.
+  * Vircon32 is a **32-bit, word-addressed** machine: there are no bytes.
+    Every address, pointer, offset, size and count in this document is in
+    **32-bit words**  unless it  says otherwise  (the cartridge/VTEX/VSND
+    *file* offsets  in the  ROM header  are the  exception: those  are in
+    bytes).
+
+  * Integers  are 32-bit  two's  complement; floats  are IEEE-754  single
+    precision. A register holds either, as a bit pattern: nothing but the
+    instruction you choose says how it is interpreted.
+
+  * `DSTREG` is  the register in  the first  operand slot (and,  for most
+    instructions, also the destination); `SRCREG`  is the register in the
+    second slot; `Immediate`  is a constant that  follows the instruction
+    word.
 
 [v32as]: https://github.com/wedge1020/v32as
 [v32cc]: https://github.com/wedge1020/v32cc
@@ -117,10 +121,10 @@ Conventions used throughout:
 | [v32opt]          | peephole optimizer for generated assembly                              |
 | [v32sim]          | text-mode debugger/simulator (breakpoints, watchpoints, screenshots)   |
 
-The usual flow is `compile` (or hand-written assembly) to `.asm`, `assemble`
-to `.vbin`, then `packrom` to a `.v32` cartridge (see [Packed V32
-ROM](#packed-v32-rom)). `v32as -g` writes a `.debug` file (address, file, line,
-label) that [v32sim] loads for source-level display.
+The  usual  flow  is  `compile` (or  hand-written  assembly)  to  `.asm`,
+`assemble` to `.vbin`, then `packrom`  to a `.v32` cartridge (see [Packed
+V32 ROM](#packed-v32-rom)).  `v32as -g` writes a  `.debug` file (address,
+file, line, label) that [v32sim] loads for source-level display.
 
 ## System Quick Reference
 
@@ -154,18 +158,18 @@ label) that [v32sim] loads for source-level display.
 | ControlBusSlaves            | 8                                 |
 | GamepadPorts                | 4                                 |
 
-NOTE: `RAMSize`, `MemoryCardSize` and the `MaximumProgramROM` values are in
-**words**  (RAM: 4M words = 16MB; memory card: 256k words = 1MB; cartridge ROM:
-128M words = 512MB). `CyclesPerFrame` is 250,000 and `SPUSamplesPerFrame` is
-735.
+NOTE: `RAMSize`, `MemoryCardSize` and  the `MaximumProgramROM` values are
+in  **words** (RAM:  4M words  =  16MB; memory  card: 256k  words =  1MB;
+cartridge  ROM: 128M  words  = 512MB).  `CyclesPerFrame`  is 250,000  and
+`SPUSamplesPerFrame` is 735.
 
-NOTE: the three GPU "penalty"  values  are not a screen  size:  see [GPU
+NOTE: the  three GPU  "penalty" values  are not a  screen size:  see [GPU
 pixel budget](#gpu-pixel-budget) for how they are applied.
 
 ## Assembly Language Syntax
 
-A source file is a sequence of lines; each line holds an optional label, an
-optional instruction or data directive, and an optional comment.
+A source file is a sequence of  lines; each line holds an optional label,
+an optional instruction or data directive, and an optional comment.
 
 ```
 ; a comment runs from ';' to the end of the line
@@ -174,40 +178,51 @@ _label:                         ; labels start with '_' and end with ':'
     out   GPU_Command, GPUCommand_ClearScreen
 ```
 
-  * **Labels** begin with an underscore (`_start`, `_draw_loop`), are
-    case-sensitive, and stand for a *word address*. They can be used before
-    they are defined. A label may share a line with the statement after it.
-  * **Mnemonics**, **register names**, IOPort names, constants and `true`/`false`
-    are case-insensitive (`mov R0, R1`). The stock headers use lowercase mnemonics
-    and uppercase registers. IOPort names and constants (`GPU_Command`,
-    `GPUCommand_ClearScreen`, ...) are listed in the [IOPorts](#ioports) section.
-  * **Registers**: `R0`-`R15`; `R11`-`R15` may also be written `CR`, `SR`, `DR`,
-    `BP`, `SP`. `IP`, `IR`, `IV` are *not* CPU registers (see [Internal
-    Registers](#internal-registers)).
-  * **Numbers**: decimal (`42`, `-7`), hexadecimal (`0x2A`) and floating point
-    (`3.14`, `-0.25`). An integer must fit in 32 bits (`0xFFFFFFFF` is -1).
-    Character literals (`'A'`, an integer) and `true`/`false` (1/0) work too.
-    [v32as] adds `0b1010`, `2Ah`, `#42` and `label +/- integer` operands,
-    unless run with `--standard`.
-  * **Leading zeros are a trap**: the official assembler reads `0100` as the
-    *decimal* number 100, while [v32as] (without `--standard`) reads it as
-    *octal*. Do not write leading zeros.
+  * **Labels**  begin with  an underscore  (`_start`, `_draw_loop`),  are
+    case-sensitive,  and stand  for a  *word address*.  They can  be used
+    before they are defined. A label  may share a line with the statement
+    after it.
+
+  * **Mnemonics**,  **register  names**,   IOPort  names,  constants  and
+    `true`/`false` are case-insensitive (`mov R0, R1`). The stock headers
+    use  lowercase mnemonics  and uppercase  registers. IOPort  names and
+    constants (`GPU_Command`,  `GPUCommand_ClearScreen`, ...)  are listed
+    in the [IOPorts](#ioports) section.
+
+  * **Registers**:  `R0`-`R15`; `R11`-`R15`  may  also  be written  `CR`,
+    `SR`, `DR`, `BP`, `SP`. `IP`, `IR`, `IV` are *not* CPU registers (see
+    [Internal Registers](#internal-registers)).
+
+  * **Numbers**: decimal (`42`, `-7`),  hexadecimal (`0x2A`) and floating
+    point (`3.14`, `-0.25`). An integer must fit in 32 bits (`0xFFFFFFFF`
+    is  -1). Character  literals (`'A'`,  an integer)  and `true`/`false`
+    (1/0) work  too. [v32as] adds  `0b1010`, `2Ah`, `#42` and  `label +/-
+    integer` operands, unless run with `--standard`.
+
+  * **Leading zeros are a trap**:  the official assembler reads `0100` as
+    *the decimal* number 100,  while [v32as] (without `--standard`) reads
+    *it as octal*. Do not write leading zeros.
+
   * **Strings** are written in double quotes with the escapes `\n`, `\r`,
     `\t`, `\\`, `\'`, `\"` and `\xHH` (an unknown escape is a warning).
-  * **Preprocessor** (official): `%define NAME tokens`, `%undef`, `%ifdef`,
-    `%ifndef`, `%else`, `%endif`, `%include "file"`, `%error "msg"`,
-    `%warning "msg"` (directive names are lowercase). [v32as] adds function-like macros, `%if`/`%elif`,
-    `%assign`, `%macro`/`%rep`, `.local` labels and more (see its README).
-    `%define` is how compiled code names RAM variables (`%define global_x
-    0x00000010`): a `%define` can stand for any constant, not just a number.
-  * There is no relative addressing for jumps: `JMP`/`CALL`/`JT`/`JF` take an
-    absolute address (label, number or register).
+
+  * **Preprocessor**   (official):  `%define   NAME  tokens`,   `%undef`,
+    `%ifdef`,  `%ifndef`, `%else`,  `%endif`, `%include  "file"`, `%error
+    "msg"`,  `%warning "msg"`  (directive names  are lowercase).  [v32as]
+    adds function-like macros, `%if`/`%elif`, `%assign`, `%macro`/`%rep`,
+    `.local` labels and more (see  its README). `%define` is how compiled
+    code names RAM variables (`%define global_x 0x00000010`): a `%define`
+    can stand for any constant, not just a number.
+
+  * There  is no  relative addressing  for jumps:  `JMP`/`CALL`/`JT`/`JF`
+    take an absolute address (label, number or register).
 
 ### Instruction size and operand forms
 
-An instruction occupies **1 word**, or **2 words** when it has an *Immediate*
-(the second word is the constant, see [Instruction
-Format](#instruction-format)). A label used as an operand is an immediate.
+An  instruction  occupies  **1  word**,   or  **2  words**  when  it  has
+an  *Immediate*  (the  second  word is  the  constant,  see  [Instruction
+Format](#instruction-format)).  A   label  used  as  an   operand  is  an
+immediate.
 
 | Mnemonics                                                    | Operand forms                              |
 | ------------------------------------------------------------ | ------------------------------------------ |
@@ -246,11 +261,11 @@ Things the table implies that are easy to forget:
 
 ### Internal registers in v32as (extension)
 
-[v32as] lets `MOV` read and write `IP`, `IR`, `IV` by expanding to one real
-instruction: `MOV Rn, IP` (address of the next instruction), `MOV IP, Rn`
-(a jump), `MOV Rn, IR`, and `MOV IR, Rn` / `MOV IV, Rn` (patch the next
-instruction word / immediate: only works in code running from RAM). The
-official assembler does not accept these.
+[v32as] lets  `MOV` read and write  `IP`, `IR`, `IV` by  expanding to one
+real instruction:  `MOV Rn, IP`  (address of the next  instruction), `MOV
+IP, Rn` (a  jump), `MOV Rn, IR`, and  `MOV IR, Rn` / `MOV  IV, Rn` (patch
+the next  instruction word / immediate:  only works in code  running from
+RAM). The official assembler does not accept these.
 
 ## Assembler Data Directives
 
@@ -264,31 +279,35 @@ official assembler does not accept these.
 
 Use commas to separate values (create "array" of values).
 
-[v32as] extras (not in the official assembler): `zstring "text"` packs four
-characters per word (first character in the low byte, zero terminated, last
-word zero padded),
-`global _name` / `extern _name` for linking `v32as -C` objects.
+[v32as] extras  (not in the  official assembler): `zstring  "text"` packs
+four  characters  per  word  (first  character  in  the  low  byte,  zero
+terminated, last word  zero padded), `global _name` /  `extern _name` for
+linking `v32as -C` objects.
 
 Things to know:
 
-  * A `string` is **not** a C byte string: each character takes a whole word
-    (this is why C strings are `int*` in the Vircon32 headers).
+  * A `string` is  **not** a C byte string: each  character takes a whole
+    word (this is why C strings are `int*` in the Vircon32 headers).
+
   * `datafile` sizes must be a multiple of 4 bytes.
-  * There are no `org`, alignment or "reserve space" directives. Directives
-    emit data **into the program ROM**, so labelled data is read-only
-    (writing to a CART address raises `InvalidMemoryWrite`). Writable variables
-    must live in RAM (`0x00000000`-`0x003FFFFF`) at addresses you assign
-    yourself, typically with `%define`; initialize them at start-up, copying
-    initial values out of ROM with [MOVS](#MOVS). The stack grows down from the
-    top of RAM, so keep variables near the bottom.
-  * Code and data share one stream: the first word of the program is the entry
-    point (execution starts at `0x20000000`), so put your start-up code first,
-    and never let execution run into data.
+
+  * There  are  no  `org`,   alignment  or  "reserve  space"  directives.
+    Directives emit  data **into the  program ROM**, so labelled  data is
+    read-only (writing  to a  CART address  raises `InvalidMemoryWrite`).
+    Writable  variables  must  live  in  RAM  (`0x00000000`-`0x003FFFFF`)
+    at  addresses   you  assign   yourself,  typically   with  `%define`;
+    initialize them at  start-up, copying initial values out  of ROM with
+    [MOVS](#MOVS). The  stack grows  down from  the top  of RAM,  so keep
+    variables near the bottom.
+
+  * Code and data share one stream: the  first word of the program is the
+    entry point (execution starts at  `0x20000000`), so put your start-up
+    code first, and never let execution run into data.
 
 ## A Minimal Program
 
-Clear the screen to dark blue and print a line of text with the BIOS font,
-once per frame:
+Clear the  screen to dark  blue and  print a line  of text with  the BIOS
+font, once per frame:
 
 ```
 ; hello.asm
@@ -321,9 +340,9 @@ _text:
     string "HELLO VIRCON32"
 ```
 
-Build: `assemble hello.asm` (or `v32as hello.asm`) writes `hello.vbin`; pack it
-with `packrom` (a cartridge with no textures or sounds needs just the program)
-and run the `.v32` file in an emulator, or in [v32sim].
+Build: `assemble  hello.asm` (or `v32as hello.asm`)  writes `hello.vbin`;
+pack it with `packrom` (a cartridge with no textures or sounds needs just
+the program) and run the `.v32` file in an emulator, or in [v32sim].
 
 ## CPU Error Codes
 
@@ -359,14 +378,15 @@ When does each one occur?
 | `LogarithmError`     | `LOG` of zero or a negative value                                |
 | `PowerError`         | `POW` of a negative base with a non-integer exponent             |
 
-Note that **float division by zero is an error, not infinity**: nothing in
-the system produces an infinity or NaN through arithmetic. Guard divisors.
+Note that **float  division by zero is an error,  not infinity**: nothing
+in  the system  produces an  infinity  or NaN  through arithmetic.  Guard
+divisors.
 
 ### What the CPU does on an error
 
-The error is not a trap you can catch: the CPU stores the machine state in
-registers, resets the stack, and jumps to the BIOS error handler, which
-displays the failure on screen and halts.
+The error is not  a trap you can catch: the CPU  stores the machine state
+in registers,  resets the  stack, and  jumps to  the BIOS  error handler,
+which displays the failure on screen and halts.
 
 | Register | Receives                                                                   |
 | -------- | -------------------------------------------------------------------------- |
@@ -377,26 +397,31 @@ displays the failure on screen and halts.
 | `SP`/`BP`| reset to `0x003FFFFF`                                                      |
 | `IP`     | set to `0x10000000` (BIOS error handler)                                   |
 
-A faulting instruction does not complete: its destination is left unchanged.
+A  faulting  instruction  does  not complete:  its  destination  is  left
+unchanged.
 
 Stack details (`CALL` is a push and `RET` a pop):
 
   * `PUSH`/`CALL` decrement `SP` first; only if that goes below 0 is it a
-    `StackOverflow`. If `SP` points elsewhere (e.g. into ROM) the write simply
-    fails as `InvalidMemoryWrite`.
-  * `POP`/`RET` read first (a bad address is an `InvalidMemoryRead`), then
-    increment `SP`; an `SP` past the last word of RAM is a `StackUnderflow`.
-    Since `SP` starts at the last word, a `RET` or `POP` with nothing pushed
-    reads that word and then fails with `StackUnderflow`.
+    `StackOverflow`. If `SP`  points elsewhere (e.g. into  ROM) the write
+    simply fails as `InvalidMemoryWrite`.
+
+  * `POP`/`RET`  read first  (a bad  address is  an `InvalidMemoryRead`),
+    then  increment  `SP`;  an `SP`  past  the  last  word  of RAM  is  a
+    `StackUnderflow`.  Since `SP`  starts at  the last  word, a  `RET` or
+    `POP`  with  nothing pushed  reads  that  word  and then  fails  with
+    `StackUnderflow`.
+
   * `PUSH SP` pushes the value `SP` had *before* the decrement.
 
-Bad jumps are detected late: `JMP`/`CALL`/`JT`/`JF`/`RET` to an unreadable
-address succeed, and the error is raised by the *next instruction fetch*. In
-that case `R1` holds the bad address plus one, and `R2`/`R3` still hold the
-`JMP`'s (previous instruction's) word and immediate.
+Bad  jumps   are  detected   late:  `JMP`/`CALL`/`JT`/`JF`/`RET`   to  an
+unreadable  address  succeed,  and  the  error is  raised  by  the  *next
+instruction fetch*. In that case `R1` holds the bad address plus one, and
+`R2`/`R3`  still  hold  the  `JMP`'s (previous  instruction's)  word  and
+immediate.
 
-After an error the console abandons the rest of the current frame: the BIOS
-error handler starts running at the next frame.
+After an  error the console abandons  the rest of the  current frame: the
+BIOS error handler starts running at the next frame.
 
 ## Assembler Data Directives
 
@@ -516,16 +541,16 @@ Specifications document.
 
 Vircon32 has 16 general purpose registers and 3 internal registers.
 
-The general purpose registers can hold either an **integer** or a **floating
-point** value; which one is decided by the instruction operating on them (a
-register has no type). All are 32 bits.
+The  general  purpose registers  can  hold  either  an **integer**  or  a
+**floating  point**  value;  which  one is  decided  by  the  instruction
+operating on them (a register has no type). All are 32 bits.
 
-`R11`-`R13` are implicitly used by [MOVS](#MOVS), [SETS](#SETS) and
-[CMPS](#CMPS), and `R14`/`R15` by the stack instructions ([PUSH](#PUSH),
-[POP](#POP), [CALL](#CALL), [RET](#RET)); avoid keeping other values in them
-across those instructions. At reset `SP` and `BP` both hold `0x003FFFFF`, the last
-word of RAM. The assembler accepts `R11`-`R15` or the alias names
-interchangeably.
+`R11`-`R13`  are  implicitly  used by  [MOVS](#MOVS),  [SETS](#SETS)  and
+[CMPS](#CMPS), and `R14`/`R15` by  the stack instructions ([PUSH](#PUSH),
+[POP](#POP), [CALL](#CALL),  [RET](#RET)); avoid keeping other  values in
+them  across  those  instructions.  At  reset `SP`  and  `BP`  both  hold
+`0x003FFFFF`, the last word of  RAM. The assembler accepts `R11`-`R15` or
+the alias names interchangeably.
 
 ### General Purpose Registers
 
@@ -560,18 +585,18 @@ these registers can be influenced based on actions taken.
 | `InstructionRegister` | stores last read instruction (currently run)  |
 | `ImmediateValue`      | if `immflag` is set, place that value here    |
 
-The   **branch**  instructions   ([JMP](#JMP), [CALL](#CALL), [RET](#RET),
-[JT](#JT), [JF](#JF)) redirect program flow  by altering  the
-**InstructionPointer**  (versus  just  proceeding to  the  next
-instruction in sequence). By the time an instruction executes, the
-InstructionPointer already points past it (and past its immediate word, if
-any): this is the address [CALL](#CALL) saves.
+The  **branch**  instructions ([JMP](#JMP),  [CALL](#CALL),  [RET](#RET),
+[JT](#JT),   [JF](#JF))   redirect   program   flow   by   altering   the
+**InstructionPointer** (versus just proceeding to the next instruction in
+sequence). By  the time  an instruction executes,  the InstructionPointer
+already points past it (and past its immediate word, if any): this is the
+address [CALL](#CALL) saves.
 
-Any  instruction  that accepts  an  **Immediate**  value loads it into  this
+Any instruction  that accepts an  **Immediate** value loads it  into this
 internal **ImmediateValue** register.
 
-On a [CPU error](#cpu-error-codes) the three internal registers are what get
-reported in `R1`-`R3`.
+On a [CPU error](#cpu-error-codes) the  three internal registers are what
+get reported in `R1`-`R3`.
 
 ### Stack Operations
 
@@ -590,12 +615,12 @@ current  location  stored  in  the stack  pointer  register  (**SP**)  is
 obtained, then the stack pointer  register (**SP**) is incremented by one
 word.
 
-So **SP always points at the most recently pushed word**. SP starts at
-`0x003FFFFF` (the last word of RAM) and is decremented *before* the store, so
-the first push lands at `0x003FFFFE`. [CALL](#CALL) pushes the address of the
-next instruction, and [RET](#RET) pops it into the InstructionPointer. No
-instruction touches `BP`: it is only a convention for stack frames (see
-[Calling Convention](#calling-convention)).
+So **SP  always points at the  most recently pushed word**.  SP starts at
+`0x003FFFFF`  (the last  word of  RAM)  and is  decremented *before*  the
+store, so the first push  lands at `0x003FFFFE`. [CALL](#CALL) pushes the
+address  of  the next  instruction,  and  [RET](#RET)  pops it  into  the
+InstructionPointer. No instruction touches `BP`:  it is only a convention
+for stack frames (see [Calling Convention](#calling-convention)).
 
 ### String Operations
 
@@ -628,15 +653,16 @@ Typical use (copy 100 words, then clear 50):
 ```
 
 The instructions leave `SR`, `DR` and `CR` modified (advanced and counted
-down), so reload them before each use. A `CR` of 0 (or negative) still moves
-**one** word, not none: guard zero-length operations with a [JF](#JF) first.
+down), so reload  them before each use.  A `CR` of 0  (or negative) still
+moves  **one**  word,  not  none: guard  zero-length  operations  with  a
+[JF](#JF) first.
 
 ### Calling Convention
 
-The assembly language has no notion of functions; [CALL](#CALL) and
-[RET](#RET) only save and restore the return address. The stock C compiler
-(and [v32cc]) follow this convention, which hand-written assembly should
-share so it can call, and be called by, compiled code:
+The  assembly language  has  no notion  of  functions; [CALL](#CALL)  and
+[RET](#RET)  only  save and  restore  the  return  address. The  stock  C
+compiler  (and  [v32cc])  follow   this  convention,  which  hand-written
+assembly should share so it can call, and be called by, compiled code:
 
   * `R0`-`R10` are temporaries; the **return value comes back in `R0`**.
   * **No register survives a call.** The caller saves whatever it still needs
@@ -697,10 +723,10 @@ Flag values are 0 when reset, 1 when set.
 | `Frame`  | Wait flag is reset                                                |
 | `Cycle`  | if control flags set, do nothing; otherwise, do instruction cycle |
 
-A reset (and power-on) sets `R0`-`R15` to zero (except `SP`/`BP`), **clears
-all of RAM to zero**, resets the RNG, timer counters, GPU and SPU to the
-defaults in their port tables, and selects gamepad 0. It does not touch the
-cartridge, the memory card or which gamepads are connected.
+A  reset  (and power-on)  sets  `R0`-`R15`  to zero  (except  `SP`/`BP`),
+**clears all  of RAM to zero**,  resets the RNG, timer  counters, GPU and
+SPU to the defaults in their port  tables, and selects gamepad 0. It does
+not touch the cartridge, the memory card or which gamepads are connected.
 
 ### How a frame runs
 
@@ -717,10 +743,10 @@ The console is run one frame at a time (60 per second):
      occurs. A frame that ends early does not make the next one longer.
   3. **Frame end**: a modified memory card is written back to its file.
 
-Two consequences: a program that spends more than 250,000 cycles between
-`WAIT`s misses the 60 FPS cadence (the work carries over into the next frame),
-and everything a program does in a frame (drawing, sound commands) is seen as
-one batch.
+Two consequences: a program that  spends more than 250,000 cycles between
+`WAIT`s misses  the 60 FPS cadence  (the work carries over  into the next
+frame),  and  everything  a  program  does in  a  frame  (drawing,  sound
+commands) is seen as one batch.
 
 ## Vircon32 Memory Map
 
@@ -738,17 +764,18 @@ one batch.
 | MemoryCardRAMFirstAddress       | 0x30000000 | first offset in MEMCARD (1MB, 256kW)  |
 | MEMCARD last address            | 0x3003FFFF | last addressable offset in MEMCARD    |
 
-The page is selected by **address bits 28-29** (`0` RAM, `1` BIOS, `2` CART,
-`3` MEMCARD); bits 30-31 are ignored, so `0x40000000` reads as `0x00000000`,
-`0x90000000` as `0x10000000` and so on. The remaining 28 bits are the offset
-within the page; one past the end of the page's contents is an invalid access.
-The BIOS and CART pages are only as big as the loaded program ROM (a program
-reading past its own last word gets `InvalidMemoryRead`). RAM and the memory
-card are read/write; **BIOS and CART are read-only** (a write raises
-`InvalidMemoryWrite`). Without a cartridge or memory card inserted, that page
-is not accessible, see `CAR_Connected` and `MEM_Connected`. The program runs
-directly from the CART page, so `LEA`/`MOV` of a code or data label yields an
-address in `0x2xxxxxxx`.
+The page  is selected by **address  bits 28-29** (`0` RAM,  `1` BIOS, `2`
+CART,  `3` MEMCARD);  bits 30-31  are ignored,  so `0x40000000`  reads as
+`0x00000000`, `0x90000000`  as `0x10000000` and  so on. The  remaining 28
+bits are  the offset  within the  page; one  past the  end of  the page's
+contents is an invalid access. The BIOS and CART pages are only as big as
+the loaded  program ROM (a  program reading past  its own last  word gets
+`InvalidMemoryRead`). RAM and the memory  card are read/write; **BIOS and
+CART  are read-only**  (a write  raises `InvalidMemoryWrite`).  Without a
+cartridge  or memory  card inserted,  that  page is  not accessible,  see
+`CAR_Connected` and  `MEM_Connected`. The program runs  directly from the
+CART page, so  `LEA`/`MOV` of a code  or data label yields  an address in
+`0x2xxxxxxx`.
 
 # IOPorts
 
@@ -792,8 +819,8 @@ Specifications document.
     instruction of a frame reads **1**. It restarts at 0 each frame. A
     [WAIT](#WAIT) consumes the rest of the frame.
 
-A program gets `CyclesPerFrame` = 250,000 cycles per frame to do its work;
-use [WAIT](#WAIT) once per frame to pace a game loop to 60 FPS.
+A program  gets `CyclesPerFrame`  = 250,000  cycles per  frame to  do its
+work; use [WAIT](#WAIT) once per frame to pace a game loop to 60 FPS.
 
 ### binary format
 
@@ -813,8 +840,9 @@ use [WAIT](#WAIT) once per frame to pace a game loop to 60 FPS.
 | `W`   | `0x100` | `RNG_CurrentValue` | seed random number generator    |
 
 The generator is a linear congruential generator (the C++11 `minstd_rand`
-constants): the value read is the *current* value, after which the generator
-advances with `next = (current * 48271) mod 2147483647`. Consequently:
+constants):  the value  read  is  the *current*  value,  after which  the
+generator  advances  with `next  =  (current  * 48271)  mod  2147483647`.
+Consequently:
 
   * after reset the first values read are `1, 48271, 182605794, 1291394886,
     1914720637, 2078669041, ...` (the initial value is 1);
@@ -848,12 +876,13 @@ advances with `next = (current * 48271) mod 2147483647`. Consequently:
 | `R/W` | `0x210` | `GPU_RegionHotspotX`  | `0`            | `-1024`   | `2047`    |
 | `R/W` | `0x211` | `GPU_RegionHotspotY`  | `0`            | `-1024`   | `2047`    |
 
-NOTE: `range` refers to the full RGBA range possible. Colors are `0xAABBGGRR`
-(see [GPU Color binary format](#gpu-color-binary-format)), so the initial clear
-color `0xFF000000` is opaque black.
+NOTE:  `range`  refers  to  the  full RGBA  range  possible.  Colors  are
+`0xAABBGGRR` (see  [GPU Color  binary format](#gpu-color-binary-format)),
+so the initial clear color `0xFF000000` is opaque black.
 
-NOTE: **writes never raise errors for bad values**: out-of-range values are
-either *clamped* or *ignored* (the port keeps its old value), as follows.
+NOTE: **writes never  raise errors for bad  values**: out-of-range values
+are either  *clamped* or  *ignored* (the  port keeps  its old  value), as
+follows.
 
 | Port                                  | A bad value is...                                          |
 | ------------------------------------- | ---------------------------------------------------------- |
@@ -866,16 +895,17 @@ either *clamped* or *ignored* (the port keeps its old value), as follows.
 | `GPU_RegionMinX/Y`, `GPU_RegionMaxX/Y`| clamped to 0..1023                                         |
 | `GPU_RegionHotspotX` / `Y`            | clamped to -1024..2047                                     |
 
-The same ranges are why the table above lists those bounds. (Only
-`GPU_RemainingPixels` rejects a write, with `InvalidPortWrite`, and
+The  same ranges  are  why  the table  above  lists  those bounds.  (Only
+`GPU_RemainingPixels`  rejects  a  write,  with  `InvalidPortWrite`,  and
 `GPU_Command` a read, with `InvalidPortRead`.)
 
 NOTE: `GPU_DrawingScaleX`, `GPU_DrawingScaleY` and `GPU_DrawingAngle` are
-**floats** (write their bit pattern: `OUT GPU_DrawingScaleX, 2.0`); the angle is
-in radians, and because screen Y grows downward, a positive angle rotates
-**clockwise**. A negative scale flips the image. All other GPU ports are
-integers. Coordinates are in pixels from the top-left corner of the 640x360
-screen, and may lie outside it (drawing is clipped).
+**floats** (write  their bit pattern: `OUT  GPU_DrawingScaleX, 2.0`); the
+angle is  in radians,  and because  screen Y  grows downward,  a positive
+angle rotates **clockwise**. A negative  scale flips the image. All other
+GPU  ports are  integers. Coordinates  are  in pixels  from the  top-left
+corner  of  the 640x360  screen,  and  may  lie  outside it  (drawing  is
+clipped).
 
 NOTE: for some resources, like `textures`, the upper bound is governed by
 how many textures were configured for the cartridge. This value indicates
@@ -915,9 +945,10 @@ Active blending:
 | ----- | ----- | ----- | ----- |
 | alpha | blue  | green | red   |
 
-Each component can range in value from 0x00 through 0xFF (0-255). The
-colors are conventionally *written* RGBA, but because words are little endian
-the actual value is **`0xAABBGGRR`**: red is the *lowest* byte. For example:
+Each component  can range in  value from  0x00 through 0xFF  (0-255). The
+colors are  conventionally *written* RGBA,  but because words  are little
+endian the  actual value is  **`0xAABBGGRR`**: red is the  *lowest* byte.
+For example:
 
 | color       | value        |
 | ----------- | ------------ |
@@ -928,16 +959,16 @@ the actual value is **`0xAABBGGRR`**: red is the *lowest* byte. For example:
 | blue        | `0xFFFF0000` |
 | transparent | alpha `0x00` |
 
-`GPU_MultiplyColor` multiplies each component of every drawn pixel (white,
-`0xFFFFFFFF`, is neutral; use it to tint or fade, e.g. `0x80FFFFFF` draws
-half transparent).
+`GPU_MultiplyColor`  multiplies  each  component  of  every  drawn  pixel
+(white,  `0xFFFFFFFF`,  is  neutral;  use   it  to  tint  or  fade,  e.g.
+`0x80FFFFFF` draws half transparent).
 
 ### GPU textures and regions
 
-A texture is a 1024x1024 image held by the GPU (up to 256 come from the
-cartridge; texture **-1** is the BIOS texture). Nothing is drawn directly from a
-texture: you first define a **region** (a rectangle of it, plus a hotspot),
-then select and draw it:
+A texture is a  1024x1024 image held by the GPU (up to  256 come from the
+cartridge; texture **-1** is the BIOS texture). Nothing is drawn directly
+from a texture: you first define a  **region** (a rectangle of it, plus a
+hotspot), then select and draw it:
 
 ```
     out   GPU_SelectedTexture, 0       ; texture 0 of the cartridge
@@ -953,21 +984,22 @@ then select and draw it:
     out   GPU_Command, GPUCommand_DrawRegion
 ```
 
-The `GPU_Region*` ports always refer to the currently selected texture and
-region. Scaling and then rotation are applied around the hotspot. Region
-bounds are inclusive, so a region is `abs(Max - Min) + 1` pixels wide; giving
-`Min > Max` **mirrors** the image on that axis, and a negative scale also flips
-it. Each texture has its own 4096 regions, and every region keeps its
-settings when you switch away and back. Cartridge regions have no defined
-contents at start-up: define them before drawing. The BIOS font regions
-are defined by the BIOS start-up code itself, so they exist when a cartridge
-starts, but only because the BIOS ran first.
+The `GPU_Region*`  ports always refer  to the currently  selected texture
+and region.  Scaling and  then rotation are  applied around  the hotspot.
+Region bounds are inclusive,  so a region is `abs(Max -  Min) + 1` pixels
+wide;  giving `Min  > Max`  **mirrors**  the image  on that  axis, and  a
+negative scale also flips it. Each  texture has its own 4096 regions, and
+every region keeps its settings when  you switch away and back. Cartridge
+regions have no defined contents at start-up: define them before drawing.
+The BIOS  font regions are defined  by the BIOS start-up  code itself, so
+they exist when a cartridge starts, but only because the BIOS ran first.
 
 ### GPU pixel budget
 
-Each frame the GPU can draw a limited number of pixels: `GPUPixelCapacityPerFrame`
-= 9 x 640 x 360 = 2,073,600. `GPU_RemainingPixels` starts each frame at that
-value and every command spends from it:
+Each   frame   the  GPU   can   draw   a   limited  number   of   pixels:
+`GPUPixelCapacityPerFrame`   =    9   x   640   x    360   =   2,073,600.
+`GPU_RemainingPixels` starts each  frame at that value  and every command
+spends from it:
 
   * a draw costs the region's width x height (clipped to the size of the
     screen), x(1 + 0.15 if zoomed + 0.25 if rotated), where a zoomed
@@ -981,12 +1013,13 @@ value and every command spends from it:
     commands in that frame draw nothing. The budget is refilled at the start
     of the next frame.
 
-Read `GPU_RemainingPixels` to find out whether a frame has drawn too much.
+Read  `GPU_RemainingPixels` to  find out  whether a  frame has  drawn too
+much.
 
 ### Blending
 
-For a source pixel `S` (texture color times `GPU_MultiplyColor`, per component) with
-alpha `A` over the existing screen pixel `D`:
+For  a source  pixel `S`  (texture color  times `GPU_MultiplyColor`,  per
+component) with alpha `A` over the existing screen pixel `D`:
 
 | Mode       | Result per color component                                     |
 | ---------- | -------------------------------------------------------------- |
@@ -994,16 +1027,17 @@ alpha `A` over the existing screen pixel `D`:
 | `Add`      | `D + S * A`                                                    |
 | `Subtract` | `D - S * A`                                                    |
 
-Results are clamped to 0-255. Textures are sampled with nearest-neighbor
+Results are clamped to 0-255.  Textures are sampled with nearest-neighbor
 filtering (no smoothing), also when scaled.
 
 ### BIOS text
 
-The BIOS texture holds a font whose region number is the character code (see
-[BIOS Font](#bios-font)), each character being **10 x 20** pixels. Printing
-text is therefore: select texture -1, then for each character select the
-region equal to its code, draw it at x, advance x by 10. The new line and
-carriage return are up to your code (the sample program above shows the loop).
+The BIOS texture  holds a font whose region number  is the character code
+(see [BIOS Font](#bios-font)),  each character being **10  x 20** pixels.
+Printing text  is therefore: select  texture -1, then for  each character
+select the region equal  to its code, draw it at x, advance  x by 10. The
+new line  and carriage  return are  up to your  code (the  sample program
+above shows the loop).
 
 ## SPU
 
@@ -1031,11 +1065,11 @@ technical maximum possible.
 More  information can  be  found in  the  Part 5:  The  Sound Chip  (SPU)
 Specifications document.
 
-How the SPU is organized: **sounds** are the audio assets (up to 1024 from the
-cartridge, plus the BIOS sound, id -1); **channels** (16) play them. The
-`SPU_Sound*` ports configure the *selected sound* (`SPU_SelectedSound`) and the
-`SPU_Channel*` ports configure the *selected channel* (`SPU_SelectedChannel`).
-To play a sound:
+How  the  SPU is  organized:  **sounds**  are  the  audio assets  (up  to
+1024  from the  cartridge,  plus  the BIOS  sound,  id -1);  **channels**
+(16) play  them. The  `SPU_Sound*` ports  configure the  *selected sound*
+(`SPU_SelectedSound`)   and  the   `SPU_Channel*`  ports   configure  the
+*selected channel* (`SPU_SelectedChannel`). To play a sound:
 
 ```
     out   SPU_SelectedChannel,     0        ; pick channel 0
@@ -1110,8 +1144,8 @@ States of the sound channels:
 | right  | right  | left   | left   |
 | sample | sample | sample | sample |
 
-Each channel's sample is a **signed 16-bit** value; the left sample is in the
-lower half-word and the right sample in the upper.
+Each channel's sample is a **signed 16-bit** value; the left sample is in
+the lower half-word and the right sample in the upper.
 
 ## INPUT
 
@@ -1131,25 +1165,27 @@ lower half-word and the right sample in the upper.
 | `R`   | `0x40B` | `INP_GamepadButtonL`     | `L` key input (Q on keyboard)     |
 | `R`   | `0x40C` | `INP_GamepadButtonR`     | `R` key input (W on keyboard)     |
 
-The gamepad ports always reflect the gamepad chosen in `INP_SelectedGamepad`:
-write the number (0-3), then read the controls. Writing a number outside 0-3 is ignored. The keyboard keys listed
-are the defaults of the desktop emulator (arrow keys for the d-pad; they can be
+The   gamepad    ports   always    reflect   the   gamepad    chosen   in
+`INP_SelectedGamepad`: write  the number  (0-3), then read  the controls.
+Writing a number outside 0-3 is ignored. The keyboard keys listed are the
+defaults of the  desktop emulator (arrow keys for the  d-pad; they can be
 reconfigured).
 
-**What a read returns** is not just 0 or 1. Each direction and button reports
-a signed frame count, clamped to +/-3600:
+**What a  read returns** is  not just 0 or  1. Each direction  and button
+reports a signed frame count, clamped to +/-3600:
 
   * **greater than 0**: pressed, for that many frames (1 = the frame it was
     pressed);
   * **0 or less**: not pressed, for that many frames (-1 = the frame it was
     released; a pad that was never touched reads -3600).
 
-So test *pressed* with `IGT R0, 0`, and detect a fresh press with `IEQ R0, 1`.
-`INP_GamepadConnected` is a plain 0/1. The d-pad cannot report Left and Right
-(or Up and Down) pressed together: pressing one releases its opposite. Host
-input is latched once per frame, as the frame begins: what you read does not
-change during a frame. A gamepad that is not connected (see
-`INP_GamepadConnected`) ignores input and keeps reading -3600.
+So test *pressed*  with `IGT R0, 0`,  and detect a fresh  press with `IEQ
+R0, 1`.  `INP_GamepadConnected` is a  plain 0/1. The d-pad  cannot report
+Left and Right  (or Up and Down) pressed together:  pressing one releases
+its opposite. Host input is latched  once per frame, as the frame begins:
+what you  read does  not change  during a  frame. A  gamepad that  is not
+connected (see  `INP_GamepadConnected`) ignores  input and  keeps reading
+-3600.
 
 ```
     out   INP_SelectedGamepad, 0
@@ -1173,14 +1209,14 @@ change during a frame. A gamepad that is not connected (see
 | ----- | ------- | --------------- | ------------------------------------- |
 | `R`   | `0x600` | `MEM_Connected` | status of memory card being connected |
 
-The card contents are not read through a port: they appear in memory at
-`0x30000000` (256k words, see the [Memory Map](#vircon32-memory-map)) and are
-copied with ordinary `MOV` or [MOVS](#MOVS). Check `MEM_Connected` first.
-Writes persist: emulators save the card at the end of each frame. By the stock
-library's convention, the first 20 words of the card are a game **signature**
-(all zero means an empty card); a program should check it before trusting the
-data and write its own when formatting. See [Memory Card
-File](#memory-card-file) for the on-disk format.
+The card contents are  not read through a port: they  appear in memory at
+`0x30000000` (256k words, see the [Memory Map](#vircon32-memory-map)) and
+are copied  with ordinary  `MOV` or [MOVS](#MOVS).  Check `MEM_Connected`
+first. Writes persist: emulators save the  card at the end of each frame.
+By the stock library's  convention, the first 20 words of  the card are a
+game **signature** (all zero means an empty card); a program should check
+it  before trusting  the  data and  write its  own  when formatting.  See
+[Memory Card File](#memory-card-file) for the on-disk format.
 
 # Vircon32 Instructions
 
@@ -1193,7 +1229,7 @@ Halt CPU
 HLT sets the CPU’s Halt flag. This will cause the CPU to stop execution
 until the flag is cleared at the next console power on or reset.
 
-Note that other components will keep functioning: for instance,  if the
+Note that  other components will  keep functioning: for instance,  if the
 SPU was playing music it will continue to do so.
 
 ### Variants and Actions
